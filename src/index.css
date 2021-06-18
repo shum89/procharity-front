@@ -1,0 +1,44 @@
+@import url('./fonts.css');
+@import url('./App');
+@import url('./components/CustomInput/CustomInput.css');
+@import url('./components//Header/Header');
+@import url('./components/AuthForm/AuthForm');
+/* @import url('./components/RequestInfo/RequestInfo'); */
+@import url('./components/SectionComponent/SectionComponent');
+@import url('./components/Button/Button');
+/* @import url('./components/CustomDatePicker/CustomDatePicker');
+@import url('./components/CustomSelect/CustomSelect');
+@import url('./components/CustomCheckbox/CustomCheckbox');
+@import url('./components//CustomRadioButton/CustomRadioButton.css');
+@import url('./components/ParticipantForm/ParticipantForm'); */
+@import url('./components/Preloader/Preloader');
+@import url('./components/Error/Error');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+:root {
+  --primary-background-color: #06091f;
+  --primary-error-color: #f7483d;
+  --primary-text-color: #ffffff;
+  --secondary-text-color: #676c7a;
+  --primary-input-background-color: #1f2235;
+  --primary-active-color: #ab81f1;
+  --primary-background-color-list: #1f2235;
+  --font-family-title: 'Halvar Breitschrift';
+  --font-family-text: 'PT Root UI';
+}
+fieldset {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #06091f;
+}
