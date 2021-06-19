@@ -18,6 +18,7 @@ export interface FormValues {
   email: string;
   password: string;
 }
+
 export default function AuthForm() {
   const history = useHistory();
   const {
@@ -28,7 +29,7 @@ export default function AuthForm() {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const classes = useStyles();
   const onSubmit = (data: FormValues) => {
-    console.log(JSON.stringify(data));
+    alert(JSON.stringify(data));
     if (isValid) {
       history.push('/dashboard');
     }

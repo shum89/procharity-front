@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
-import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
@@ -13,57 +12,12 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
-import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { useHistory } from 'react-router-dom';
-import { MainListItems, SecondaryListItems } from './listItems';
-import Chart from './Chart';
-import Orders from './Orders';
-import Users from './Users';
-
-export interface Data {
-  time: string;
-  amount: number;
-}
-// Generate Sales Data
-function createData(time: string, amount: number) {
-  return { time, amount };
-}
-
-const listDate = [];
-const startDate = '2020-11-01';
-const endDate = '2020-11-30';
-const dateMove = new Date(startDate);
-let strDate = startDate;
-
-while (strDate < endDate) {
-  strDate = dateMove.toISOString().slice(0, 10);
-  listDate.push(strDate);
-  dateMove.setDate(dateMove.getDate() + 1);
-}
-
-export function getRandomArbitrary(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
-const newData = listDate.map((i: string | Data) => {
-  const day: Date | number | string = new Date(i as string);
-  const dayString = (day.getDate() as unknown) as string;
-  i = createData(dayString, getRandomArbitrary(0, 100));
-  return i;
-});
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      {new Date().getFullYear()}.
-    </Typography>
-  );
-}
+import { MainListItems, SecondaryListItems } from '../Dashboard/listItems';
+import RichTextEditor from '../RichTextEditor/RichTextEditor';
 
 const drawerWidth = 240;
 
@@ -130,11 +84,19 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     height: '100vh',
     overflow: 'auto',
+    marginTop: 100,
+    '& .quill': {
+      width: '90%',
+    },
   },
   container: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
   },
+  richTextEditor: {
+    maxWidth: '60%',
+  },
+
   paper: {
     padding: theme.spacing(2),
     display: 'flex',
@@ -156,10 +118,11 @@ export default function Dashboard() {
   const handleDrawerOpen = () => {
     setOpen(true);
   };
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  //   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
     <div className={classes.root}>
@@ -178,7 +141,7 @@ export default function Dashboard() {
             Dashboard
           </Typography>
           <IconButton color="inherit">
-            <Badge badgeContent={4} color="error">
+            <Badge badgeContent={4} color="secondary">
               <NotificationsIcon />
             </Badge>
           </IconButton>
@@ -205,39 +168,7 @@ export default function Dashboard() {
         </List>
       </Drawer>
       <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={8} lg={12}>
-              <Paper className={fixedHeightPaper}>
-                <Chart data={newData} />
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4} lg={4}>
-              <Paper className={classes.paper}>
-                <Orders />
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4} lg={4}>
-              <Paper className={classes.paper}>
-                <Orders />
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4} lg={2}>
-              <Paper className={fixedHeightPaper}>
-                <Users />
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4} lg={2}>
-              <Paper className={fixedHeightPaper}>
-                <Users />
-              </Paper>
-            </Grid>
-          </Grid>
-          <Box pt={4}>
-            <Copyright />
-          </Box>
-        </Container>
+        <RichTextEditor />
       </main>
     </div>
   );

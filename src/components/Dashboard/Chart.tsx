@@ -7,34 +7,6 @@ import { useTheme } from '@material-ui/core/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts';
 import { Data } from './Dashboard';
 
-// Generate Sales Data
-// function createData(time: number, amount: number | undefined) {
-//   return { time, amount };
-// }
-
-// const listDate = [];
-// const startDate = '2020-11-01';
-// const endDate = '2020-11-30';
-// const dateMove = new Date(startDate);
-// let strDate = startDate;
-
-// while (strDate < endDate) {
-//   strDate = dateMove.toISOString().slice(0, 10);
-//   listDate.push(strDate);
-//   dateMove.setDate(dateMove.getDate() + 1);
-// }
-
-// function getRandomArbitrary(min: number, max: number) {
-//   return Math.floor(Math.random() * (max - min) + min);
-// }
-// const newData = listDate.map((i: string | any) => {
-//   let day: Date | number | string = new Date(i);
-//   day = day.getDate();
-//   day = +day;
-//   i = createData(day as number, getRandomArbitrary(0, 1000));
-//   return i;
-// });
-
 interface ChartProps {
   data: Data[];
 }
@@ -56,7 +28,7 @@ export default function Chart({ data }: ChartProps) {
 
           <XAxis dataKey="time" stroke={theme.palette.text.primary} />
           <Tooltip wrapperStyle={{ width: 100, backgroundColor: '#FFF', color: 'black' }} />
-          <YAxis stroke={theme.palette.text.secondary}>
+          <YAxis stroke={theme.palette.text.primary}>
             <Label angle={270} position="left" style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}>
               Пользователи
             </Label>

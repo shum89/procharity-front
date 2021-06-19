@@ -3,53 +3,43 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import SendIcon from '@material-ui/icons/Send';
-import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
-import LayersIcon from '@material-ui/icons/Layers';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { useHistory } from 'react-router-dom';
 
-export const mainListItems = (
-  <div>
-    <ListItem button>
-      <ListItemIcon>
-        <BarChartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Статистика" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <SendIcon />
-      </ListItemIcon>
-      <ListItemText primary="Написать Сообщение" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Customers" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <BarChartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Reports" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <LayersIcon />
-      </ListItemIcon>
-      <ListItemText primary="Integrations" />
-    </ListItem>
-  </div>
-);
+export const MainListItems = () => {
+  const history = useHistory();
+  return (
+    <div>
+      <ListItem button onClick={() => history.push('/dashboard')}>
+        <ListItemIcon>
+          <BarChartIcon />
+        </ListItemIcon>
+        <ListItemText primary="Статистика" />
+      </ListItem>
+      <ListItem button onClick={() => history.push('/send')}>
+        <ListItemIcon>
+          <SendIcon />
+        </ListItemIcon>
+        <ListItemText primary="Написать Сообщение" />
+      </ListItem>
+    </div>
+  );
+};
 
-export const secondaryListItems = (
-  <div>
-    <ListItem button>
-      <ListItemIcon>
-        <ExitToAppIcon />
-      </ListItemIcon>
-      <ListItemText primary="Выйти" />
-    </ListItem>
-  </div>
-);
+interface SecondaryListItemsProps {
+  handleLogout: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+export const SecondaryListItems: React.FC<SecondaryListItemsProps> = ({ handleLogout }) => {
+  return (
+    <div>
+      <ListItem onClick={handleLogout} component="button" button>
+        <ListItemIcon>
+          <ExitToAppIcon />
+        </ListItemIcon>
+        <ListItemText primary="Выйти" />
+      </ListItem>
+    </div>
+  );
+};
