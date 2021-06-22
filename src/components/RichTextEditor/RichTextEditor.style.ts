@@ -23,6 +23,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   quill: {
     width: '100%',
+    minHeight: '150px',
+    '& .ql-container': {
+      minHeight: '150px',
+    },
     '& .ql-fill': {
       fill: theme.palette.type === 'dark' ? 'white' : 'black',
       color: theme.palette.type === 'dark' ? 'white' : 'black',
