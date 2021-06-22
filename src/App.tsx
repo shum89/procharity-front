@@ -59,6 +59,12 @@ function App() {
             },
           },
           MuiOutlinedInput: {
+            input: {
+              '&:-webkit-autofill': {
+                '-webkit-box-shadow': '0 0 0 100px #000 inset',
+                '-webkit-text-fill-color': '#fff',
+              },
+            },
             notchedOutline: {
               borderColor: themeColor ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.2)',
             },
