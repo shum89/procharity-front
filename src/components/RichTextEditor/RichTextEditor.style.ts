@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     cursor: 'pointer',
     top: '8px',
     right: '12px',
-    width: '90px',
+    width: '120px',
     minHeight: '44px',
     backgroundPosition: 'center',
     background: theme.palette.secondary.main,

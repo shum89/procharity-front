@@ -71,6 +71,14 @@ function App() {
           },
           MuiButton: {
             root: {
+              cursor: 'pointer',
+              top: '8px',
+              right: '12px',
+              width: '90px',
+              minHeight: '44px',
+              backgroundPosition: 'center',
+              border: 'none',
+              padding: '0',
               '&:hover': {
                 backgroundColor: !themeColor ? '#f73378' : '#8852E1',
               },
