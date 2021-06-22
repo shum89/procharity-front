@@ -72,8 +72,7 @@ function App() {
           MuiButton: {
             root: {
               '&:hover': {
-                backgroundColor: themeColor ? '#f50058' : '#8852E1',
-                filter: themeColor && 'brightness(150%)',
+                backgroundColor: !themeColor ? '#f73378' : '#8852E1',
               },
             },
           },
