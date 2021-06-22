@@ -148,17 +148,24 @@ function App() {
           <Route exact path="/">
             <AuthForm />
           </Route>
-          <main
-            className={clsx(classes.content, {
-              [classes.contentShift]: isMenuOpen,
-            })}>
-            <Route path="/dashboard">
+
+          <Route path="/dashboard">
+            <main
+              className={clsx(classes.content, {
+                [classes.contentShift]: isMenuOpen,
+              })}>
               <Dashboard />
-            </Route>
-            <Route path="/send">
+            </main>
+          </Route>
+          <Route path="/send">
+            <main
+              className={clsx(classes.content, {
+                [classes.contentShift]: isMenuOpen,
+              })}>
               <RichTextEditor />
-            </Route>
-          </main>
+            </main>
+          </Route>
+
           <Route path="/register">
             <RegisterForm />
           </Route>

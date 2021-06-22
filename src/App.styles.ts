@@ -17,13 +17,15 @@ const useStyles = makeStyles((theme: Theme) => {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      overflow: 'visible',
+      overflow: 'hidden',
       marginLeft: '100px',
       marginTop: '60px',
       display: 'flex',
       flexDirection: 'column',
+      width: 'calc(100% - 90px)',
     },
     contentShift: {
+      overflow: 'visible',
       transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,

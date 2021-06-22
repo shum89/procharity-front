@@ -26,7 +26,7 @@ export interface FormValues extends Options {
   password: string;
 }
 
-export default function AuthForm() {
+export default function RegisterForm() {
   const history = useHistory();
   const {
     handleSubmit,
