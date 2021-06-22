@@ -7,6 +7,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'column',
     width: '100%',
     gap: 20,
+    marginTop: 120,
+    paddingRight: '20px',
   },
   authFormButton: {
     cursor: 'pointer',
@@ -18,6 +20,24 @@ const useStyles = makeStyles((theme: Theme) => ({
     background: theme.palette.secondary.main,
     border: 'none',
     padding: '0',
+  },
+  quill: {
+    width: '100%',
+    '& .ql-fill': {
+      fill: theme.palette.type === 'dark' ? 'white' : 'black',
+      color: theme.palette.type === 'dark' ? 'white' : 'black',
+    },
+    '& .ql-snow': {
+      fill: theme.palette.type === 'dark' ? 'white' : 'black',
+      color: theme.palette.type === 'dark' ? 'white' : 'black',
+    },
+    '& .ql-stroke': {
+      stroke: theme.palette.type === 'dark' ? 'white' : 'black',
+      color: theme.palette.type === 'dark' ? 'white' : 'black',
+    },
+    '& .ql-picker-label': {
+      color: theme.palette.type === 'dark' ? 'white' : 'black',
+    },
   },
 }));
 

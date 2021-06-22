@@ -2,6 +2,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 
 const themeOptions = createMuiTheme({
   palette: {
+    type: 'dark',
     primary: {
       main: '#44318d',
     },

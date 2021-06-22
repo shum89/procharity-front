@@ -51,8 +51,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   authFormInput: {
     backgroundColor: theme.palette.background.paper,
     filter: 'none',
+    borderColor: 'transparent',
     borderRadius: '4px',
-    color: theme.palette.text.primary,
+    border: 'none',
+    color: '#ffff',
     position: 'relative',
     width: '100%',
     maxWidth: '288px',

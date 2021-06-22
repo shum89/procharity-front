@@ -17,6 +17,9 @@ const modules = {
     ['link', 'image', 'video'],
     ['clean'],
   ],
+  clipboard: {
+    matchVisual: false,
+  },
 };
 
 const RichTextEditor: React.FC = () => {
@@ -24,7 +27,7 @@ const RichTextEditor: React.FC = () => {
   const { handleSubmit, control } = useForm<FormValues>();
   const onSubmit = (data: FormValues) => {
     // eslint-disable-next-line no-console
-    alert(JSON.stringify(data));
+    console.log(JSON.stringify(data));
   };
   return (
     <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
@@ -32,7 +35,7 @@ const RichTextEditor: React.FC = () => {
         name="text"
         control={control}
         defaultValue=""
-        render={({ field }) => <ReactQuill modules={modules} theme="snow" {...field} />}
+        render={({ field }) => <ReactQuill className={classes.quill} modules={modules} theme="snow" {...field} />}
       />
       <Button className={classes.authFormButton} type="submit">
         Отправить

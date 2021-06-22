@@ -1,32 +1,156 @@
-import { ThemeProvider } from '@material-ui/core';
-import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
-import themeOptions from './App.theme';
+/* eslint-disable no-console */
+import { Container, createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
+import React, { useEffect } from 'react';
+import clsx from 'clsx';
+import { Route, Switch } from 'react-router-dom';
 import AuthForm from './components/AuthForm/AuthForm';
 import Header from './components/Header/Header';
 import Dashboard from './components/Dashboard/Dashboard';
-import SendMessage from './components/SendMessage/SendMessage';
+import RegisterForm from './components/RegisterForm/RegisterForm';
+import { themeLight, themeDark } from './test';
+import useLocalStorage from './hooks/useLocalStorge';
+
+import RichTextEditor from './components/RichTextEditor/RichTextEditor';
+import useStyles from './App.styles';
 
 function App() {
+  const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleSetTheme = () => {
+    setThemeColor(!themeColor);
+  };
+  const [isMenuOpen, setOpen] = React.useState(true);
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+  const classes = useStyles();
+  useEffect(() => {
+    const handleSetThemeLocal = () => {
+      setThemeColor(themeColor);
+    };
+    if (localStorage.getItem('theme') === null) {
+      handleSetThemeLocal();
+    }
+  }, [setThemeColor, themeColor]);
+  const theme = themeColor ? themeDark : themeLight;
+  // eslint-disable-next-line no-console
+  const themeOptions = React.useMemo(
+    () =>
+      createMuiTheme({
+        palette: {
+          ...theme.palette,
+        },
+        overrides: {
+          MuiFormHelperText: {
+            root: {
+              position: 'absolute',
+              bottom: '-19px',
+              whiteSpace: 'nowrap',
+              margin: 0,
+              textAlign: 'left',
+            },
+            contained: {
+              marginLeft: '0',
+              marginRight: 0,
+            },
+          },
+          MuiOutlinedInput: {
+            notchedOutline: {
+              borderColor: themeColor ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.2)',
+            },
+          },
+          MuiButton: {
+            root: {
+              '&:hover': {
+                backgroundColor: themeColor ? '#f50058' : '#8852E1',
+                filter: themeColor && 'brightness(150%)',
+              },
+            },
+          },
+          MuiSvgIcon: {
+            root: {
+              fill: themeColor ? 'white' : 'black',
+            },
+          },
+          MuiTextField: {
+            root: {
+              '&:hover': {
+                borderColor: '#8852E1',
+              },
+            },
+          },
+          MuiContainer: {
+            root: {
+              width: '100%',
+              maxWidth: '100%',
+              paddingLeft: 0,
+              paddingRight: 0,
+              marginLeft: 0,
+              marginRight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              '@media (min-width: 600px)': {
+                paddingLeft: 0,
+                paddingRight: 0,
+              },
+            },
+            maxWidthLg: {
+              width: '100%',
+              maxWidth: '100%',
+              '@media (min-width: 1280px)': {
+                width: '100%',
+                maxWidth: '100%',
+              },
+            },
+          },
+          MuiCssBaseline: {
+            '@global': {
+              body: {
+                backgroundColor: themeColor ? '#06091F' : '#F8FAFD',
+              },
+            },
+          },
+        },
+      }),
+    [theme.palette, themeColor],
+  );
+
   return (
     <ThemeProvider theme={themeOptions}>
-      <div>
+      <CssBaseline />
+      <Container>
+        <Header
+          isDark={themeColor}
+          handleSetTheme={handleSetTheme}
+          isMenuOpen={isMenuOpen}
+          handleDrawerOpen={handleDrawerOpen}
+          handleDrawerClose={handleDrawerClose}
+        />
         <Switch>
           <Route exact path="/">
-            <>
-              <Header />
-              <AuthForm />
-            </>
+            <AuthForm />
           </Route>
-          <Route path="/dashboard">
-            <Dashboard />
+          <main
+            className={clsx(classes.content, {
+              [classes.contentShift]: isMenuOpen,
+            })}>
+            <Route path="/dashboard">
+              <Dashboard />
+            </Route>
+            <Route path="/send">
+              <RichTextEditor />
+            </Route>
+          </main>
+          <Route path="/register">
+            <RegisterForm />
           </Route>
-          <Route path="/send">
-            <SendMessage />
-          </Route>
-          <Redirect to="/" />
         </Switch>
-      </div>
+      </Container>
     </ThemeProvider>
   );
 }

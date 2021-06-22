@@ -7,7 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { TextField, Button } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import ky, { Options } from 'ky';
-import useStyles from './AuthForm.styles';
+import useStyles from './RegisterForm.styles';
 
 const schema = yup.object().shape({
   username: yup.string().email('Такой e-mail не подойдет').required('Поле e-mail необходимо к заполнению'),
