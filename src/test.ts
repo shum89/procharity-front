@@ -7,7 +7,7 @@ export const themeLight: ThemeOptions = {
       main: '#3f51b5',
     },
     secondary: {
-      main: '#f50057',
+      main:'#f73378',
     },
   },
 };

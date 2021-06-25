@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) => {
       marginTop: '60px',
       display: 'flex',
       flexDirection: 'column',
-      width: 'calc(100% - 90px)',
+      width: 'calc(100% - 268px)',
     },
     contentShift: {
       overflow: 'visible',

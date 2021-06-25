@@ -125,25 +125,35 @@ interface HeaderProps {
   handleDrawerOpen: () => void;
   handleDrawerClose: () => void;
   handleSetTheme: () => void;
+  removeToken: () => void;
   isDark: boolean;
   isMenuOpen: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ handleDrawerOpen, handleDrawerClose, isMenuOpen, handleSetTheme, isDark }) => {
+const Header: React.FC<HeaderProps> = ({
+  handleDrawerOpen,
+  handleDrawerClose,
+  isMenuOpen,
+  handleSetTheme,
+  isDark,
+  removeToken,
+}) => {
   const classes = useStyles();
   const history = useHistory();
 
   const matchLogin = useRouteMatch('/')?.isExact ?? false;
-  console.log(matchLogin);
-  const matchRegister = useRouteMatch('/register')?.isExact ?? false;
+
+  const matchRegister = useRouteMatch('/register/:id')?.isExact ?? false;
+  const matchReset = useRouteMatch('/reset_password')?.isExact ?? false;
 
   const handleLogout = () => {
+    removeToken();
     history.push('/');
   };
 
   return (
     <>
-      {!(matchLogin || matchRegister) ? (
+      {!(matchLogin || matchRegister || matchReset) ? (
         <>
           <AppBar position="absolute" className={clsx(classes.appBar, isMenuOpen && classes.appBarShift)}>
             <Toolbar className={classes.toolbar}>

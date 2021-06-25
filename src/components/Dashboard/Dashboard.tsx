@@ -140,13 +140,13 @@ export default function Dashboard() {
 
   return (
     <Container maxWidth="lg" className={classes.container}>
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         <Grid item xs={12} md={8} lg={12}>
           <Paper className={fixedHeightPaper}>
             <Chart data={newData} />
           </Paper>
         </Grid>
-        <Grid item xs={12} md={4} lg={4}>
+        <Grid item xs={11} md={4} lg={4}>
           <Paper className={classes.paper}>
             <Orders />
           </Paper>

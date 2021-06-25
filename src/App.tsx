@@ -1,24 +1,36 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import { Container, createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch, useLocation, useParams } from 'react-router-dom';
 import AuthForm from './components/AuthForm/AuthForm';
 import Header from './components/Header/Header';
 import Dashboard from './components/Dashboard/Dashboard';
 import RegisterForm from './components/RegisterForm/RegisterForm';
+import ResetPassword from './components/ResetPassword/ResetPassword';
 import { themeLight, themeDark } from './test';
-import useLocalStorage from './hooks/useLocalStorge';
+import useLocalStorage from './hooks/useLocalStorage';
 
 import RichTextEditor from './components/RichTextEditor/RichTextEditor';
 import useStyles from './App.styles';
+import Invite from './components/Invite/Invite';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 function App() {
   const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
+  const [userToken, setUserToken] = useLocalStorage<string | boolean>('user', false);
+  const removeToken = () => {
+    setUserToken(false);
+  };
+  const addToken = (payload: string) => {
+    setUserToken(payload);
+  };
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSetTheme = () => {
     setThemeColor(!themeColor);
   };
+
   const [isMenuOpen, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -61,8 +73,8 @@ function App() {
           MuiOutlinedInput: {
             input: {
               '&:-webkit-autofill': {
-                '-webkit-box-shadow': '0 0 0 100px #000 inset',
-                '-webkit-text-fill-color': '#fff',
+                transitionDelay: '9999s',
+                '-webkit-text-fill-color': themeColor ? '#fff' : 'black',
               },
             },
             notchedOutline: {
@@ -72,15 +84,13 @@ function App() {
           MuiButton: {
             root: {
               cursor: 'pointer',
-              top: '8px',
-              right: '12px',
               width: '90px',
               minHeight: '44px',
               backgroundPosition: 'center',
               border: 'none',
               padding: '0',
               '&:hover': {
-                backgroundColor: !themeColor ? '#f73378' : '#8852E1',
+                backgroundColor: !themeColor ? '#f50057' : '#8852E1',
               },
             },
           },
@@ -139,6 +149,7 @@ function App() {
       <Container>
         <Header
           isDark={themeColor}
+          removeToken={removeToken}
           handleSetTheme={handleSetTheme}
           isMenuOpen={isMenuOpen}
           handleDrawerOpen={handleDrawerOpen}
@@ -146,29 +157,53 @@ function App() {
         />
         <Switch>
           <Route exact path="/">
-            <AuthForm />
+            {!userToken ? <AuthForm addToken={addToken} /> : <Redirect to="/dashboard" />}
           </Route>
 
-          <Route path="/dashboard">
-            <main
-              className={clsx(classes.content, {
-                [classes.contentShift]: isMenuOpen,
-              })}>
-              <Dashboard />
-            </main>
-          </Route>
-          <Route path="/send">
-            <main
-              className={clsx(classes.content, {
-                [classes.contentShift]: isMenuOpen,
-              })}>
-              <RichTextEditor />
-            </main>
-          </Route>
+          <ProtectedRoute
+            condition={userToken}
+            component={
+              <main
+                className={clsx(classes.content, {
+                  [classes.contentShift]: isMenuOpen,
+                })}>
+                <Dashboard />
+              </main>
+            }
+            path="/dashboard"
+          />
+          <ProtectedRoute
+            condition={userToken}
+            component={
+              <main
+                className={clsx(classes.content, {
+                  [classes.contentShift]: isMenuOpen,
+                })}>
+                <RichTextEditor />
+              </main>
+            }
+            path="/send"
+          />
+          <ProtectedRoute
+            condition={userToken}
+            component={
+              <main
+                className={clsx(classes.content, {
+                  [classes.contentShift]: isMenuOpen,
+                })}>
+                <Invite />
+              </main>
+            }
+            path="/invite"
+          />
 
-          <Route path="/register">
+          <Route path="/register/:id">
             <RegisterForm />
           </Route>
+          <Route path="/reset_password">
+            <ResetPassword />
+          </Route>
+          <Redirect to="/" />
         </Switch>
       </Container>
     </ThemeProvider>

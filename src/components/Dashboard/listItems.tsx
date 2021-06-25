@@ -6,6 +6,7 @@ import SendIcon from '@material-ui/icons/Send';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { useHistory } from 'react-router-dom';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 export const MainListItems = () => {
   const history = useHistory();
@@ -22,6 +23,12 @@ export const MainListItems = () => {
           <SendIcon />
         </ListItemIcon>
         <ListItemText primary="Написать Сообщение" />
+      </ListItem>
+      <ListItem button onClick={() => history.push('/invite')}>
+        <ListItemIcon>
+          <PersonAddIcon />
+        </ListItemIcon>
+        <ListItemText primary="Пригласить" />
       </ListItem>
     </div>
   );
