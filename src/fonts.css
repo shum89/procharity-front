@@ -1,0 +1,71 @@
+@font-face {
+  font-family: 'PT Root UI';
+  src: local('PT Root UI Medium'), local('PT Root UI'), url('./fonts/PTRootUI-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Root UI';
+  src: local('PT Root UI Light'), local('PT Root UI'), url('./fonts/PTRootUI-Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Root UI';
+  src: local('PT Root UI Bold'), local('PT Root UI'), url('./fonts/PTRootUI-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Root UI';
+  src: local('PT Root UI'), local('PT Root UI'), url('./fonts/PTRootUI-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halvar Breitschrift';
+  src: local('Halvar Breitschrift Regular'), local('HalvarBreit'), url('./fonts/HalvarBreit-Rg.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halvar Breitschrift';
+  src: local('Halvar Breitschrift'), local('HalvarBreit'), url('./fonts/HalvarBreit-Md.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halvar Breitschrift';
+  src: local('Halvar Breitschrift'), local('HalvarBreit'), url('./fonts/HalvarBreit-Th.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halvar Breitschrift';
+  src: local('Halvar Breitschrift'), local('HalvarBreit'), url('./fonts/HalvarBreit-Lt.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Halvar Breitschrift';
+  src: local('Halvar Breitschrift'), local('HalvarBreit'), url('./fonts/HalvarBreit-Hl.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
