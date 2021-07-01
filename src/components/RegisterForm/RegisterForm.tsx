@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
-import { TextField, Button } from '@material-ui/core';
+import { TextField, Button, Typography } from '@material-ui/core';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import ky, { Options } from 'ky';
 import useStyles from './RegisterForm.styles';
@@ -37,7 +37,7 @@ export default function RegisterForm() {
   useEffect(() => {
     const handleTokenValidity = async () => {
       try {
-        const response = await ky.post('http://127.0.0.1:5000/api/auth/invitation_checker/', {
+        const response = await ky.post('http://127.0.0.1:5000/api/v1/auth/invitation_checker/', {
           json: {
             token: params.id,
           },
@@ -62,7 +62,7 @@ export default function RegisterForm() {
   const classes = useStyles();
   const onSubmit = async (data: FormValues) => {
     try {
-      const response = await ky.post('http://127.0.0.1:5000/api/auth/register/', {
+      const response = await ky.post('http://127.0.0.1:5000/api/v1/auth/register/', {
         json: {
           token: params.id,
           ...data,

@@ -11,11 +11,28 @@ import RegisterForm from './components/RegisterForm/RegisterForm';
 import ResetPassword from './components/ResetPassword/ResetPassword';
 import { themeLight, themeDark } from './test';
 import useLocalStorage from './hooks/useLocalStorage';
-
 import RichTextEditor from './components/RichTextEditor/RichTextEditor';
 import useStyles from './App.styles';
 import Invite from './components/Invite/Invite';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+
+type Action = { type: 'setTheme' } | { type: 'getAnalysis' };
+type Dispatch = (action: Action) => void;
+type State = { isError: boolean; errorMessage: string; isLoading: boolean; isDark: boolean };
+type CountProviderProps = { children: React.ReactNode };
+const CountStateContext = React.createContext<{ state: State; dispatch: Dispatch } | undefined>(undefined);
+
+function handleDataReducer(state: State, action: Action) {
+  switch (action.type) {
+    case 'getAnalysis': {
+      console.log(action.type);
+      return;
+    }
+    default: {
+      throw new Error(`Unhandled action type: ${action.type}`);
+    }
+  }
+}
 
 function App() {
   const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
@@ -84,7 +101,7 @@ function App() {
           MuiButton: {
             root: {
               cursor: 'pointer',
-              width: '90px',
+              width: '120px',
               minHeight: '44px',
               backgroundPosition: 'center',
               border: 'none',
@@ -134,6 +151,7 @@ function App() {
           MuiCssBaseline: {
             '@global': {
               body: {
+                position: 'relative',
                 backgroundColor: themeColor ? '#06091F' : '#F8FAFD',
               },
             },
@@ -184,7 +202,7 @@ function App() {
             }
             path="/send"
           />
-          <ProtectedRoute
+          {/* <ProtectedRoute
             condition={userToken}
             component={
               <main
@@ -195,7 +213,15 @@ function App() {
               </main>
             }
             path="/invite"
-          />
+          /> */}
+          <Route path="/invite">
+            <main
+              className={clsx(classes.content, {
+                [classes.contentShift]: isMenuOpen,
+              })}>
+              <Invite />
+            </main>
+          </Route>
 
           <Route path="/register/:id">
             <RegisterForm />

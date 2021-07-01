@@ -16,7 +16,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     top: 70,
   },
-
   authFormInputContainer: {
     position: 'relative',
     marginBottom: '16px',

@@ -27,21 +27,16 @@ const ResetPassword: React.FC<InviteProps> = () => {
     control,
     formState: { errors },
   } = useForm<Pick<FormValues, 'email'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
+
   const onSubmit = async (data: FormValues) => {
     try {
-      const response = await fetch('http://127.0.0.1:5000//api/auth/password_reset/', {
+      const response = await fetch('http://127.0.0.1:5000/api/auth/password_reset/', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       });
-      // const response = await ky.post('http://127.0.0.1:5000/api/auth/Invitation', {
-      //   json: {
-      //     ...data,
-      //   },
-      // });
 
       if (response.ok) {
-        console.log(await response.json());
         history.push('/dashboard');
       }
     } catch (e) {
@@ -49,6 +44,7 @@ const ResetPassword: React.FC<InviteProps> = () => {
       console.log('bad request', e);
     }
   };
+
   return (
     <form className={classes.authForm} onSubmit={handleSubmit(onSubmit)}>
       <fieldset className={classes.authFormInputContainer}>
