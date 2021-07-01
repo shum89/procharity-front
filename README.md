@@ -5,23 +5,14 @@
 
 2. установить yarn
 
-
-npm install -g yarn
-
-
-
+``npm install -g yarn``
 
 3. Перейти в корень проекта в терминале и установить зависимости
 
-
-yarn install
-
+``yarn install``
 
  4. Запустить команду билд
 
-
-yarn build
-
-
+``yarn build``
 
 В корне проекта появится папка build
