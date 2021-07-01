@@ -7,18 +7,21 @@ const useStyles = makeStyles({
     flex: 1,
   },
 });
-
-export default function Users() {
+interface UsersProps {
+  text: number;
+  title: string;
+}
+const Users: React.FC<UsersProps> = ({ text, title }) => {
   const classes = useStyles();
   const date = Date.now();
   const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
   return (
     <>
       <Typography component="p" variant="h4">
-        3,024.00
+        {text}
       </Typography>
       <Typography component="p" variant="body1">
-        Активных пользователей
+        {title}
       </Typography>
       <Typography variant="body1" color="textSecondary" className={classes.depositContext}>
         {new Intl.DateTimeFormat('ru-Ru', options).format(date)}
@@ -26,4 +29,6 @@ export default function Users() {
       <div />
     </>
   );
-}
+};
+
+export default Users;

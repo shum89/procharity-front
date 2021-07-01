@@ -5,19 +5,45 @@ import React from 'react';
 import { Typography } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts';
-import { Data } from './Dashboard';
+import { UserData } from './Dashboard';
 
 interface ChartProps {
-  data: Data[];
+  data: UserData | null;
 }
+interface ChartData {
+  time: string;
+  amount: number;
+}
+
 export default function Chart({ data }: ChartProps) {
   const theme = useTheme();
+  const chartData: ChartData[] = Object.keys(data?.added_users ?? {}).reduce((previousValue, currentValue) => {
+    const amount = data?.added_users[currentValue] ?? 0;
+    const day = new Date(currentValue);
+    const dayString = (day.toISOString() as unknown) as string;
+    const newObject = { time: dayString, amount };
+    previousValue.push(newObject);
+    return previousValue;
+  }, [] as ChartData[]);
+  const label = (value: any, name: any, props: any) => {
+    return [value, 'Количество'];
+  };
+  const laa = (lab: any, payload: any) => {
+    if (lab === 0) {
+      return 'date';
+    }
+    const db = new Date(lab);
+    const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
+    const date = new Intl.DateTimeFormat('ru-Ru', options).format(db);
+    return date;
+  };
+
   return (
     <>
-      <Typography>Общее число пользователей 100000 </Typography>
-      <ResponsiveContainer>
+      <Typography>{`Общее число пользователей ${data?.active_users ?? 0 + (data?.deactivated_users ?? 0)}`}</Typography>
+      <ResponsiveContainer height={300}>
         <LineChart
-          data={data}
+          data={chartData}
           margin={{
             top: 16,
             right: 16,
@@ -26,9 +52,22 @@ export default function Chart({ data }: ChartProps) {
           }}>
           <CartesianGrid strokeDasharray="3 3" />
 
-          <XAxis dataKey="time" stroke={theme.palette.text.primary} />
-          <Tooltip wrapperStyle={{ width: 100, backgroundColor: '#FFF', color: 'black' }} />
-          <YAxis stroke={theme.palette.text.primary}>
+          <XAxis
+            tickFormatter={(value, index: number) => {
+              const dateObj: Date = new Date(value);
+              const day = `${dateObj.getDate()}`;
+              return day;
+            }}
+            dataKey="time"
+            stroke={theme.palette.text.primary}
+          />
+          <Tooltip
+            label="дата"
+            labelFormatter={laa}
+            formatter={label}
+            wrapperStyle={{ width: 300, backgroundColor: '#FFF', color: 'black' }}
+          />
+          <YAxis allowDecimals={false} stroke={theme.palette.text.primary}>
             <Label angle={270} position="left" style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}>
               Пользователи
             </Label>

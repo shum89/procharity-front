@@ -21,9 +21,10 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPosition: {
     position: 'absolute',
-    height: '100vh',
     top: '0',
     left: '0',
+    height: '100%',
+    flexShrink: 0,
   },
   toolbarIcon: {
     display: 'flex',
@@ -193,6 +194,7 @@ const Header: React.FC<HeaderProps> = ({
               <MainListItems />
             </List>
             <Divider />
+
             <List>
               <SecondaryListItems handleLogout={handleLogout} />
             </List>

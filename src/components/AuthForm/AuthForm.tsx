@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
-import { TextField, Button, Link } from '@material-ui/core';
+import { TextField, Button, Link, CircularProgress, IconButton } from '@material-ui/core';
 import { useHistory, Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
 import ky, { Options } from 'ky';
-
+import { Alert } from '@material-ui/lab';
+import CloseIcon from '@material-ui/icons/Close';
+import Collapse from '@material-ui/core/Collapse';
 import useStyles from './AuthForm.styles';
-import useLocalStorage from '../../hooks/useLocalStorage';
 
 export const LinkBehavior = React.forwardRef<any, Omit<RouterLinkProps, 'to'>>((props, ref) => (
   <RouterLink ref={ref} to="/getting-started/installation/" {...props} />
@@ -37,28 +38,57 @@ const AuthForm: React.FC<AuthFormI> = ({ addToken }) => {
   } = useForm<Pick<FormValues, 'email' | 'password'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const classes = useStyles();
-
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = React.useState(false);
   const onSubmit = async (data: FormValues) => {
     try {
-      const response = await ky.post('http://127.0.0.1:5000/api/auth/login/', {
+      setLoading(true);
+      const response = await ky.post('http://127.0.0.1:5000/api/v1/auth/login/', {
         json: {
           ...data,
         },
+        throwHttpErrors: false,
       });
-
+      console.log(response.ok);
       if (response.ok) {
         const token: { access_token: string } = await response.json();
         addToken(token.access_token);
         history.push('/dashboard');
+      } else {
+        const error = await response.json();
+        throw new Error(error.message);
       }
-    } catch (e) {
-      console.log(e);
-      console.log('bad request', e);
+    } catch (e: any) {
+      setOpen(true);
+      setErrorMessage(e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
+  return isLoading ? (
+    <CircularProgress />
+  ) : (
     <form className={classes.authForm} onSubmit={handleSubmit(onSubmit)}>
+      <Collapse in={open} className={classes.authFormError}>
+        <Alert
+          severity="error"
+          variant="outlined"
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setOpen(false);
+              }}>
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }>
+          {errorMessage}
+        </Alert>
+      </Collapse>
       <fieldset className={classes.authFormInputContainer}>
         <Controller
           name="email"

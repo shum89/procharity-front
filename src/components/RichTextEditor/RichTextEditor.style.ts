@@ -10,6 +10,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginTop: 120,
     paddingRight: '20px',
   },
+  statusInfo: {
+    position: 'absolute',
+    top: 70,
+  },
   authFormButton: {
     cursor: 'pointer',
     top: '8px',
@@ -21,6 +25,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     border: 'none',
     padding: '0',
   },
+
   quill: {
     width: '100%',
     minHeight: '150px',
