@@ -30,7 +30,7 @@ const ResetPassword: React.FC<InviteProps> = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/auth/password_reset/', {
+      const response = await fetch(`http://127.0.0.1:5000/api/auth/password_reset/`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
