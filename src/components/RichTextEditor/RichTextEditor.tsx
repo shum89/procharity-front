@@ -38,7 +38,7 @@ const RichTextEditor: React.FC = () => {
     const normalizedData = { message: replaceBtag };
     try {
       setLoading(true);
-      const response = await ky.post('http://127.0.0.1:5000/api/v1/send_telegram_notification/', {
+      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/send_telegram_notification/`, {
         json: {
           ...normalizedData,
         },
@@ -58,25 +58,6 @@ const RichTextEditor: React.FC = () => {
     } finally {
       setLoading(false);
     }
-
-    // try {
-    //   const response = await fetch('http://127.0.0.1:5000//api/v1/send_telegram_notification/', {
-    //     method: 'POST',
-    //     body: JSON.stringify({ message: data.message, has_mailing: true }),
-    //     headers: {
-    //       Accept: 'application/json',
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Bearer ${localStorage.getItem('user')}`,
-    //     },
-    //   });
-
-    //   if (response.ok) {
-    //     console.log(response);
-    //   }
-    // } catch (e) {
-    //   console.log(e);
-    //   console.log('bad request', e);
-    // }
   };
 
   return (
@@ -103,6 +84,7 @@ const RichTextEditor: React.FC = () => {
               {errorMessage || 'Ваше сообщение успешно отправлено'}
             </Alert>
           </Collapse>
+
           <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
             <Controller
               name="message"

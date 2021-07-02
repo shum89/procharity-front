@@ -44,7 +44,7 @@ const AuthForm: React.FC<AuthFormI> = ({ addToken }) => {
   const onSubmit = async (data: FormValues) => {
     try {
       setLoading(true);
-      const response = await ky.post('http://127.0.0.1:5000/api/v1/auth/login/', {
+      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/login/`, {
         json: {
           ...data,
         },

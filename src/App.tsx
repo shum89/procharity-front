@@ -19,8 +19,8 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 type Action = { type: 'setTheme' } | { type: 'getAnalysis' };
 type Dispatch = (action: Action) => void;
 type State = { isError: boolean; errorMessage: string; isLoading: boolean; isDark: boolean };
-type CountProviderProps = { children: React.ReactNode };
-const CountStateContext = React.createContext<{ state: State; dispatch: Dispatch } | undefined>(undefined);
+// type CountProviderProps = { children: React.ReactNode };
+// const CountStateContext = React.createContext<{ state: State; dispatch: Dispatch } | undefined>(undefined);
 
 function handleDataReducer(state: State, action: Action) {
   switch (action.type) {
@@ -151,7 +151,7 @@ function App() {
           MuiCssBaseline: {
             '@global': {
               body: {
-                position: 'relative',
+                overflow: 'hidden',
                 backgroundColor: themeColor ? '#06091F' : '#F8FAFD',
               },
             },
