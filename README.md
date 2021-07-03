@@ -1,9 +1,11 @@
 # Как сбилдить проект
 
 1. Установить node
+
    <https://nodejs.org/en/>
 
 2. установить yarn
+
 
    `npm install -g yarn`
 
@@ -11,7 +13,9 @@
 
    `yarn install`
 
+
 4. Добавить .env файл с переменной
+
 
    `REACT_APP_API_ADDRESS=адрес_апи`
 
