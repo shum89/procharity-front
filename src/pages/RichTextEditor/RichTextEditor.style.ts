@@ -29,6 +29,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   quill: {
     width: '100%',
     minHeight: '150px',
+    '& a': {
+      color: '#06c!important',
+    },
+    '& span': {
+      color: 'inherit!important',
+    },
     '& .ql-container': {
       minHeight: '150px',
     },

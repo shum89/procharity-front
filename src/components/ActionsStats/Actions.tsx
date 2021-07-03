@@ -26,7 +26,7 @@ const Actions: React.FC<ActionsProps> = ({ actionsStats }) => {
           {Object.keys(stats).map((actionName) => (
             <TableRow key={actionName}>
               <TableCell>{actionName}</TableCell>
-              <TableCell>{stats[actionName]}</TableCell>
+              <TableCell align="right">{stats[actionName]}</TableCell>
             </TableRow>
           ))}
         </TableBody>

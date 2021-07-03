@@ -1,60 +1,268 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import { Container, createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { Redirect, Route, Switch, useLocation, useParams } from 'react-router-dom';
-import AuthForm from './components/AuthForm/AuthForm';
+import { Redirect, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom';
+import ky from 'ky';
+import AuthForm, { LoginFormValues } from './pages/AuthForm/AuthForm';
 import Header from './components/Header/Header';
-import Dashboard from './components/Dashboard/Dashboard';
-import RegisterForm from './components/RegisterForm/RegisterForm';
-import ResetPassword from './components/ResetPassword/ResetPassword';
+import Dashboard, { UserData } from './pages/Dashboard/Dashboard';
+import RegisterForm, { RegisterFormValues } from './pages/RegisterForm/RegisterForm';
+import ResetPassword, { ResetPasswordFormValues } from './pages/ResetPassword/ResetPassword';
 import { themeLight, themeDark } from './test';
 import useLocalStorage from './hooks/useLocalStorage';
-import RichTextEditor from './components/RichTextEditor/RichTextEditor';
+import RichTextEditor, { RichTextEditorFormValues } from './pages/RichTextEditor/RichTextEditor';
 import useStyles from './App.styles';
-import Invite from './components/Invite/Invite';
+import Invite, { InviteFormValues } from './pages/Invite/Invite';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
-
-type Action = { type: 'setTheme' } | { type: 'getAnalysis' };
-type Dispatch = (action: Action) => void;
-type State = { isError: boolean; errorMessage: string; isLoading: boolean; isDark: boolean };
-type CountProviderProps = { children: React.ReactNode };
-const CountStateContext = React.createContext<{ state: State; dispatch: Dispatch } | undefined>(undefined);
-
-function handleDataReducer(state: State, action: Action) {
-  switch (action.type) {
-    case 'getAnalysis': {
-      console.log(action.type);
-      return;
-    }
-    default: {
-      throw new Error(`Unhandled action type: ${action.type}`);
-    }
-  }
-}
+import StatusLabel from './components/StatusLabel/StatusLabel';
 
 function App() {
   const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
   const [userToken, setUserToken] = useLocalStorage<string | boolean>('user', false);
+  const [refreshToken, setRefreshToken] = useLocalStorage<string | boolean>('refresh_token', false);
   const removeToken = () => {
     setUserToken(false);
+    setRefreshToken(false);
   };
-  const addToken = (payload: string) => {
-    setUserToken(payload);
+
+  const [openError, setErrorOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isError, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [usersStats, setUsersStats] = useState<UserData | null>(null);
+  const handleCloseError = () => setErrorOpen(false);
+
+  const getRefreshedToken = async () => {
+    try {
+      const responseToken = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
+      setLoading(true);
+      if (responseToken.status === 401) {
+        removeToken();
+      } else {
+        const refreshedToken = await responseToken.json();
+        setUserToken(refreshedToken.token as string);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  const getUsers = async () => {
+    try {
+      setLoading(true);
+      setErrorOpen(false);
+      const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/analysis/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      if (response.status === 200) {
+        const userData: UserData = (await response.json()) as UserData;
+
+        setUsersStats(userData);
+      } else if (response.status === 401) {
+        getRefreshedToken();
+      } else {
+        const error = await response.json();
+        setError(true);
+        throw new Error(error);
+      }
+    } catch (e: any) {
+      setErrorMessage(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onInvite = async (data: InviteFormValues) => {
+    try {
+      setErrorOpen(false);
+      const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/invitation/`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      });
+
+      if (response.status === 200) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const result = await response.json();
+        setErrorOpen(true);
+        setErrorMessage(result.message);
+      } else {
+        const result = await response.json();
+        throw new Error(result);
+      }
+    } catch (e: any) {
+      setError(true);
+      setErrorOpen(true);
+      setErrorMessage(e.message);
+    }
+  };
+  const history = useHistory();
+
+  const onLogin = async (data: LoginFormValues) => {
+    try {
+      setLoading(true);
+      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/login/`, {
+        json: {
+          ...data,
+        },
+        throwHttpErrors: false,
+      });
+
+      if (response.status === 200) {
+        const token: { access_token: string; refresh_token: string } = await response.json();
+        setUserToken(token.access_token);
+        setRefreshToken(token.refresh_token);
+        setError(false);
+        history.push('/dashboard');
+      } else {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+    } catch (e: any) {
+      setError(true);
+      setErrorOpen(true);
+      setErrorMessage(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onResetPassword = async (data: ResetPasswordFormValues) => {
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/password_reset/`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      });
+
+      if (response.status === 200) {
+        setErrorOpen(true);
+        const result = await response.json();
+        setErrorMessage(result.message);
+      } else {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+    } catch (e: any) {
+      setError(true);
+      setErrorOpen(true);
+      setErrorMessage(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSubmitMessage = async (data: RichTextEditorFormValues) => {
+    const stripTags = data.message.replace(/(<p[^>]+?>|<p>)/gim, '');
+    const replaceEnclosedTag = stripTags.replace(/(<br[^>]+?>|<br>|<\/p>)/gim, '\n');
+    const normalizedData = { message: replaceEnclosedTag };
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/send_telegram_notification/`, {
+        json: {
+          ...normalizedData,
+        },
+        retry: {
+          limit: 1,
+          methods: ['post'],
+          statusCodes: [401],
+        },
+        throwHttpErrors: false,
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+        hooks: {
+          afterResponse: [
+            // eslint-disable-next-line consistent-return
+            async (request, options, resp) => {
+              if (resp.status === 401) {
+                // Get a fresh token
+                const token = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                  headers: {
+                    Authorization: `Bearer ${refreshToken}`,
+                  },
+                });
+
+                // Retry with the token
+                request.headers.set('Authorization', `Bearer ${token}`);
+                return ky(request);
+              }
+            },
+          ],
+        },
+      });
+      if (response.status === 200) {
+        setErrorOpen(true);
+        setError(false);
+        const result = await response.json();
+        setErrorMessage(result.result);
+      } else {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+    } catch (e: any) {
+      setError(true);
+      setErrorOpen(true);
+      setErrorMessage(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRegister = async (data: RegisterFormValues, params: { id: string }) => {
+    try {
+      setLoading(true);
+      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/register/`, {
+        json: {
+          ...data,
+          token: params.id,
+        },
+        throwHttpErrors: false,
+      });
+
+      if (response.status === 200) {
+        setError(false);
+        history.push('/');
+      } else {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+    } catch (e: any) {
+      setError(true);
+      setErrorOpen(true);
+      setErrorMessage(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSetTheme = () => {
     setThemeColor(!themeColor);
   };
 
-  const [isMenuOpen, setOpen] = React.useState(true);
+  const [isMenuOpen, setMenuOpen] = React.useState(true);
   const handleDrawerOpen = () => {
-    setOpen(true);
+    setMenuOpen(true);
   };
 
   const handleDrawerClose = () => {
-    setOpen(false);
+    setMenuOpen(false);
   };
   const classes = useStyles();
   useEffect(() => {
@@ -66,7 +274,7 @@ function App() {
     }
   }, [setThemeColor, themeColor]);
   const theme = themeColor ? themeDark : themeLight;
-  // eslint-disable-next-line no-console
+
   const themeOptions = React.useMemo(
     () =>
       createMuiTheme({
@@ -151,7 +359,7 @@ function App() {
           MuiCssBaseline: {
             '@global': {
               body: {
-                position: 'relative',
+                overflow: 'hidden',
                 backgroundColor: themeColor ? '#06091F' : '#F8FAFD',
               },
             },
@@ -173,9 +381,15 @@ function App() {
           handleDrawerOpen={handleDrawerOpen}
           handleDrawerClose={handleDrawerClose}
         />
+        <StatusLabel
+          isError={isError}
+          statusMessage={errorMessage}
+          open={openError}
+          handleCloseError={handleCloseError}
+        />
         <Switch>
           <Route exact path="/">
-            {!userToken ? <AuthForm addToken={addToken} /> : <Redirect to="/dashboard" />}
+            {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect to="/dashboard" />}
           </Route>
 
           <ProtectedRoute
@@ -185,7 +399,7 @@ function App() {
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
-                <Dashboard />
+                <Dashboard userStats={usersStats} fetchUserStats={getUsers} />
               </main>
             }
             path="/dashboard"
@@ -197,7 +411,7 @@ function App() {
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
-                <RichTextEditor />
+                <RichTextEditor onSubmit={onSubmitMessage} />
               </main>
             }
             path="/send"
@@ -219,15 +433,15 @@ function App() {
               className={clsx(classes.content, {
                 [classes.contentShift]: isMenuOpen,
               })}>
-              <Invite />
+              <Invite onSubmit={onInvite} />
             </main>
           </Route>
 
           <Route path="/register/:id">
-            <RegisterForm />
+            <RegisterForm onSubmit={onRegister} />
           </Route>
           <Route path="/reset_password">
-            <ResetPassword />
+            <ResetPassword onSubmit={onResetPassword} />
           </Route>
           <Redirect to="/" />
         </Switch>

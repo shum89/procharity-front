@@ -16,6 +16,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'absolute',
     top: 70,
   },
+  statusInfo: {
+    position: 'absolute',
+    top: 70,
+  },
+  invite: {
+    display: 'grid',
+    marginTop: '20',
+    width: '100%',
+    placeItems: 'center',
+  },
   authFormInputContainer: {
     position: 'relative',
     marginBottom: '16px',

@@ -21,74 +21,29 @@ const schema = yup.object().shape({
   password: yup.string().required('Поле пароль необходимо к заполнению').min(8, 'Минимальная длина пароля 8 символов'),
 });
 
-export interface FormValues extends Options {
+export interface LoginFormValues extends Options {
   email: string;
   password: string;
 }
 interface AuthFormI {
-  addToken: (payload: string) => void;
+  onLogin: (data: LoginFormValues) => Promise<void>;
 }
 
-const AuthForm: React.FC<AuthFormI> = ({ addToken }) => {
-  const history = useHistory();
+const AuthForm: React.FC<AuthFormI> = ({ onLogin }) => {
   const {
     handleSubmit,
     control,
     formState: { errors, isValid },
-  } = useForm<Pick<FormValues, 'email' | 'password'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
-  const [isPasswordVisible, setPasswordVisible] = useState(false);
+  } = useForm<Pick<LoginFormValues, 'email' | 'password'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
+
   const classes = useStyles();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [open, setOpen] = React.useState(false);
-  const onSubmit = async (data: FormValues) => {
-    try {
-      setLoading(true);
-      const response = await ky.post('http://127.0.0.1:5000/api/v1/auth/login/', {
-        json: {
-          ...data,
-        },
-        throwHttpErrors: false,
-      });
-      console.log(response.ok);
-      if (response.ok) {
-        const token: { access_token: string } = await response.json();
-        addToken(token.access_token);
-        history.push('/dashboard');
-      } else {
-        const error = await response.json();
-        throw new Error(error.message);
-      }
-    } catch (e: any) {
-      setOpen(true);
-      setErrorMessage(e.message);
-    } finally {
-      setLoading(false);
-    }
+
+  const onSubmit = async (data: LoginFormValues) => {
+    onLogin(data);
   };
 
-  return isLoading ? (
-    <CircularProgress />
-  ) : (
+  return (
     <form className={classes.authForm} onSubmit={handleSubmit(onSubmit)}>
-      <Collapse in={open} className={classes.authFormError}>
-        <Alert
-          severity="error"
-          variant="outlined"
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpen(false);
-              }}>
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }>
-          {errorMessage}
-        </Alert>
-      </Collapse>
       <fieldset className={classes.authFormInputContainer}>
         <Controller
           name="email"

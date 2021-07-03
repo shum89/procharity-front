@@ -6,14 +6,21 @@
 
 2. установить yarn
 
-   ``npm install -g yarn``
+
+   `npm install -g yarn`
 
 3. Перейти в корень проекта в терминале и установить зависимости
 
-   ``yarn install``
+   `yarn install`
 
-4. Запустить команду билд
 
-   ``yarn build``
+4. Добавить .env файл с переменной
+
+
+   `REACT_APP_API_ADDRESS=адрес_апи`
+
+5. Запустить команду билд
+
+   `yarn build`
 
 В корне проекта появится папка build

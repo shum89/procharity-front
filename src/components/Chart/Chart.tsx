@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
+import parse from 'date-fns/parse';
+import ru from 'date-fns/locale/ru';
 import React from 'react';
 import { Typography } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts';
-import { UserData } from './Dashboard';
+import { UserData } from '../../pages/Dashboard/Dashboard';
 
 interface ChartProps {
   data: UserData | null;
@@ -19,7 +21,7 @@ export default function Chart({ data }: ChartProps) {
   const theme = useTheme();
   const chartData: ChartData[] = Object.keys(data?.added_users ?? {}).reduce((previousValue, currentValue) => {
     const amount = data?.added_users[currentValue] ?? 0;
-    const day = new Date(currentValue);
+    const day = parse(currentValue, 'dd MMMM, yyyy', new Date(), { locale: ru });
     const dayString = (day.toISOString() as unknown) as string;
     const newObject = { time: dayString, amount };
     previousValue.push(newObject);
@@ -40,7 +42,7 @@ export default function Chart({ data }: ChartProps) {
 
   return (
     <>
-      <Typography>{`Общее число пользователей ${data?.active_users ?? 0 + (data?.deactivated_users ?? 0)}`}</Typography>
+      <Typography>Cтатистика пользователей за текущий месяц</Typography>
       <ResponsiveContainer height={300}>
         <LineChart
           data={chartData}

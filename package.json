@@ -1,8 +1,7 @@
 {
   "name": "procharity",
-  "homepage": "https://shum89.github.io/procharity-front/",
+  "homepage": ".",
   "version": "0.1.0",
-  "proxy": "http://127.0.0.1:5000",
   "private": true,
   "dependencies": {
     "@hookform/resolvers": "^2.5.2",
@@ -18,6 +17,7 @@
     "@types/react-dom": "^17.0.0",
     "axios": "^0.21.1",
     "clsx": "^1.1.1",
+    "date-fns": "^2.22.1",
     "gh-pages": "^3.2.2",
     "ky": "^0.28.5",
     "react": "^17.0.2",

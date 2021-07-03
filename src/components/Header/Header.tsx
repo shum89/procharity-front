@@ -1,23 +1,23 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { makeStyles, AppBar, Toolbar, IconButton, Typography, Drawer, Divider, List, Badge } from '@material-ui/core';
+import { makeStyles, AppBar, Toolbar, IconButton, Drawer, Divider, List } from '@material-ui/core';
 import clsx from 'clsx';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import MenuIcon from '@material-ui/icons/Menu';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import { useHistory, useRouteMatch } from 'react-router-dom';
-import { MainListItems, SecondaryListItems } from '../Dashboard/listItems';
+import { MainListItems, SecondaryListItems } from '../NavigationItems/NavigationItems';
 
-const drawerWidth = 240;
+const drawerWidth = 250;
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },
   toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
+    paddingRight: 24,
+    // keep right padding when drawer closed
   },
   drawerPosition: {
     position: 'absolute',
@@ -77,7 +77,9 @@ const useStyles = makeStyles((theme) => ({
       width: theme.spacing(9),
     },
   },
-  appBarSpacer: theme.mixins.toolbar,
+  appBarSpacer: {
+    flexGrow: 1,
+  },
   content: {
     flexGrow: 1,
     height: '100vh',
@@ -166,14 +168,7 @@ const Header: React.FC<HeaderProps> = ({
                 className={clsx(classes.menuButton, isMenuOpen && classes.menuButtonHidden)}>
                 <MenuIcon />
               </IconButton>
-              <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-                Dashboard
-              </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              <div className={classes.appBarSpacer} />
               <IconButton onClick={handleSetTheme}>{isDark ? <Brightness4Icon /> : <Brightness7Icon />}</IconButton>
             </Toolbar>
           </AppBar>

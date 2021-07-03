@@ -5,45 +5,28 @@ import * as yup from 'yup';
 import { Options } from 'ky';
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { useHistory, Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import useStyles from '../AuthForm/AuthForm.styles';
 
-interface InviteProps {
+interface ResetPasswordProps {
   children?: React.ReactNode;
+  onSubmit: (data: ResetPasswordFormValues) => Promise<void>;
 }
 
 const schema = yup.object().shape({
   email: yup.string().email('Такой e-mail не подойдет').required('Поле e-mail необходимо к заполнению'),
 });
 
-export interface FormValues extends Options {
+export interface ResetPasswordFormValues extends Options {
   email: string;
 }
-const ResetPassword: React.FC<InviteProps> = () => {
+const ResetPassword: React.FC<ResetPasswordProps> = ({ onSubmit }) => {
   const classes = useStyles();
-  const history = useHistory();
   const {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<Pick<FormValues, 'email'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
-
-  const onSubmit = async (data: FormValues) => {
-    try {
-      const response = await fetch('http://127.0.0.1:5000/api/auth/password_reset/', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-      });
-
-      if (response.ok) {
-        history.push('/dashboard');
-      }
-    } catch (e) {
-      console.log(e);
-      console.log('bad request', e);
-    }
-  };
+  } = useForm<Pick<ResetPasswordFormValues, 'email'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
 
   return (
     <form className={classes.authForm} onSubmit={handleSubmit(onSubmit)}>
