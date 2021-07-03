@@ -7,7 +7,7 @@ import React from 'react';
 import { Typography } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts';
-import { UserData } from './Dashboard';
+import { UserData } from '../../pages/Dashboard/Dashboard';
 
 interface ChartProps {
   data: UserData | null;
@@ -42,7 +42,7 @@ export default function Chart({ data }: ChartProps) {
 
   return (
     <>
-      <Typography>{`Общее число пользователей ${data?.active_users ?? 0 + (data?.deactivated_users ?? 0)}`}</Typography>
+      <Typography>Cтатистика пользователей за текущий месяц</Typography>
       <ResponsiveContainer height={300}>
         <LineChart
           data={chartData}

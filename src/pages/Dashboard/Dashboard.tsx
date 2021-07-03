@@ -13,11 +13,11 @@ import { useHistory } from 'react-router-dom';
 import { Alert } from '@material-ui/lab';
 import { Collapse, IconButton, CircularProgress } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-import Chart from './Chart';
-import Actions from './Actions';
-import Users from './Users';
+import Chart from '../../components/Chart/Chart';
+import Actions from '../../components/ActionsStats/Actions';
+import Users from '../../components/UserStats/Users';
 
-export interface Data {
+export interface userStats {
   time: string;
   amount: number;
 }
@@ -114,37 +114,19 @@ export interface UserData {
     [key: string]: number;
   };
 }
-export default function Dashboard() {
+
+interface DashboardProps {
+  userStats: UserData | null;
+  fetchUserStats: () => Promise<void>;
+}
+const Dashboard: React.FC<DashboardProps> = ({ userStats, fetchUserStats }) => {
   const classes = useStyles();
   const history = useHistory();
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState<UserData | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   useEffect(() => {
-    const getUsers = async () => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/analysis/`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('user')}`,
-          },
-        });
-
-        if (response.ok) {
-          const userData: UserData = (await response.json()) as UserData;
-          // eslint-disable-next-line no-console
-          setData(userData);
-        } else {
-          const error = await response.json();
-          throw new Error(error);
-        }
-      } catch (e: any) {
-        setErrorMessage(e.message);
-      }
-    };
-    getUsers();
-  }, [history]);
+    fetchUserStats();
+  }, []);
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
@@ -168,30 +150,39 @@ export default function Dashboard() {
           {errorMessage}
         </Alert>
       </Collapse>
-      <Grid container spacing={4}>
+      <Grid container spacing={3}>
         <Grid item xs={12} md={12} lg={12}>
-          <Paper className={classes.fixedHeight}>
-            <Chart data={data} />
+          <Paper className={clsx(classes.fixedHeight, classes.paper)}>
+            <Chart data={userStats} />
           </Paper>
         </Grid>
-
-        <Grid item xs={12} md={6} lg={6}>
-          <Paper>
-            <Users text={data?.active_users ?? 0} title="Активных Пользователей" />
+        <Grid item xs={12} md={4} lg={4}>
+          <Paper className={classes.paper}>
+            <Users
+              text={(userStats?.active_users ?? 0) + (userStats?.deactivated_users ?? 0)}
+              title="Всего Пользователей"
+            />
           </Paper>
         </Grid>
-        <Grid item xs={12} md={6} lg={6}>
-          <Paper>
-            <Users text={data?.deactivated_users ?? 0} title="Неактивных Пользователей" />
+        <Grid item xs={12} md={4} lg={4}>
+          <Paper className={classes.paper}>
+            <Users text={userStats?.active_users ?? 0} title="Активных Пользователей" />
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={4} lg={4}>
+          <Paper className={classes.paper}>
+            <Users text={userStats?.deactivated_users ?? 0} title="Неактивных Пользователей" />
           </Paper>
         </Grid>
 
         <Grid item xs={12} md={12} lg={12}>
           <Paper className={classes.paper}>
-            <Actions actionsStats={data?.command_stats} />
+            <Actions actionsStats={userStats?.command_stats} />
           </Paper>
         </Grid>
       </Grid>
     </Container>
   );
-}
+};
+
+export default Dashboard;

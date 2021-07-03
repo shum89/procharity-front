@@ -13,24 +13,22 @@ const schema = yup.object().shape({
   last_name: yup.string().required('Поле e-mail необходимо к заполнению'),
   first_name: yup.string().required(),
   password: yup.string().required('Поле пароль необходимо к заполнению').min(8, 'Минимальная длина пароля 8 символов'),
-  // .matches(
-  //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*)(?=.{8,})/,
-  //   'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number',
-  // ),
 });
 
 const paramsSchema = yup.object().shape({
   id: yup.string().uuid(),
 });
 
-export interface FormValues extends Options {
+export interface RegisterFormValues extends Options {
   first_name: string;
   last_name: string;
   password: string;
 }
+interface RegisterFormProps {
+  onSubmit: (data: RegisterFormValues, params: { id: string }) => Promise<void>;
+}
 
-export default function RegisterForm() {
-  const location = useLocation();
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const history = useHistory();
   const params = useParams<{ id: string }>();
 
@@ -42,44 +40,30 @@ export default function RegisterForm() {
             token: params.id,
           },
         });
-      } catch (e) {
-        console.log(e);
+      } catch {
+        history.push('/');
       }
     };
     handleTokenValidity();
     paramsSchema.validate(params).catch(() => history.push('/'));
-  }, [history, params]);
+  }, []);
 
   const {
     handleSubmit,
     control,
     formState: { errors, isValid },
-  } = useForm<Pick<FormValues, 'first_name' | 'password' | 'last_name'>>({
+  } = useForm<Pick<RegisterFormValues, 'first_name' | 'password' | 'last_name'>>({
     resolver: yupResolver(schema),
     mode: 'onTouched',
   });
+  const submitRegisterForm = (data: RegisterFormValues) => {
+    onSubmit(data, params);
+  };
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const classes = useStyles();
-  const onSubmit = async (data: FormValues) => {
-    try {
-      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/register/`, {
-        json: {
-          token: params.id,
-          ...data,
-        },
-      });
-
-      if (response.ok) {
-        console.log(await response.json());
-        history.push('/dashboard');
-      }
-    } catch (e) {
-      history.push('/');
-    }
-  };
 
   return (
-    <form className={classes.authForm} onSubmit={handleSubmit(onSubmit)}>
+    <form className={classes.authForm} onSubmit={handleSubmit(submitRegisterForm)}>
       <fieldset className={classes.authFormInputContainer}>
         <Controller
           name="first_name"
@@ -139,4 +123,6 @@ export default function RegisterForm() {
       </Button>
     </form>
   );
-}
+};
+
+export default RegisterForm;
