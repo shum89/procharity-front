@@ -110,10 +110,11 @@ function App() {
     }
   };
   const history = useHistory();
-
+  console.log(process.env);
   const onLogin = async (data: LoginFormValues) => {
     try {
       setLoading(true);
+
       const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/login/`, {
         json: {
           ...data,
