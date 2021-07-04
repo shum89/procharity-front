@@ -377,16 +377,14 @@ function App() {
 
         <Switch>
           <Route exact path="/">
-            <div className={classes.formContent}>
-              <StatusLabel
-                isMenuOpen={isMenuOpen}
-                isError={isError}
-                statusMessage={errorMessage}
-                open={openError}
-                handleCloseError={handleCloseError}
-              />
-              {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect to="/dashboard" />}
-            </div>
+            <StatusLabel
+              isMenuOpen={isMenuOpen}
+              isError={isError}
+              statusMessage={errorMessage}
+              open={openError}
+              handleCloseError={handleCloseError}
+            />
+            {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect to="/dashboard" />}
           </Route>
 
           <ProtectedRoute
