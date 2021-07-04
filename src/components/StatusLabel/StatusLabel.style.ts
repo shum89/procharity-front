@@ -6,7 +6,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     inset: '15px 0 0 0 ',
   },
   loggedOut: {
-    inset: '0 0 0 0 ',
+    inset: '60px 20% 0 20%',
   },
 }));
 

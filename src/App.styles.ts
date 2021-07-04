@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { relative } from 'path';
-import { themeDark } from './test';
+import { themeDark } from './App.theme';
 
 const drawerWidth = 268;
 

@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '120px',
     minHeight: '44px',
     backgroundPosition: 'center',
+    color: 'white',
     background: theme.palette.secondary.main,
     border: 'none',
     padding: '0',

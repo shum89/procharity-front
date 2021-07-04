@@ -8,7 +8,7 @@ import Header from './components/Header/Header';
 import Dashboard, { UserData } from './pages/Dashboard/Dashboard';
 import RegisterForm, { RegisterFormValues } from './pages/RegisterForm/RegisterForm';
 import ResetPassword, { ResetPasswordFormValues } from './pages/ResetPassword/ResetPassword';
-import { themeLight, themeDark } from './test';
+import { themeLight, themeDark } from './App.theme';
 import useLocalStorage from './hooks/useLocalStorage';
 import RichTextEditor, { RichTextEditorFormValues } from './pages/RichTextEditor/RichTextEditor';
 import useStyles from './App.styles';
@@ -212,6 +212,8 @@ function App() {
 
   const onRegister = async (data: RegisterFormValues, params: { id: string }) => {
     try {
+      const dataForRegistration = data;
+      delete dataForRegistration?.passwordConfirmation;
       const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/register/`, {
         json: {
           ...data,
@@ -299,7 +301,7 @@ function App() {
               border: 'none',
               padding: '0',
               '&:hover': {
-                backgroundColor: !themeColor ? '#f50057' : '#8852E1',
+                backgroundColor: !themeColor ? '#303f9f' : '#8852E1',
               },
             },
           },
@@ -313,6 +315,11 @@ function App() {
               '&:hover': {
                 borderColor: '#8852E1',
               },
+            },
+          },
+          MuiLink: {
+            root: {
+              filter: themeColor ? 'brightness(1.5)' : 'brightness(1.0)',
             },
           },
           MuiContainer: {

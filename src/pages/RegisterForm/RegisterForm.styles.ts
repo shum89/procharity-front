@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   authFormRegisterError: {
     display: 'grid',
     placeItems: 'center',
+    gap: 30,
   },
   authFormButtonContainer: {
     display: 'flex',

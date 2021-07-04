@@ -1,6 +1,19 @@
-import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeOptions } from '@material-ui/core/styles/createMuiTheme';
 
-const themeOptions = createMuiTheme({
+export const themeLight: ThemeOptions = {
+  palette: {
+    type: 'light',
+    primary: {
+      main: '#3f51b5',
+    },
+    secondary: {
+      main: '#3f51b5',
+      dark: '#e3e3e3',
+    },
+  },
+};
+
+export const themeDark: ThemeOptions = {
   palette: {
     type: 'dark',
     primary: {
@@ -8,6 +21,7 @@ const themeOptions = createMuiTheme({
     },
     secondary: {
       main: '#AB81F1',
+      dark: 'rgba(255,255,255,0.1)',
     },
     background: {
       default: '#06091F',
@@ -26,45 +40,4 @@ const themeOptions = createMuiTheme({
       disabled: '#676C7A',
     },
   },
-  overrides: {
-    MuiFormHelperText: {
-      root: {
-        position: 'absolute',
-        bottom: '-19px',
-        whiteSpace: 'nowrap',
-        margin: 0,
-        textAlign: 'left',
-      },
-      contained: {
-        marginLeft: '0',
-        marginRight: 0,
-      },
-    },
-    MuiOutlinedInput: {
-      notchedOutline: {
-        borderColor: 'rgba(255, 255, 255,0.2)',
-      },
-    },
-    MuiButton: {
-      root: {
-        '&:hover': {
-          backgroundColor: '#8852E1',
-        },
-      },
-    },
-    MuiSvgIcon: {
-      root: {
-        fill: 'white',
-      },
-    },
-    MuiTextField: {
-      root: {
-        '&:hover': {
-          borderColor: '#8852E1',
-        },
-      },
-    },
-  },
-});
-
-export default themeOptions;
+};

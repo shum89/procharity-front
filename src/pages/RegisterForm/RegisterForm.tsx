@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useRef, useState } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
@@ -10,16 +11,14 @@ import ky, { Options } from 'ky';
 import useStyles from './RegisterForm.styles';
 
 const schema = yup.object().shape({
-  last_name: yup.string().required('Поле e-mail необходимо к заполнению'),
-  first_name: yup.string().required(),
+  last_name: yup.string().required('Поле Имя необходимо к заполнению'),
+  first_name: yup.string().required('Поле Фамилия необходимо к заполнению'),
   password: yup
     .string()
     .required('Поле пароль необходимо к заполнению')
     .min(8, 'Минимальная длина пароля 8 символов')
-    .matches(
-      /^(?=.*[a-zа-я])(?=.*[A-ZА-Я])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
-      'Пароль должен содержать 1 цифру, 1 заглавную букву, 1 строчную',
-    ),
+    .matches(/(?=.*\d)(?=.*[a-zа-я])(?=.*[A-ZА-Я])/g, 'Пароль должен содержать 1 цифру, 1 заглавную букву, 1 строчную'),
+  passwordConfirmation: yup.string().oneOf([yup.ref('password'), null], 'Пароли должны совпадать'),
 });
 
 const paramsSchema = yup.object().shape({
@@ -30,6 +29,7 @@ export interface RegisterFormValues extends Options {
   first_name: string;
   last_name: string;
   password: string;
+  passwordConfirmation?: string;
 }
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormValues, params: { id: string }) => Promise<void>;
@@ -37,8 +37,11 @@ interface RegisterFormProps {
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const history = useHistory();
+  const password = useRef({});
+
   const params = useParams<{ id: string }>();
   const [isInviteValid, setInviteValid] = useState(true);
+
   useEffect(() => {
     const handleTokenValidity = async () => {
       try {
@@ -59,12 +62,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const {
     handleSubmit,
     control,
+    watch,
+    getValues,
     formState: { errors },
-  } = useForm<Pick<RegisterFormValues, 'first_name' | 'password' | 'last_name'>>({
+  } = useForm<Pick<RegisterFormValues, 'first_name' | 'password' | 'last_name' | 'passwordConfirmation'>>({
     resolver: yupResolver(schema),
     mode: 'onTouched',
   });
-
+  password.current = watch('password', '');
   const submitRegisterForm = (data: RegisterFormValues) => {
     onSubmit(data, params);
   };
@@ -101,8 +106,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
           render={({ field }) => (
             <TextField
               label="Фамилия"
-              error={Boolean(errors.first_name?.message)}
-              helperText={errors.first_name?.message}
+              error={Boolean(errors.last_name?.message)}
+              helperText={errors.last_name?.message}
               className={classes.authFormInput}
               size="medium"
               variant="outlined"
@@ -137,6 +142,32 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
             />
           )}
         />
+        <Controller
+          name="passwordConfirmation"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField
+              variant="outlined"
+              label="Повторите пароль"
+              error={Boolean(errors.passwordConfirmation?.message)}
+              helperText={errors.passwordConfirmation?.message}
+              className={classes.authFormInput}
+              type={isPasswordVisible ? 'text' : 'password'}
+              size="medium"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
+                      {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              {...field}
+            />
+          )}
+        />
       </fieldset>
 
       <Button className={classes.authFormButton} type="submit">
@@ -145,7 +176,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
     </form>
   ) : (
     <div className={classes.authFormRegisterError}>
-      <Typography variant="h1">Ссылка устарела или не существует</Typography>
+      <Typography variant="h4">Ссылка устарела или не существует</Typography>
       <Link component={RouterLink} to="/">
         Вернуться на главную
       </Link>
