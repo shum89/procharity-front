@@ -8,23 +8,42 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { useHistory } from 'react-router-dom';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
-export const MainListItems = () => {
+interface MainListItemsProps {
+  handleResetErrors: () => void;
+}
+export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors }) => {
   const history = useHistory();
+
   return (
     <div>
-      <ListItem button onClick={() => history.push('/dashboard')}>
+      <ListItem
+        button
+        onClick={() => {
+          history.push('/dashboard');
+          handleResetErrors();
+        }}>
         <ListItemIcon>
           <BarChartIcon />
         </ListItemIcon>
         <ListItemText primary="Статистика" />
       </ListItem>
-      <ListItem button onClick={() => history.push('/send')}>
+      <ListItem
+        button
+        onClick={() => {
+          history.push('/send');
+          handleResetErrors();
+        }}>
         <ListItemIcon>
           <SendIcon />
         </ListItemIcon>
         <ListItemText primary="Написать Сообщение" />
       </ListItem>
-      <ListItem button onClick={() => history.push('/invite')}>
+      <ListItem
+        button
+        onClick={() => {
+          history.push('/invite');
+          handleResetErrors();
+        }}>
         <ListItemIcon>
           <PersonAddIcon />
         </ListItemIcon>

@@ -2,6 +2,7 @@
 import React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
+import { relative } from 'path';
 import { themeDark } from './test';
 
 const drawerWidth = 268;
@@ -12,12 +13,16 @@ const useStyles = makeStyles((theme: Theme) => {
     root: {
       background: theme.palette.type === 'light' ? themeDark.palette?.background?.default : '#FFFFF',
     },
+    formContent: {
+      position: 'relative',
+    },
     content: {
+      position: 'relative',
       transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      overflow: 'hidden',
+      overflow: 'visible',
       marginLeft: '100px',
       marginTop: '60px',
       display: 'flex',

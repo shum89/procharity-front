@@ -1,27 +1,19 @@
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
-import { TextField, Button, Link, CircularProgress, IconButton } from '@material-ui/core';
-import { useHistory, Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
-import ky, { Options } from 'ky';
-import { Alert } from '@material-ui/lab';
-import CloseIcon from '@material-ui/icons/Close';
-import Collapse from '@material-ui/core/Collapse';
+import { TextField, Button, Link, IconButton, InputAdornment } from '@material-ui/core';
+import { Link as RouterLink } from 'react-router-dom';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import useStyles from './AuthForm.styles';
-
-export const LinkBehavior = React.forwardRef<any, Omit<RouterLinkProps, 'to'>>((props, ref) => (
-  <RouterLink ref={ref} to="/getting-started/installation/" {...props} />
-));
 
 const schema = yup.object().shape({
   email: yup.string().email('Такой e-mail не подойдет').required('Поле e-mail необходимо к заполнению'),
   password: yup.string().required('Поле пароль необходимо к заполнению').min(8, 'Минимальная длина пароля 8 символов'),
 });
 
-export interface LoginFormValues extends Options {
+export interface LoginFormValues {
   email: string;
   password: string;
 }
@@ -33,10 +25,15 @@ const AuthForm: React.FC<AuthFormI> = ({ onLogin }) => {
   const {
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<Pick<LoginFormValues, 'email' | 'password'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
 
   const classes = useStyles();
+
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
+  const handleClickShowPassword = () => {
+    setPasswordVisible(!isPasswordVisible);
+  };
 
   const onSubmit = async (data: LoginFormValues) => {
     onLogin(data);
@@ -73,8 +70,17 @@ const AuthForm: React.FC<AuthFormI> = ({ onLogin }) => {
               error={Boolean(errors.password?.message)}
               helperText={errors.password?.message}
               className={classes.authFormInput}
-              type="password"
+              type={isPasswordVisible ? 'text' : 'password'}
               size="medium"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
+                      {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               {...field}
             />
           )}

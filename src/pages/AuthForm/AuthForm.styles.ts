@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   invite: {
     display: 'grid',
-    marginTop: '20',
+    marginTop: 20,
     width: '100%',
     placeItems: 'center',
   },

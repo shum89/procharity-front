@@ -151,11 +151,6 @@ const Dashboard: React.FC<DashboardProps> = ({ userStats, fetchUserStats }) => {
         </Alert>
       </Collapse>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={12} lg={12}>
-          <Paper className={clsx(classes.fixedHeight, classes.paper)}>
-            <Chart data={userStats} />
-          </Paper>
-        </Grid>
         <Grid item xs={12} md={4} lg={4}>
           <Paper className={classes.paper}>
             <Users
@@ -172,6 +167,12 @@ const Dashboard: React.FC<DashboardProps> = ({ userStats, fetchUserStats }) => {
         <Grid item xs={12} md={4} lg={4}>
           <Paper className={classes.paper}>
             <Users text={userStats?.deactivated_users ?? 0} title="Неактивных Пользователей" />
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={12} lg={12}>
+          <Paper className={clsx(classes.fixedHeight, classes.paper)}>
+            <Chart data={userStats} />
           </Paper>
         </Grid>
 

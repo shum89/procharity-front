@@ -20,11 +20,10 @@ const useStyles = makeStyles((theme) => ({
     // keep right padding when drawer closed
   },
   drawerPosition: {
-    position: 'absolute',
+    position: 'fixed',
     top: '0',
     left: '0',
     height: '100%',
-    flexShrink: 0,
   },
   toolbarIcon: {
     display: 'flex',
@@ -39,6 +38,7 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    position: 'fixed',
   },
   appBarShift: {
     marginLeft: drawerWidth,
@@ -131,6 +131,7 @@ interface HeaderProps {
   removeToken: () => void;
   isDark: boolean;
   isMenuOpen: boolean;
+  handleResetErrors: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -140,6 +141,7 @@ const Header: React.FC<HeaderProps> = ({
   handleSetTheme,
   isDark,
   removeToken,
+  handleResetErrors,
 }) => {
   const classes = useStyles();
   const history = useHistory();
@@ -186,7 +188,7 @@ const Header: React.FC<HeaderProps> = ({
             </div>
             <Divider />
             <List>
-              <MainListItems />
+              <MainListItems handleResetErrors={handleResetErrors} />
             </List>
             <Divider />
 

@@ -30,7 +30,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'relative',
     width: '100%',
   },
-
+  authFormRegisterError: {
+    display: 'grid',
+    placeItems: 'center',
+  },
   authFormButtonContainer: {
     display: 'flex',
     alignItems: 'center',

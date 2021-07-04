@@ -1,18 +1,25 @@
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
-import { TextField, Button, Typography } from '@material-ui/core';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { TextField, Button, Typography, Link, IconButton, InputAdornment } from '@material-ui/core';
+import { useHistory, useParams, Link as RouterLink } from 'react-router-dom';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import ky, { Options } from 'ky';
 import useStyles from './RegisterForm.styles';
 
 const schema = yup.object().shape({
   last_name: yup.string().required('Поле e-mail необходимо к заполнению'),
   first_name: yup.string().required(),
-  password: yup.string().required('Поле пароль необходимо к заполнению').min(8, 'Минимальная длина пароля 8 символов'),
+  password: yup
+    .string()
+    .required('Поле пароль необходимо к заполнению')
+    .min(8, 'Минимальная длина пароля 8 символов')
+    .matches(
+      /^(?=.*[a-zа-я])(?=.*[A-ZА-Я])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      'Пароль должен содержать 1 цифру, 1 заглавную букву, 1 строчную',
+    ),
 });
 
 const paramsSchema = yup.object().shape({
@@ -31,17 +38,18 @@ interface RegisterFormProps {
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const history = useHistory();
   const params = useParams<{ id: string }>();
-
+  const [isInviteValid, setInviteValid] = useState(true);
   useEffect(() => {
     const handleTokenValidity = async () => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/invitation_checker/`, {
           json: {
             token: params.id,
           },
         });
       } catch {
-        history.push('/');
+        setInviteValid(false);
       }
     };
     handleTokenValidity();
@@ -51,18 +59,22 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const {
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<Pick<RegisterFormValues, 'first_name' | 'password' | 'last_name'>>({
     resolver: yupResolver(schema),
     mode: 'onTouched',
   });
+
   const submitRegisterForm = (data: RegisterFormValues) => {
     onSubmit(data, params);
   };
   const [isPasswordVisible, setPasswordVisible] = useState(false);
+  const handleClickShowPassword = () => {
+    setPasswordVisible(!isPasswordVisible);
+  };
   const classes = useStyles();
 
-  return (
+  return isInviteValid ? (
     <form className={classes.authForm} onSubmit={handleSubmit(submitRegisterForm)}>
       <fieldset className={classes.authFormInputContainer}>
         <Controller
@@ -110,8 +122,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
               error={Boolean(errors.password?.message)}
               helperText={errors.password?.message}
               className={classes.authFormInput}
-              type="password"
+              type={isPasswordVisible ? 'text' : 'password'}
               size="medium"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
+                      {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               {...field}
             />
           )}
@@ -122,6 +143,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
         Зарегистрироваться
       </Button>
     </form>
+  ) : (
+    <div className={classes.authFormRegisterError}>
+      <Typography variant="h1">Ссылка устарела или не существует</Typography>
+      <Link component={RouterLink} to="/">
+        Вернуться на главную
+      </Link>
+    </div>
   );
 };
 

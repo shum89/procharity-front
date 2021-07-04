@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 import { Container, createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { Redirect, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom';
+import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import ky from 'ky';
 import AuthForm, { LoginFormValues } from './pages/AuthForm/AuthForm';
 import Header from './components/Header/Header';
@@ -28,36 +26,30 @@ function App() {
   };
 
   const [openError, setErrorOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [usersStats, setUsersStats] = useState<UserData | null>(null);
   const handleCloseError = () => setErrorOpen(false);
 
   const getRefreshedToken = async () => {
-    try {
-      const responseToken = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
-      setLoading(true);
-      if (responseToken.status === 401) {
-        removeToken();
-      } else {
-        const refreshedToken = await responseToken.json();
-        setUserToken(refreshedToken.token as string);
-      }
-    } finally {
-      setLoading(false);
+    const responseToken = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${refreshToken}`,
+      },
+    });
+
+    if (responseToken.status === 401) {
+      removeToken();
+    } else {
+      const refreshedToken = await responseToken.json();
+      setUserToken(refreshedToken.token as string);
     }
   };
 
   const getUsers = async () => {
     try {
-      setLoading(true);
       setErrorOpen(false);
       const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/analysis/`, {
         method: 'GET',
@@ -80,8 +72,6 @@ function App() {
       }
     } catch (e: any) {
       setErrorMessage(e.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -101,20 +91,20 @@ function App() {
         setErrorMessage(result.message);
       } else {
         const result = await response.json();
-        throw new Error(result);
+
+        throw new Error(result.message);
       }
     } catch (e: any) {
+      // eslint-disable-next-line no-console
+      console.log(e);
       setError(true);
       setErrorOpen(true);
       setErrorMessage(e.message);
     }
   };
   const history = useHistory();
-  console.log(process.env);
   const onLogin = async (data: LoginFormValues) => {
     try {
-      setLoading(true);
-
       const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/login/`, {
         json: {
           ...data,
@@ -136,14 +126,11 @@ function App() {
       setError(true);
       setErrorOpen(true);
       setErrorMessage(e.message);
-    } finally {
-      setLoading(false);
     }
   };
 
   const onResetPassword = async (data: ResetPasswordFormValues) => {
     try {
-      setLoading(true);
       setErrorMessage(null);
       const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/password_reset/`, {
         method: 'POST',
@@ -157,14 +144,12 @@ function App() {
         setErrorMessage(result.message);
       } else {
         const error = await response.json();
-        throw new Error(error.message);
+        throw new Error(error);
       }
     } catch (e: any) {
       setError(true);
       setErrorOpen(true);
       setErrorMessage(e.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -173,10 +158,10 @@ function App() {
     const replaceEnclosedTag = stripTags.replace(/(<br[^>]+?>|<br>|<\/p>)/gim, '\n');
     const normalizedData = { message: replaceEnclosedTag };
     try {
-      setLoading(true);
       setErrorMessage(null);
       const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/send_telegram_notification/`, {
         json: {
+          has_mailing: data.has_mailing,
           ...normalizedData,
         },
         retry: {
@@ -211,6 +196,7 @@ function App() {
       if (response.status === 200) {
         setErrorOpen(true);
         setError(false);
+
         const result = await response.json();
         setErrorMessage(result.result);
       } else {
@@ -221,14 +207,11 @@ function App() {
       setError(true);
       setErrorOpen(true);
       setErrorMessage(e.message);
-    } finally {
-      setLoading(false);
     }
   };
 
   const onRegister = async (data: RegisterFormValues, params: { id: string }) => {
     try {
-      setLoading(true);
       const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/register/`, {
         json: {
           ...data,
@@ -248,15 +231,15 @@ function App() {
       setError(true);
       setErrorOpen(true);
       setErrorMessage(e.message);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSetTheme = () => {
     setThemeColor(!themeColor);
   };
-
+  const handleResetErrors = () => {
+    setErrorOpen(false);
+  };
   const [isMenuOpen, setMenuOpen] = React.useState(true);
   const handleDrawerOpen = () => {
     setMenuOpen(true);
@@ -360,8 +343,8 @@ function App() {
           MuiCssBaseline: {
             '@global': {
               body: {
-                overflow: 'hidden',
-                backgroundColor: themeColor ? '#06091F' : '#F8FAFD',
+                overflow: 'auto',
+                backgroundColor: themeColor ? '#06091F' : '#f9f9f9',
               },
             },
           },
@@ -373,6 +356,7 @@ function App() {
   return (
     <ThemeProvider theme={themeOptions}>
       <CssBaseline />
+
       <Container>
         <Header
           isDark={themeColor}
@@ -381,16 +365,21 @@ function App() {
           isMenuOpen={isMenuOpen}
           handleDrawerOpen={handleDrawerOpen}
           handleDrawerClose={handleDrawerClose}
+          handleResetErrors={handleResetErrors}
         />
-        <StatusLabel
-          isError={isError}
-          statusMessage={errorMessage}
-          open={openError}
-          handleCloseError={handleCloseError}
-        />
+
         <Switch>
           <Route exact path="/">
-            {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect to="/dashboard" />}
+            <div className={classes.formContent}>
+              <StatusLabel
+                isMenuOpen={isMenuOpen}
+                isError={isError}
+                statusMessage={errorMessage}
+                open={openError}
+                handleCloseError={handleCloseError}
+              />
+              {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect to="/dashboard" />}
+            </div>
           </Route>
 
           <ProtectedRoute
@@ -412,6 +401,13 @@ function App() {
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
+                <StatusLabel
+                  isMenuOpen={isMenuOpen}
+                  isError={isError}
+                  statusMessage={errorMessage}
+                  open={openError}
+                  handleCloseError={handleCloseError}
+                />
                 <RichTextEditor onSubmit={onSubmitMessage} />
               </main>
             }
@@ -434,14 +430,35 @@ function App() {
               className={clsx(classes.content, {
                 [classes.contentShift]: isMenuOpen,
               })}>
+              <StatusLabel
+                isMenuOpen={isMenuOpen}
+                isError={isError}
+                statusMessage={errorMessage}
+                open={openError}
+                handleCloseError={handleCloseError}
+              />
               <Invite onSubmit={onInvite} />
             </main>
           </Route>
 
           <Route path="/register/:id">
+            <StatusLabel
+              isMenuOpen={isMenuOpen}
+              isError={isError}
+              statusMessage={errorMessage}
+              open={openError}
+              handleCloseError={handleCloseError}
+            />
             <RegisterForm onSubmit={onRegister} />
           </Route>
           <Route path="/reset_password">
+            <StatusLabel
+              isMenuOpen={isMenuOpen}
+              isError={isError}
+              statusMessage={errorMessage}
+              open={openError}
+              handleCloseError={handleCloseError}
+            />
             <ResetPassword onSubmit={onResetPassword} />
           </Route>
           <Redirect to="/" />

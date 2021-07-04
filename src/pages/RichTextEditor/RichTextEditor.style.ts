@@ -5,10 +5,15 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
-    width: '100%',
+    width: '98%',
     gap: 20,
-    marginTop: 120,
-    paddingRight: '20px',
+    marginTop: 90,
+  },
+  radioButtonGroup: {
+    display: 'flex',
+    gap: 20,
+    flexDirection: 'row',
+    textAlign: 'left',
   },
   statusInfo: {
     position: 'absolute',
