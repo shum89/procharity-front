@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   authFormButton: {
     cursor: 'pointer',
     width: '100%',
+    color: 'white',
     maxWidth: '230px',
     minHeight: '44px',
     backgroundPosition: 'center',
