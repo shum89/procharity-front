@@ -28,6 +28,10 @@ const useStyles = makeStyles((theme: Theme) => {
       display: 'flex',
       flexDirection: 'column',
       width: `calc(100% - 260px)`,
+      '@media (max-width: 599px)': {
+        width: '90%',
+        marginLeft: 0,
+      },
     },
     contentShift: {
       overflow: 'visible',

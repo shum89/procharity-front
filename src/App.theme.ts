@@ -25,7 +25,7 @@ export const themeDark: ThemeOptions = {
     },
     background: {
       default: '#06091F',
-      paper: 'rgba(255,255,255,0.1)',
+      paper: '#1F2235',
     },
     error: {
       main: '#F6483D',

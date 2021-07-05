@@ -14,10 +14,15 @@ const useStyles = makeStyles((theme: Theme) => ({
     gap: 20,
     flexDirection: 'row',
     textAlign: 'left',
+    width: '100%',
+
+    '@media (max-width: 886px)': {
+      flexDirection: 'column',
+      width: '100%',
+    },
   },
-  statusInfo: {
-    position: 'absolute',
-    top: 70,
+  title: {
+    width: '100%',
   },
   authFormButton: {
     cursor: 'pointer',

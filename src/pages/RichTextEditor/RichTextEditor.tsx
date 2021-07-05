@@ -43,7 +43,7 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
 
   return (
     <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-      <Typography>Выберите вариант отправки сообщения</Typography>
+      <Typography className={classes.title}>Выберите вариант отправки сообщения</Typography>
       <Controller
         defaultValue="subscribed"
         render={({ field }) => (

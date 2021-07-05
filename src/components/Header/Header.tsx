@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import React from 'react';
-import { makeStyles, AppBar, Toolbar, IconButton, Drawer, Divider, List } from '@material-ui/core';
+import { makeStyles, AppBar, Toolbar, IconButton, Drawer, Divider, List, Hidden } from '@material-ui/core';
 import clsx from 'clsx';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -24,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
     top: '0',
     left: '0',
     height: '100%',
+    background: theme.palette.background.paper,
   },
   toolbarIcon: {
     display: 'flex',
@@ -60,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
   drawerPaper: {
     position: 'relative',
     whiteSpace: 'nowrap',
+    background: theme.palette.background.paper,
     width: drawerWidth,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
@@ -147,7 +150,11 @@ const Header: React.FC<HeaderProps> = ({
   const history = useHistory();
 
   const matchLogin = useRouteMatch('/')?.isExact ?? false;
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
   const matchRegister = useRouteMatch('/register/:id')?.isExact ?? false;
   const matchReset = useRouteMatch('/reset_password')?.isExact ?? false;
 
@@ -160,42 +167,79 @@ const Header: React.FC<HeaderProps> = ({
     <>
       {!(matchLogin || matchRegister || matchReset) ? (
         <>
-          <AppBar position="absolute" className={clsx(classes.appBar, isMenuOpen && classes.appBarShift)}>
+          <AppBar
+            position="absolute"
+            className={clsx(classes.appBar, isMenuOpen && !mobileOpen && classes.appBarShift)}>
             <Toolbar className={classes.toolbar}>
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="isMenuOpen drawer"
-                onClick={handleDrawerOpen}
-                className={clsx(classes.menuButton, isMenuOpen && classes.menuButtonHidden)}>
-                <MenuIcon />
-              </IconButton>
+              <Hidden xsDown implementation="css">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="isMenuOpen drawer"
+                  onClick={handleDrawerOpen}
+                  className={clsx(classes.menuButton, isMenuOpen && classes.menuButtonHidden)}>
+                  <MenuIcon />
+                </IconButton>
+              </Hidden>
+              <Hidden smUp implementation="css">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="isMenuOpen drawer"
+                  onClick={handleDrawerToggle}
+                  className={clsx(classes.menuButton)}>
+                  <MenuIcon />
+                </IconButton>
+              </Hidden>
               <div className={classes.appBarSpacer} />
               <IconButton onClick={handleSetTheme}>{isDark ? <Brightness4Icon /> : <Brightness7Icon />}</IconButton>
             </Toolbar>
           </AppBar>
-          <Drawer
-            variant="permanent"
-            classes={{
-              paper: clsx(classes.drawerPaper, !isMenuOpen && classes.drawerPaperClose),
-              root: classes.drawerPosition,
-            }}
-            open={isMenuOpen}>
-            <div className={classes.toolbarIcon}>
-              <IconButton onClick={handleDrawerClose}>
-                <ChevronLeftIcon />
-              </IconButton>
-            </div>
-            <Divider />
-            <List>
-              <MainListItems handleResetErrors={handleResetErrors} />
-            </List>
-            <Divider />
+          <Hidden xsDown implementation="css">
+            <Drawer
+              variant="permanent"
+              classes={{
+                paper: clsx(classes.drawerPaper, !isMenuOpen && classes.drawerPaperClose),
+                root: classes.drawerPosition,
+              }}
+              open={isMenuOpen}>
+              <div className={classes.toolbarIcon}>
+                <IconButton onClick={handleDrawerClose}>
+                  <ChevronLeftIcon />
+                </IconButton>
+              </div>
+              <Divider />
+              <List>
+                <MainListItems handleResetErrors={handleResetErrors} />
+              </List>
+              <Divider />
 
-            <List>
-              <SecondaryListItems handleLogout={handleLogout} />
-            </List>
-          </Drawer>
+              <List>
+                <SecondaryListItems handleLogout={handleLogout} />
+              </List>
+            </Drawer>
+          </Hidden>
+          <Hidden smUp implementation="css">
+            <Drawer
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+              ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+              }}>
+              <List>
+                <MainListItems handleResetErrors={handleResetErrors} />
+              </List>
+              <Divider />
+
+              <List>
+                <SecondaryListItems handleLogout={handleLogout} />
+              </List>
+            </Drawer>
+          </Hidden>
         </>
       ) : (
         <div className={classes.headerContainer}>

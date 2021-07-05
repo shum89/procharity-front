@@ -242,7 +242,7 @@ function App() {
   const handleResetErrors = () => {
     setErrorOpen(false);
   };
-  const [isMenuOpen, setMenuOpen] = React.useState(true);
+  const [isMenuOpen, setMenuOpen] = React.useState(false);
   const handleDrawerOpen = () => {
     setMenuOpen(true);
   };
@@ -384,7 +384,7 @@ function App() {
               open={openError}
               handleCloseError={handleCloseError}
             />
-            {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect to="/dashboard" />}
+            {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect exact from="/" to="/dashboard" />}
           </Route>
 
           <ProtectedRoute
