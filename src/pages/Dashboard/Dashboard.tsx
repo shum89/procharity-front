@@ -1,21 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import { useHistory } from 'react-router-dom';
-import { Alert } from '@material-ui/lab';
-import { Collapse, IconButton, CircularProgress } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
 import Chart from '../../components/Chart/Chart';
 import Actions from '../../components/ActionsStats/Actions';
 import Users from '../../components/UserStats/Users';
+import UsersTable from '../../components/UsersTable/UsersTable';
 
 export interface userStats {
   time: string;
@@ -113,43 +106,70 @@ export interface UserData {
   command_stats: {
     [key: string]: number;
   };
+  reasons_canceling: {
+    [key: string]: number;
+  };
+}
+
+export interface UsersTableData {
+  total: number;
+  pages: number;
+  previous_page: null;
+  current_page: number;
+  next_page: number;
+  next_url: string;
+  previous_url: null;
+  result: Result[];
+}
+
+export interface Result {
+  telegram_id: number;
+  username: string;
+  email: null;
+  first_name: string;
+  last_name: string;
+  external_id: null;
+  has_mailing: boolean;
+  date_registration: string;
 }
 
 interface DashboardProps {
   userStats: UserData | null;
+  rowsPerPage: number;
+  usersTable: UsersTableData | null;
+  userToken: string | boolean;
   fetchUserStats: () => Promise<void>;
-}
-const Dashboard: React.FC<DashboardProps> = ({ userStats, fetchUserStats }) => {
-  const classes = useStyles();
-  const history = useHistory();
-  const [open, setOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  useEffect(() => {
-    fetchUserStats();
-  }, []);
+  handleChangePage: (event: unknown, newPage: number) => void;
 
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  fetchUserData: (limit: number, page: number) => Promise<void>;
+}
+const Dashboard: React.FC<DashboardProps> = ({
+  handleChangePage,
+  handleChangeRowsPerPage,
+  rowsPerPage,
+  userStats,
+  fetchUserStats,
+  fetchUserData,
+  usersTable,
+}) => {
+  const classes = useStyles();
+
+  useEffect(() => {
+    fetchUserStats().then((res) => {
+      // eslint-disable-next-line no-console
+      console.log(res);
+      if (usersTable === null) {
+        fetchUserData(1, 5);
+      } else {
+        const currentPage = usersTable?.current_page ?? 1;
+        fetchUserData(currentPage, rowsPerPage);
+      }
+    });
+  }, []);
 
   return (
     <Container maxWidth="lg" className={classes.container}>
-      <Collapse in={open} className={classes.authFormError}>
-        <Alert
-          severity="error"
-          variant="outlined"
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpen(false);
-              }}>
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }>
-          {errorMessage}
-        </Alert>
-      </Collapse>
       <Grid container spacing={3}>
         <Grid item xs={12} md={4} lg={4}>
           <Paper className={classes.paper}>
@@ -176,9 +196,28 @@ const Dashboard: React.FC<DashboardProps> = ({ userStats, fetchUserStats }) => {
           </Paper>
         </Grid>
 
+        <Grid item xs={6} md={6} lg={6}>
+          <Paper className={classes.paper}>
+            <Actions cardTitle="Статистика команд" title="Название Команды" actionsStats={userStats?.command_stats} />
+          </Paper>
+        </Grid>
+        <Grid item xs={6} md={6} lg={6}>
+          <Paper className={classes.paper}>
+            <Actions
+              cardTitle="Статистика отписок"
+              title="Причина отписки"
+              actionsStats={userStats?.reasons_canceling}
+            />
+          </Paper>
+        </Grid>
         <Grid item xs={12} md={12} lg={12}>
           <Paper className={classes.paper}>
-            <Actions actionsStats={userStats?.command_stats} />
+            <UsersTable
+              rowsPerPage={rowsPerPage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+              handleChangePage={handleChangePage}
+              usersTable={usersTable}
+            />
           </Paper>
         </Grid>
       </Grid>

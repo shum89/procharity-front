@@ -5,6 +5,7 @@ import { Typography } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts';
 import { UserData } from '../../pages/Dashboard/Dashboard';
+import useStyles from './Chart.styles';
 
 interface ChartProps {
   data: UserData | null;
@@ -16,6 +17,7 @@ interface ChartData {
 
 export default function Chart({ data }: ChartProps) {
   const theme = useTheme();
+  const classes = useStyles();
   const chartData: ChartData[] = Object.keys(data?.added_users ?? {}).reduce((previousValue, currentValue) => {
     const amount = data?.added_users[currentValue] ?? 0;
     const day = Date.parse(currentValue);
@@ -39,8 +41,10 @@ export default function Chart({ data }: ChartProps) {
 
   return (
     <>
-      <Typography>Cтатистика пользователей за текущий месяц</Typography>
-      <ResponsiveContainer height={300}>
+      <Typography className={classes.title} variant="h5">
+        Cтатистика пользователей за текущий месяц
+      </Typography>
+      <ResponsiveContainer height={400}>
         <LineChart
           data={chartData}
           margin={{
@@ -54,10 +58,13 @@ export default function Chart({ data }: ChartProps) {
           <XAxis
             tickFormatter={(value, index: number) => {
               const dateObj: Date = new Date(value);
-              const day = `${dateObj.getDate()}`;
+              const day = `${dateObj.getDate()}/${dateObj.getMonth()}`;
               return day;
             }}
+            interval={0}
+            angle={30}
             dataKey="time"
+            tickMargin={10}
             stroke={theme.palette.text.primary}
           />
           <Tooltip
