@@ -196,12 +196,12 @@ const Dashboard: React.FC<DashboardProps> = ({
           </Paper>
         </Grid>
 
-        <Grid item xs={6} md={6} lg={6}>
+        <Grid item xs={12} md={6} lg={6}>
           <Paper className={classes.paper}>
             <Actions cardTitle="Статистика команд" title="Название Команды" actionsStats={userStats?.command_stats} />
           </Paper>
         </Grid>
-        <Grid item xs={6} md={6} lg={6}>
+        <Grid item xs={12} md={6} lg={6}>
           <Paper className={classes.paper}>
             <Actions
               cardTitle="Статистика отписок"
