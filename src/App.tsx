@@ -377,6 +377,14 @@ function App() {
               },
             },
           },
+          MuiIconButton: {
+            root: {
+              '&.Mui-disabled': {
+                filter: 'contrast(0)',
+              },
+            },
+            disabled: {},
+          },
           MuiSvgIcon: {
             root: {
               fill: themeColor ? 'white' : 'black',
