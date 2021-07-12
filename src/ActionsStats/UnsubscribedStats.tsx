@@ -5,28 +5,21 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
-import Typography from '@material-ui/core/Typography';
-import useStyles from './Actions.styles';
+import useStyles from './UnsubscribedStats.styles';
 
-interface ActionsProps {
-  actionsStats: { [key: string]: number } | undefined;
-  title: string;
-  cardTitle: string;
+interface UnsubscribedStatsProps {
+  unsubscribedStats: { [key: string]: number } | undefined;
 }
-const Actions: React.FC<ActionsProps> = ({ actionsStats, title, cardTitle }) => {
+
+const UnsubscribedStats: React.FC<UnsubscribedStatsProps> = ({ unsubscribedStats }) => {
   const classes = useStyles();
-  const stats = actionsStats ?? { command_stats: 0 };
+  const stats = unsubscribedStats ?? { command_stats: 0 };
   return (
     <>
-      <Typography className={classes.title} variant="h5">
-        {cardTitle}
-      </Typography>
       <Table className={classes.table} size="small">
         <TableHead>
           <TableRow>
-            <TableCell>
-              <Typography>{title}</Typography>
-            </TableCell>
+            <TableCell>Причина Отписки</TableCell>
             <TableCell align="right">Количество</TableCell>
           </TableRow>
         </TableHead>
@@ -43,4 +36,4 @@ const Actions: React.FC<ActionsProps> = ({ actionsStats, title, cardTitle }) => 
   );
 };
 
-export default Actions;
+export default UnsubscribedStats;

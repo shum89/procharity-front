@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { relative } from 'path';
 import { themeDark } from './App.theme';
 
 const drawerWidth = 268;
@@ -18,16 +17,16 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     content: {
       position: 'relative',
-      transition: theme.transitions.create('margin', {
+      transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
       overflow: 'visible',
-      marginLeft: '100px',
+      marginLeft: '75px',
       marginTop: '60px',
       display: 'flex',
       flexDirection: 'column',
-      width: `calc(100% - 260px)`,
+      width: `calc(100% - 175px)`,
       '@media (max-width: 599px)': {
         width: '90%',
         marginLeft: 0,
@@ -35,11 +34,11 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     contentShift: {
       overflow: 'visible',
-      transition: theme.transitions.create('margin', {
+      transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      width: match ? `calc(100% - ${drawerWidth}px)` : `calc(100% - ${drawerWidth + 80}px)`,
+      width: match ? `calc(100% - ${drawerWidth}px)` : `calc(100% - ${drawerWidth + 20}px)`,
       marginLeft: drawerWidth,
     },
   };

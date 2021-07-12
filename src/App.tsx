@@ -5,7 +5,7 @@ import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import ky from 'ky';
 import AuthForm, { LoginFormValues } from './pages/AuthForm/AuthForm';
 import Header from './components/Header/Header';
-import Dashboard, { UserData } from './pages/Dashboard/Dashboard';
+import Dashboard, { UserData, UsersTableData } from './pages/Dashboard/Dashboard';
 import RegisterForm, { RegisterFormValues } from './pages/RegisterForm/RegisterForm';
 import ResetPassword, { ResetPasswordFormValues } from './pages/ResetPassword/ResetPassword';
 import { themeLight, themeDark } from './App.theme';
@@ -17,6 +17,7 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import StatusLabel from './components/StatusLabel/StatusLabel';
 
 function App() {
+  const history = useHistory();
   const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
   const [userToken, setUserToken] = useLocalStorage<string | boolean>('user', false);
   const [refreshToken, setRefreshToken] = useLocalStorage<string | boolean>('refresh_token', false);
@@ -30,41 +31,73 @@ function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [usersStats, setUsersStats] = useState<UserData | null>(null);
   const handleCloseError = () => setErrorOpen(false);
+  const [usersTable, setUsersTable] = useLocalStorage<null | UsersTableData>('users', null);
+  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 5);
 
-  const getRefreshedToken = async () => {
-    const responseToken = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${refreshToken}`,
-      },
-    });
-
-    if (responseToken.status === 401) {
-      removeToken();
-    } else {
-      const refreshedToken = await responseToken.json();
-      setUserToken(refreshedToken.token as string);
+  useEffect(() => {
+    if (refreshToken === false) {
+      history.push('/');
     }
-  };
+  }, [history, refreshToken]);
+
+  // const getRefreshedToken = async () => {
+  //   const responseToken = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       Authorization: `Bearer ${refreshToken}`,
+  //     },
+  //   });
+
+  //   if (responseToken.status === 401) {
+  //     removeToken();
+  //     history.push('/');
+  //   } else {
+  //     const refreshedToken = await responseToken.json();
+  //     setUserToken(refreshedToken.access_token as string);
+  //     setRefreshToken(refreshedToken.refresh_token as string);
+  //   }
+  // };
 
   const getUsers = async () => {
     try {
       setErrorOpen(false);
-      const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/analysis/`, {
-        method: 'GET',
+      const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/analysis/`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userToken}`,
+        },
+        throwHttpErrors: false,
+        hooks: {
+          afterResponse: [
+            // eslint-disable-next-line consistent-return
+            async (request, options, res) => {
+              if (res.status === 401) {
+                // Get a fresh token
+                const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                  headers: {
+                    Authorization: `Bearer ${refreshToken}`,
+                  },
+                });
+                const token = await resp.json();
+                // Retry with the token
+                request.headers.set('Authorization', `Bearer ${token.access_token}`);
+                if (resp.status === 200) {
+                  setUserToken(token.access_token as string);
+                  setRefreshToken(token.refresh_token as string);
+                  return ky(request);
+                }
+                history.push('/');
+              }
+            },
+          ],
         },
       });
 
       if (response.status === 200) {
         const userData: UserData = (await response.json()) as UserData;
-
+        // eslint-disable-next-line no-console
         setUsersStats(userData);
-      } else if (response.status === 401) {
-        getRefreshedToken();
       } else {
         const error = await response.json();
         setError(true);
@@ -74,7 +107,43 @@ function App() {
       setErrorMessage(e.message);
     }
   };
+  const getUsersData = async (page: number, limit: number) => {
+    try {
+      setErrorOpen(false);
+      const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/users/?page=${page}&limit=${limit}`, {
+        retry: {
+          limit: 2,
+          methods: ['get'],
+          statusCodes: [401],
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${JSON.parse(localStorage.getItem('user') ?? '')}`,
+        },
+      });
 
+      if (response.status === 200) {
+        const userData = (await response.json()) as UsersTableData;
+        // eslint-disable-next-line no-console
+        setUsersTable(userData);
+      } else {
+        const error = await response.json();
+        setError(true);
+        throw new Error(error);
+      }
+    } catch (e: any) {
+      setErrorMessage(e.message);
+    }
+  };
+  const handleChangePage = (event: unknown, newPage: number) => {
+    // eslint-disable-next-line no-console
+    getUsersData(newPage + 1, rowsPerPage);
+  };
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const currentPage = usersTable?.current_page ?? 1;
+    setRowsPerPage(+event.target.value);
+    getUsersData(currentPage, +event.target.value);
+  };
   const onInvite = async (data: InviteFormValues) => {
     try {
       setErrorOpen(false);
@@ -95,14 +164,12 @@ function App() {
         throw new Error(result.message);
       }
     } catch (e: any) {
-      // eslint-disable-next-line no-console
-      console.log(e);
       setError(true);
       setErrorOpen(true);
       setErrorMessage(e.message);
     }
   };
-  const history = useHistory();
+
   const onLogin = async (data: LoginFormValues) => {
     try {
       const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/login/`, {
@@ -165,7 +232,7 @@ function App() {
           ...normalizedData,
         },
         retry: {
-          limit: 1,
+          limit: 2,
           methods: ['post'],
           statusCodes: [401],
         },
@@ -176,18 +243,23 @@ function App() {
         hooks: {
           afterResponse: [
             // eslint-disable-next-line consistent-return
-            async (request, options, resp) => {
-              if (resp.status === 401) {
+            async (request, options, res) => {
+              if (res.status === 401) {
                 // Get a fresh token
-                const token = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
                 });
-
+                const token = await resp.json();
                 // Retry with the token
-                request.headers.set('Authorization', `Bearer ${token}`);
-                return ky(request);
+                request.headers.set('Authorization', `Bearer ${token.access_token}`);
+                if (resp.status === 200) {
+                  setUserToken(token.access_token as string);
+                  setRefreshToken(token.refresh_token as string);
+                  return ky(request);
+                }
+                history.push('/');
               }
             },
           ],
@@ -394,7 +466,16 @@ function App() {
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
-                <Dashboard userStats={usersStats} fetchUserStats={getUsers} />
+                <Dashboard
+                  handleChangePage={handleChangePage}
+                  rowsPerPage={rowsPerPage}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                  userToken={userToken}
+                  usersTable={usersTable}
+                  userStats={usersStats}
+                  fetchUserData={getUsersData}
+                  fetchUserStats={getUsers}
+                />
               </main>
             }
             path="/dashboard"
