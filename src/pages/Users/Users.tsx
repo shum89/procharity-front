@@ -44,13 +44,14 @@ const useStyles = makeStyles((theme: Theme) => {
     },
   };
 });
-const normalizeDate = (date: string) => {
-  const db = new Date(date);
+const formaData = (date) => {
   const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
-  const normalizedDate = new Intl.DateTimeFormat('ru-Ru', options).format(db);
-  return normalizedDate;
+  const dateIso = new Date(date);
+  const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso);
+  return dateLocalized;
 };
 const columns = ['ФИО', 'E-mail', 'Рассылка', 'Имя пользователя', 'Дата Регистрации'];
+
 const Users: React.FC<UsersProps> = ({
   fetchUserData,
   rowsPerPage,
@@ -62,7 +63,7 @@ const Users: React.FC<UsersProps> = ({
 
   React.useEffect(() => {
     if (users === null) {
-      fetchUserData(1, 5);
+      fetchUserData(1, 20);
     } else {
       const currentPage = users?.current_page ?? 1;
       fetchUserData(currentPage, rowsPerPage);
@@ -101,7 +102,7 @@ const Users: React.FC<UsersProps> = ({
                   </div>
                 </TableCell>
                 <TableCell align="left">{result.username ?? 'Не указан'}</TableCell>
-                <TableCell align="left">{normalizeDate(result.date_registration)}</TableCell>
+                <TableCell align="left">{formaData(result.date_registration)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
