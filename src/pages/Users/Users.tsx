@@ -24,10 +24,11 @@ const useStyles = makeStyles((theme: Theme) => {
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
+    },
+    section: {
       paddingTop: theme.spacing(4),
       paddingBottom: theme.spacing(4),
     },
-
     title: {
       padding: 5,
     },
@@ -71,7 +72,7 @@ const Users: React.FC<UsersProps> = ({
   }, []);
 
   return (
-    <section className={classes.root}>
+    <section className={classes.section}>
       <Typography className={classes.title} variant="h5">
         Пользователи
       </Typography>
