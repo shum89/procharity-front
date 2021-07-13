@@ -1,24 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
-import React, { useState } from 'react';
-import {
-  Button,
-  CircularProgress,
-  Collapse,
-  FormControlLabel,
-  FormHelperText,
-  IconButton,
-  Radio,
-  RadioGroup,
-  Typography,
-} from '@material-ui/core';
+import React from 'react';
+import { Button, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
 import { Controller, useForm } from 'react-hook-form';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import Alert from '@material-ui/lab/Alert';
-import CloseIcon from '@material-ui/icons/Close';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+
 import useStyles from './RichTextEditor.style';
 
 export interface RichTextEditorFormValues {

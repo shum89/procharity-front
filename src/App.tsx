@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Container, createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
