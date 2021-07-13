@@ -17,8 +17,6 @@ interface UsersProps {
   handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 const useStyles = makeStyles((theme: Theme) => {
-  // eslint-disable-next-line no-console
-  console.log(theme.palette);
   return {
     root: {
       width: '100%',
