@@ -1,5 +1,6 @@
 import React from 'react';
 import ListItem from '@material-ui/core/ListItem';
+
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import SendIcon from '@material-ui/icons/Send';
@@ -7,13 +8,22 @@ import BarChartIcon from '@material-ui/icons/BarChart';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { useHistory } from 'react-router-dom';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import GroupIcon from '@material-ui/icons/Group';
+import Divider from '@material-ui/core/Divider';
+import { makeStyles } from '@material-ui/core/styles';
 
 interface MainListItemsProps {
   handleResetErrors: () => void;
 }
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+}));
 export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors }) => {
   const history = useHistory();
-
+  const classes = useStyles();
   return (
     <div>
       <ListItem
@@ -30,6 +40,18 @@ export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors 
       <ListItem
         button
         onClick={() => {
+          history.push('/users');
+          handleResetErrors();
+        }}>
+        <ListItemIcon>
+          <GroupIcon />
+        </ListItemIcon>
+        <ListItemText primary="Пользователи" />
+      </ListItem>
+      <Divider className={classes.root} />
+      <ListItem
+        button
+        onClick={() => {
           history.push('/send');
           handleResetErrors();
         }}>
@@ -38,6 +60,7 @@ export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors 
         </ListItemIcon>
         <ListItemText primary="Написать Сообщение" />
       </ListItem>
+
       <ListItem
         button
         onClick={() => {

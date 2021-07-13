@@ -16,6 +16,7 @@ import useStyles from './App.styles';
 import Invite, { InviteFormValues } from './pages/Invite/Invite';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import StatusLabel from './components/StatusLabel/StatusLabel';
+import Users from './pages/Users/Users';
 
 function App() {
   const history = useHistory();
@@ -34,7 +35,15 @@ function App() {
   const handleCloseError = () => setErrorOpen(false);
   const [usersTable, setUsersTable] = useLocalStorage<null | UsersTableData>('users', null);
   const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 5);
-
+  const handleChangePage = (event: unknown, newPage: number) => {
+    // eslint-disable-next-line no-console
+    getUsersData(newPage + 1, rowsPerPage);
+  };
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const currentPage = usersTable?.current_page ?? 1;
+    setRowsPerPage(+event.target.value);
+    getUsersData(currentPage, +event.target.value);
+  };
   useEffect(() => {
     if (refreshToken === false) {
       history.push('/');
@@ -92,7 +101,6 @@ function App() {
               if (res.status === 401) {
                 // Get a fresh token
                 // eslint-disable-next-line no-console
-
                 const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
@@ -136,21 +144,64 @@ function App() {
   const getUsersData = async (page: number, limit: number) => {
     try {
       setErrorOpen(false);
-      const resp = await ky(`${process.env.REACT_APP_API_ADDRESS}/users/?page=${page}&limit=${limit}`, {
+      const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/users/?page=${page}&limit=${limit}`, {
         retry: {
           limit: 2,
           methods: ['get'],
           statusCodes: [401],
         },
+        // hooks: {
+        //   beforeRetry: [
+        //     // eslint-disable-next-line consistent-return
+        //     async ({ request, options, error, retryCount, response }) => {
+        //       if (retryCount === 1) {
+        //         setUserToken(false);
+        //         setRefreshToken(false);
+        //         history.push('/');
+        //         return ky.stop;
+        //       }
+        //     },
+        //   ],
+        // },
         hooks: {
           beforeRetry: [
             // eslint-disable-next-line consistent-return
-            async ({ request, options, error, retryCount, response }) => {
+            async ({ request, options, error, retryCount }) => {
               if (retryCount === 1) {
                 setUserToken(false);
                 setRefreshToken(false);
                 history.push('/');
                 return ky.stop;
+              }
+            },
+          ],
+          afterResponse: [
+            // eslint-disable-next-line consistent-return
+            async (request, options, res) => {
+              if (res.status === 401) {
+                // Get a fresh token
+                // eslint-disable-next-line no-console
+                const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                  headers: {
+                    Authorization: `Bearer ${refreshToken}`,
+                  },
+                });
+
+                if (resp.status === 200) {
+                  // eslint-disable-next-line no-console
+                  const token = await resp.json();
+                  request.headers.set('Authorization', `Bearer ${token.access_token}`);
+                  setUserToken(token.access_token as string);
+                  setRefreshToken(token.refresh_token as string);
+                  return ky(request);
+                }
+                if (resp.status === 401) {
+                  setUserToken(false);
+                  setRefreshToken(false);
+                  history.push('/');
+                }
+
+                // Retry with the token
               }
             },
           ],
@@ -161,12 +212,12 @@ function App() {
         },
       });
 
-      if (resp.status === 200) {
-        const userData = (await resp.json()) as UsersTableData;
+      if (response.status === 200) {
+        const userData = (await response.json()) as UsersTableData;
         // eslint-disable-next-line no-console
         setUsersTable(userData);
       } else {
-        const error = await resp.json();
+        const error = await response.json();
         setError(true);
         throw new Error(error);
       }
@@ -174,15 +225,7 @@ function App() {
       setErrorMessage(e.message);
     }
   };
-  const handleChangePage = (event: unknown, newPage: number) => {
-    // eslint-disable-next-line no-console
-    getUsersData(newPage + 1, rowsPerPage);
-  };
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const currentPage = usersTable?.current_page ?? 1;
-    setRowsPerPage(+event.target.value);
-    getUsersData(currentPage, +event.target.value);
-  };
+
   const onInvite = async (data: InviteFormValues) => {
     try {
       setErrorOpen(false);
@@ -513,16 +556,7 @@ function App() {
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
-                <Dashboard
-                  handleChangePage={handleChangePage}
-                  rowsPerPage={rowsPerPage}
-                  handleChangeRowsPerPage={handleChangeRowsPerPage}
-                  userToken={userToken}
-                  usersTable={usersTable}
-                  userStats={usersStats}
-                  fetchUserData={getUsersData}
-                  fetchUserStats={getUsers}
-                />
+                <Dashboard userStats={usersStats} fetchUserStats={getUsers} />
               </main>
             }
             path="/dashboard"
@@ -545,6 +579,31 @@ function App() {
               </main>
             }
             path="/send"
+          />
+          <ProtectedRoute
+            condition={userToken}
+            component={
+              <main
+                className={clsx(classes.content, {
+                  [classes.contentShift]: isMenuOpen,
+                })}>
+                <StatusLabel
+                  isMenuOpen={isMenuOpen}
+                  isError={isError}
+                  statusMessage={errorMessage}
+                  open={openError}
+                  handleCloseError={handleCloseError}
+                />
+                <Users
+                  fetchUserData={getUsersData}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                  users={usersTable}
+                  handleChangePage={handleChangePage}
+                  rowsPerPage={rowsPerPage}
+                />
+              </main>
+            }
+            path="/users"
           />
           {/* <ProtectedRoute
             condition={userToken}

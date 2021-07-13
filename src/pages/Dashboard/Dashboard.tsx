@@ -8,78 +8,19 @@ import Paper from '@material-ui/core/Paper';
 import Chart from '../../components/Chart/Chart';
 import Actions from '../../components/ActionsStats/Actions';
 import Users from '../../components/UserStats/Users';
-import UsersTable from '../../components/UsersTable/UsersTable';
 
 export interface userStats {
   time: string;
   amount: number;
 }
 
-const drawerWidth = 240;
-
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },
-  authFormError: {
-    position: 'absolute',
-    top: 70,
-  },
-  toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
-  },
-  toolbarIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
   title: {
     flexGrow: 1,
   },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
-    },
-  },
-  appBarSpacer: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
     height: '100%',
@@ -135,39 +76,14 @@ export interface Result {
 
 interface DashboardProps {
   userStats: UserData | null;
-  rowsPerPage: number;
-  usersTable: UsersTableData | null;
-  userToken: string | boolean;
-  fetchUserStats: () => Promise<void>;
-  handleChangePage: (event: unknown, newPage: number) => void;
 
-  handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  fetchUserData: (limit: number, page: number) => Promise<void>;
+  fetchUserStats: () => Promise<void>;
 }
-const Dashboard: React.FC<DashboardProps> = ({
-  handleChangePage,
-  handleChangeRowsPerPage,
-  rowsPerPage,
-  userStats,
-  fetchUserStats,
-  fetchUserData,
-  usersTable,
-}) => {
+const Dashboard: React.FC<DashboardProps> = ({ userStats, fetchUserStats }) => {
   const classes = useStyles();
 
   useEffect(() => {
-    fetchUserStats().then((res) => {
-      // eslint-disable-next-line no-console
-      if (JSON.parse(localStorage.getItem('user') ?? '') === false) {
-        return;
-      }
-      if (usersTable === null) {
-        fetchUserData(1, 5);
-      } else {
-        const currentPage = usersTable?.current_page ?? 1;
-        fetchUserData(currentPage, rowsPerPage);
-      }
-    });
+    fetchUserStats();
   }, []);
 
   return (
@@ -209,16 +125,6 @@ const Dashboard: React.FC<DashboardProps> = ({
               cardTitle="Статистика отписок"
               title="Причина отписки"
               actionsStats={userStats?.reasons_canceling}
-            />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={12} lg={12}>
-          <Paper className={classes.paper}>
-            <UsersTable
-              rowsPerPage={rowsPerPage}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              handleChangePage={handleChangePage}
-              usersTable={usersTable}
             />
           </Paper>
         </Grid>
