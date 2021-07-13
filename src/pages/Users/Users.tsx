@@ -3,26 +3,47 @@ import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody, makeS
 import React from 'react';
 import TablePagination from '@material-ui/core/TablePagination';
 import Typography from '@material-ui/core/Typography';
-import { UsersTableData } from '../../pages/Dashboard/Dashboard';
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
+import { UsersTableData } from '../Dashboard/Dashboard';
 
-interface UsersTableProps {
+interface UsersProps {
   children?: React.ReactNode;
-  usersTable: UsersTableData | null;
+  users: UsersTableData | null;
   handleChangePage: (event: unknown, newPage: number) => void;
   rowsPerPage: number;
+  fetchUserData: (limit: number, page: number) => Promise<void>;
 
   handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
-const useStyles = makeStyles({
-  root: {
-    width: '100%',
-  },
-  container: {
-    maxHeight: 440,
-  },
-  title: {
-    padding: 5,
-  },
+const useStyles = makeStyles((theme: Theme) => {
+  // eslint-disable-next-line no-console
+  console.log(theme.palette);
+  return {
+    root: {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      paddingTop: theme.spacing(4),
+      paddingBottom: theme.spacing(4),
+    },
+
+    title: {
+      padding: 5,
+    },
+    iconCross: {
+      fill: theme.palette.error.main,
+    },
+    iconCheckMark: {
+      fill: theme.palette.success.main,
+    },
+    container: {
+      alignItems: 'center',
+      display: 'flex',
+      width: '40%',
+      justifyContent: 'space-between',
+    },
+  };
 });
 const normalizeDate = (date: string) => {
   const db = new Date(date);
@@ -31,20 +52,30 @@ const normalizeDate = (date: string) => {
   return normalizedDate;
 };
 const columns = ['ФИО', 'E-mail', 'Рассылка', 'Имя пользователя', 'Дата Регистрации'];
-const UsersTable: React.FC<UsersTableProps> = ({
+const Users: React.FC<UsersProps> = ({
+  fetchUserData,
   rowsPerPage,
-  usersTable,
+  users,
   handleChangePage,
   handleChangeRowsPerPage,
 }) => {
   const classes = useStyles();
 
+  React.useEffect(() => {
+    if (users === null) {
+      fetchUserData(1, 5);
+    } else {
+      const currentPage = users?.current_page ?? 1;
+      fetchUserData(currentPage, rowsPerPage);
+    }
+  }, []);
+
   return (
-    <>
+    <section className={classes.root}>
       <Typography className={classes.title} variant="h5">
         Пользователи
       </Typography>
-      <TableContainer className={classes.container}>
+      <TableContainer className={classes.root}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -56,11 +87,20 @@ const UsersTable: React.FC<UsersTableProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {usersTable?.result.map((result) => (
+            {users?.result.map((result) => (
               <TableRow key={result.telegram_id}>
                 <TableCell align="left">{`${result.first_name} ${result.last_name ?? ''}`}</TableCell>
                 <TableCell align="left">{result.email ?? 'Не указан '}</TableCell>
-                <TableCell align="left">{result.has_mailing ? 'Включена' : 'Выключена'}</TableCell>
+                <TableCell align="left">
+                  <div className={classes.container}>
+                    <Typography>{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>
+                    {result.has_mailing ? (
+                      <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                    ) : (
+                      <ClearIcon fontSize="small" className={classes.iconCross} />
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell align="left">{result.username ?? 'Не указан'}</TableCell>
                 <TableCell align="left">{normalizeDate(result.date_registration)}</TableCell>
               </TableRow>
@@ -69,15 +109,15 @@ const UsersTable: React.FC<UsersTableProps> = ({
         </Table>
         <TablePagination
           component="div"
-          rowsPerPageOptions={[2, 5, 10, 20]}
-          count={usersTable?.total - 1 ?? 0}
+          rowsPerPageOptions={[20, 50, 100]}
+          count={users?.total - 1 ?? 0}
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
-          page={usersTable?.current_page - 1 ?? 0}
+          page={users?.current_page - 1 ?? 0}
           rowsPerPage={rowsPerPage}
         />
       </TableContainer>
-    </>
+    </section>
   );
 };
-export default UsersTable;
+export default Users;

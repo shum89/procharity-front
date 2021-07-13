@@ -7,7 +7,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'column',
     width: '98%',
     gap: 20,
-    marginTop: 90,
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
   },
   radioButtonGroup: {
     display: 'flex',

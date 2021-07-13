@@ -20,6 +20,10 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 24,
     // keep right padding when drawer closed
   },
+  divider: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
   drawerPosition: {
     position: 'fixed',
     top: '0',
@@ -212,7 +216,7 @@ const Header: React.FC<HeaderProps> = ({
               <List>
                 <MainListItems handleResetErrors={handleResetErrors} />
               </List>
-              <Divider />
+              <Divider className={classes.divider} />
 
               <List>
                 <SecondaryListItems handleLogout={handleLogout} />
