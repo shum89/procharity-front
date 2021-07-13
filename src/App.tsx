@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Container, createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
@@ -68,26 +69,51 @@ function App() {
           Authorization: `Bearer ${userToken}`,
         },
         throwHttpErrors: false,
+        retry: {
+          limit: 2,
+          methods: ['get'],
+          statusCodes: [401],
+        },
         hooks: {
+          beforeRetry: [
+            // eslint-disable-next-line consistent-return
+            async ({ request, options, error, retryCount }) => {
+              if (retryCount === 1) {
+                setUserToken(false);
+                setRefreshToken(false);
+                history.push('/');
+                return ky.stop;
+              }
+            },
+          ],
           afterResponse: [
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
                 // Get a fresh token
+                // eslint-disable-next-line no-console
+
                 const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
                 });
-                const token = await resp.json();
-                // Retry with the token
-                request.headers.set('Authorization', `Bearer ${token.access_token}`);
+
                 if (resp.status === 200) {
+                  // eslint-disable-next-line no-console
+                  const token = await resp.json();
+                  request.headers.set('Authorization', `Bearer ${token.access_token}`);
                   setUserToken(token.access_token as string);
                   setRefreshToken(token.refresh_token as string);
                   return ky(request);
                 }
-                history.push('/');
+                if (resp.status === 401) {
+                  setUserToken(false);
+                  setRefreshToken(false);
+                  history.push('/');
+                }
+
+                // Retry with the token
               }
             },
           ],
@@ -110,11 +136,24 @@ function App() {
   const getUsersData = async (page: number, limit: number) => {
     try {
       setErrorOpen(false);
-      const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/users/?page=${page}&limit=${limit}`, {
+      const resp = await ky(`${process.env.REACT_APP_API_ADDRESS}/users/?page=${page}&limit=${limit}`, {
         retry: {
           limit: 2,
           methods: ['get'],
           statusCodes: [401],
+        },
+        hooks: {
+          beforeRetry: [
+            // eslint-disable-next-line consistent-return
+            async ({ request, options, error, retryCount, response }) => {
+              if (retryCount === 1) {
+                setUserToken(false);
+                setRefreshToken(false);
+                history.push('/');
+                return ky.stop;
+              }
+            },
+          ],
         },
         headers: {
           'Content-Type': 'application/json',
@@ -122,12 +161,12 @@ function App() {
         },
       });
 
-      if (response.status === 200) {
-        const userData = (await response.json()) as UsersTableData;
+      if (resp.status === 200) {
+        const userData = (await resp.json()) as UsersTableData;
         // eslint-disable-next-line no-console
         setUsersTable(userData);
       } else {
-        const error = await response.json();
+        const error = await resp.json();
         setError(true);
         throw new Error(error);
       }

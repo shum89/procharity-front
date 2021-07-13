@@ -158,7 +158,9 @@ const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     fetchUserStats().then((res) => {
       // eslint-disable-next-line no-console
-      console.log(res);
+      if (JSON.parse(localStorage.getItem('user') ?? '') === false) {
+        return;
+      }
       if (usersTable === null) {
         fetchUserData(1, 5);
       } else {
