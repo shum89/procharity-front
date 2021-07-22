@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) => {
     container: {
       alignItems: 'center',
       display: 'flex',
-      width: '40%',
+      width: '95%',
       justifyContent: 'space-between',
     },
   };
@@ -81,7 +81,7 @@ const Users: React.FC<UsersProps> = ({
             <TableRow>
               {columns.map((column) => (
                 <TableCell key={column} align="left">
-                  {column}
+                  <Typography variant="subtitle1">{column}</Typography>
                 </TableCell>
               ))}
             </TableRow>
@@ -89,11 +89,15 @@ const Users: React.FC<UsersProps> = ({
           <TableBody>
             {users?.result.map((result) => (
               <TableRow key={result.telegram_id}>
-                <TableCell align="left">{`${result.first_name} ${result.last_name ?? ''}`}</TableCell>
-                <TableCell align="left">{result.email ?? 'Не указан '}</TableCell>
+                <TableCell align="left">
+                  <Typography variant="subtitle1">{`${result.first_name} ${result.last_name ?? ''}`}</Typography>
+                </TableCell>
+                <TableCell align="left">
+                  <Typography variant="subtitle1">{result.email ?? 'Не указан '}</Typography>
+                </TableCell>
                 <TableCell align="left">
                   <div className={classes.container}>
-                    <Typography>{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>
+                    <Typography variant="subtitle1">{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>
                     {result.has_mailing ? (
                       <CheckIcon fontSize="small" className={classes.iconCheckMark} />
                     ) : (
@@ -101,8 +105,12 @@ const Users: React.FC<UsersProps> = ({
                     )}
                   </div>
                 </TableCell>
-                <TableCell align="left">{result.username ?? 'Не указан'}</TableCell>
-                <TableCell align="left">{formaData(result.date_registration)}</TableCell>
+                <TableCell align="left">
+                  <Typography variant="subtitle1">{result.username ?? 'Не указан'}</Typography>
+                </TableCell>
+                <TableCell align="left">
+                  <Typography variant="subtitle1">{formaData(result.date_registration)}</Typography>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

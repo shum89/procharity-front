@@ -58,7 +58,9 @@ export default function Chart({ data }: ChartProps) {
           <XAxis
             tickFormatter={(value, index: number) => {
               const dateObj: Date = new Date(value);
-              const day = `${dateObj.getDate()}/${dateObj.getMonth()}`;
+              const day = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
+              // eslint-disable-next-line no-console
+              console.log(dateObj.getMonth());
               return day;
             }}
             interval={0}

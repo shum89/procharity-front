@@ -33,9 +33,8 @@ function App() {
   const [usersStats, setUsersStats] = useState<UserData | null>(null);
   const handleCloseError = () => setErrorOpen(false);
   const [usersTable, setUsersTable] = useLocalStorage<null | UsersTableData>('users', null);
-  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 5);
+  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 20);
   const handleChangePage = (event: unknown, newPage: number) => {
-    // eslint-disable-next-line no-console
     getUsersData(newPage + 1, rowsPerPage);
   };
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,30 +42,6 @@ function App() {
     setRowsPerPage(+event.target.value);
     getUsersData(currentPage, +event.target.value);
   };
-  useEffect(() => {
-    if (refreshToken === false) {
-      history.push('/');
-    }
-  }, [history, refreshToken]);
-
-  // const getRefreshedToken = async () => {
-  //   const responseToken = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       Authorization: `Bearer ${refreshToken}`,
-  //     },
-  //   });
-
-  //   if (responseToken.status === 401) {
-  //     removeToken();
-  //     history.push('/');
-  //   } else {
-  //     const refreshedToken = await responseToken.json();
-  //     setUserToken(refreshedToken.access_token as string);
-  //     setRefreshToken(refreshedToken.refresh_token as string);
-  //   }
-  // };
 
   const getUsers = async () => {
     try {
@@ -98,8 +73,6 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                // Get a fresh token
-                // eslint-disable-next-line no-console
                 const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
@@ -107,7 +80,6 @@ function App() {
                 });
 
                 if (resp.status === 200) {
-                  // eslint-disable-next-line no-console
                   const token = await resp.json();
                   request.headers.set('Authorization', `Bearer ${token.access_token}`);
                   setUserToken(token.access_token as string);
@@ -119,8 +91,6 @@ function App() {
                   setRefreshToken(false);
                   history.push('/');
                 }
-
-                // Retry with the token
               }
             },
           ],
@@ -129,7 +99,7 @@ function App() {
 
       if (response.status === 200) {
         const userData: UserData = (await response.json()) as UserData;
-        // eslint-disable-next-line no-console
+
         setUsersStats(userData);
       } else {
         const error = await response.json();
@@ -149,19 +119,6 @@ function App() {
           methods: ['get'],
           statusCodes: [401],
         },
-        // hooks: {
-        //   beforeRetry: [
-        //     // eslint-disable-next-line consistent-return
-        //     async ({ request, options, error, retryCount, response }) => {
-        //       if (retryCount === 1) {
-        //         setUserToken(false);
-        //         setRefreshToken(false);
-        //         history.push('/');
-        //         return ky.stop;
-        //       }
-        //     },
-        //   ],
-        // },
         hooks: {
           beforeRetry: [
             // eslint-disable-next-line consistent-return
@@ -178,8 +135,6 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                // Get a fresh token
-                // eslint-disable-next-line no-console
                 const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
@@ -187,7 +142,6 @@ function App() {
                 });
 
                 if (resp.status === 200) {
-                  // eslint-disable-next-line no-console
                   const token = await resp.json();
                   request.headers.set('Authorization', `Bearer ${token.access_token}`);
                   setUserToken(token.access_token as string);
@@ -199,8 +153,6 @@ function App() {
                   setRefreshToken(false);
                   history.push('/');
                 }
-
-                // Retry with the token
               }
             },
           ],
@@ -213,7 +165,7 @@ function App() {
 
       if (response.status === 200) {
         const userData = (await response.json()) as UsersTableData;
-        // eslint-disable-next-line no-console
+
         setUsersTable(userData);
       } else {
         const error = await response.json();
@@ -235,7 +187,6 @@ function App() {
       });
 
       if (response.status === 200) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const result = await response.json();
         setErrorOpen(true);
         setErrorMessage(result.message);
@@ -326,14 +277,13 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                // Get a fresh token
                 const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
                 });
                 const token = await resp.json();
-                // Retry with the token
+
                 request.headers.set('Authorization', `Bearer ${token.access_token}`);
                 if (resp.status === 200) {
                   setUserToken(token.access_token as string);
@@ -652,7 +602,6 @@ function App() {
             />
             <ResetPassword onSubmit={onResetPassword} />
           </Route>
-          <Redirect to="/" />
         </Switch>
       </Container>
     </ThemeProvider>

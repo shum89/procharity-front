@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useDebugValue, useEffect, useRef, useState } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
@@ -42,7 +43,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const params = useParams<{ id: string }>();
   const [isInviteValid, setInviteValid] = useState(true);
 
+  console.log(
+    paramsSchema
+      .validate(params)
+      .then(() => console.log(params))
+      .catch(() => console.log(params)),
+  );
   useEffect(() => {
+    // paramsSchema.validate(params).catch(() => history.push('/'));
     const handleTokenValidity = async () => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -56,8 +64,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
       }
     };
     handleTokenValidity();
-    paramsSchema.validate(params).catch(() => history.push('/'));
-  }, []);
+  }, [history, params]);
 
   const {
     handleSubmit,
