@@ -21,7 +21,7 @@ export default function Chart({ data }: ChartProps) {
   const chartData: ChartData[] = Object.keys(data?.added_users ?? {}).reduce((previousValue, currentValue) => {
     const amount = data?.added_users[currentValue] ?? 0;
     const day = Date.parse(currentValue);
-    // const dayString = (day.toISOString() as unknown) as string;
+
     const newObject = { time: day, amount };
     previousValue.push(newObject);
     return previousValue;
