@@ -1,14 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
-import { TextField, Button, Typography, Link, IconButton, InputAdornment } from '@material-ui/core';
+import { TextField, Button, Typography, Link, IconButton, InputAdornment, CircularProgress } from '@material-ui/core';
 import { useHistory, useParams, Link as RouterLink } from 'react-router-dom';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import ky, { Options } from 'ky';
 import useStyles from './RegisterForm.styles';
+import { useAsync } from '../../hooks/useAsync';
+import StatusLabel from '../../components/StatusLabel/StatusLabel';
+import Preloader from '../../components/Preloader/Preloader';
 
 const schema = yup.object().shape({
   last_name: yup.string().required('Поле Имя необходимо к заполнению'),
@@ -40,9 +42,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   const password = useRef({});
 
   const params = useParams<{ id: string }>();
-  const [isInviteValid, setInviteValid] = useState(true);
+  const [isInviteValid, setInviteValid] = useState('');
 
   useEffect(() => {
+    paramsSchema.validate(params).catch(() => history.push('/'));
     const handleTokenValidity = async () => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -50,28 +53,44 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
           json: {
             token: params.id,
           },
+          throwHttpErrors: false,
         });
-      } catch {
-        setInviteValid(false);
+
+        if (response.status !== 200) {
+          const error = (await response.json()) as { message: string };
+          throw new Error(error.message);
+        }
+      } catch (e) {
+        const error = e as { message: string };
+        setInviteValid(error.message);
       }
     };
     handleTokenValidity();
-    paramsSchema.validate(params).catch(() => history.push('/'));
-  }, []);
+  }, [history, params]);
 
   const {
     handleSubmit,
     control,
     watch,
-    getValues,
     formState: { errors },
   } = useForm<Pick<RegisterFormValues, 'first_name' | 'password' | 'last_name' | 'passwordConfirmation'>>({
     resolver: yupResolver(schema),
     mode: 'onTouched',
   });
   password.current = watch('password', '');
+  const { error, run, isError, setError, setData, isLoading, isSuccess } = useAsync({
+    data: null,
+    error: null,
+  });
+  const handleResetLabel = () => {
+    if (isError) {
+      setError(null);
+      return;
+    }
+    setData(null);
+  };
   const submitRegisterForm = (data: RegisterFormValues) => {
-    onSubmit(data, params);
+    run(onSubmit(data, params));
   };
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const handleClickShowPassword = () => {
@@ -79,108 +98,125 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   };
   const classes = useStyles();
 
-  return isInviteValid ? (
-    <form className={classes.authForm} onSubmit={handleSubmit(submitRegisterForm)}>
-      <fieldset className={classes.authFormInputContainer}>
-        <Controller
-          name="first_name"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <TextField
-              label="Имя"
-              fullWidth
-              error={Boolean(errors.first_name?.message)}
-              helperText={errors.first_name?.message}
-              className={classes.authFormInput}
-              size="medium"
-              variant="outlined"
-              {...field}
-            />
-          )}
-        />
-        <Controller
-          name="last_name"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <TextField
-              label="Фамилия"
-              error={Boolean(errors.last_name?.message)}
-              helperText={errors.last_name?.message}
-              className={classes.authFormInput}
-              size="medium"
-              variant="outlined"
-              {...field}
-            />
-          )}
-        />
+  return (
+    <Suspense fallback={<Preloader />}>
+      {!isInviteValid || isSuccess ? (
+        <>
+          <StatusLabel
+            isStatusLabelOpen={error}
+            statusMessage={error}
+            isError={isError}
+            handleCloseError={handleResetLabel}
+          />
+          <form className={classes.authForm} onSubmit={handleSubmit(submitRegisterForm)}>
+            <fieldset className={classes.authFormInputContainer}>
+              <Controller
+                name="first_name"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    label="Имя"
+                    fullWidth
+                    error={Boolean(errors.first_name?.message)}
+                    helperText={errors.first_name?.message}
+                    className={classes.authFormInput}
+                    size="medium"
+                    variant="outlined"
+                    {...field}
+                  />
+                )}
+              />
+              <Controller
+                name="last_name"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    label="Фамилия"
+                    error={Boolean(errors.last_name?.message)}
+                    helperText={errors.last_name?.message}
+                    className={classes.authFormInput}
+                    size="medium"
+                    variant="outlined"
+                    {...field}
+                  />
+                )}
+              />
 
-        <Controller
-          name="password"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <TextField
-              variant="outlined"
-              label="Пароль"
-              error={Boolean(errors.password?.message)}
-              helperText={errors.password?.message}
-              className={classes.authFormInput}
-              type={isPasswordVisible ? 'text' : 'password'}
-              size="medium"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
-                      {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              {...field}
-            />
-          )}
-        />
-        <Controller
-          name="passwordConfirmation"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <TextField
-              variant="outlined"
-              label="Повторите пароль"
-              error={Boolean(errors.passwordConfirmation?.message)}
-              helperText={errors.passwordConfirmation?.message}
-              className={classes.authFormInput}
-              type={isPasswordVisible ? 'text' : 'password'}
-              size="medium"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
-                      {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              {...field}
-            />
-          )}
-        />
-      </fieldset>
-
-      <Button className={classes.authFormButton} type="submit">
-        Зарегистрироваться
-      </Button>
-    </form>
-  ) : (
-    <div className={classes.authFormRegisterError}>
-      <Typography variant="h4">Ссылка устарела или не существует</Typography>
-      <Link component={RouterLink} to="/">
-        Вернуться на главную
-      </Link>
-    </div>
+              <Controller
+                name="password"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    label="Пароль"
+                    error={Boolean(errors.password?.message)}
+                    helperText={errors.password?.message}
+                    className={classes.authFormInput}
+                    type={isPasswordVisible ? 'text' : 'password'}
+                    size="medium"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
+                            {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    {...field}
+                  />
+                )}
+              />
+              <Controller
+                name="passwordConfirmation"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    label="Повторите пароль"
+                    error={Boolean(errors.passwordConfirmation?.message)}
+                    helperText={errors.passwordConfirmation?.message}
+                    className={classes.authFormInput}
+                    type={isPasswordVisible ? 'text' : 'password'}
+                    size="medium"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
+                            {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    {...field}
+                  />
+                )}
+              />
+            </fieldset>
+            <>
+              {isLoading ? (
+                <CircularProgress />
+              ) : (
+                <Button className={classes.authFormButton} type="submit">
+                  Зарегистрироваться
+                </Button>
+              )}
+            </>
+          </form>
+        </>
+      ) : (
+        <div className={classes.authFormRegisterError}>
+          <Typography variant="h4">{isSuccess ? 'Вы успешно зарегистрировались' : isInviteValid}</Typography>
+          <Link component={RouterLink} to="/">
+            Вернуться на главную
+          </Link>
+        </div>
+      )}
+    </Suspense>
   );
 };
 

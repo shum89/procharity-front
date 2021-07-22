@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import React, { useEffect } from 'react';
+import React, { useDebugValue, useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -8,6 +9,9 @@ import Paper from '@material-ui/core/Paper';
 import Chart from '../../components/Chart/Chart';
 import Actions from '../../components/ActionsStats/Actions';
 import Users from '../../components/UserStats/Users';
+import Preloader from '../../components/Preloader/Preloader';
+import { useAsync } from '../../hooks/useAsync';
+import StatusLabel from '../../components/StatusLabel/StatusLabel';
 
 export interface userStats {
   time: string;
@@ -75,61 +79,69 @@ export interface Result {
 }
 
 interface DashboardProps {
-  userStats: UserData | null;
-
-  fetchUserStats: () => Promise<void>;
+  fetchUserStats: () => Promise<UserData>;
 }
-const Dashboard: React.FC<DashboardProps> = ({ userStats, fetchUserStats }) => {
+const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
   const classes = useStyles();
+  const { data, error, status, run, isError, reset, isLoading } = useAsync({ status: 'idle', data: null, error: null });
 
   useEffect(() => {
-    fetchUserStats();
+    run(fetchUserStats());
   }, []);
 
   return (
-    <Container maxWidth="lg" className={classes.container}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4} lg={4}>
-          <Paper className={classes.paper}>
-            <Users
-              text={(userStats?.active_users ?? 0) + (userStats?.deactivated_users ?? 0)}
-              title="Всего Пользователей"
-            />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4} lg={4}>
-          <Paper className={classes.paper}>
-            <Users text={userStats?.active_users ?? 0} title="Активных Пользователей" />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4} lg={4}>
-          <Paper className={classes.paper}>
-            <Users text={userStats?.deactivated_users ?? 0} title="Неактивных Пользователей" />
-          </Paper>
-        </Grid>
+    <>
+      {isLoading ? (
+        <Preloader />
+      ) : (
+        <>
+          <StatusLabel isStatusLabelOpen={isError} statusMessage={error} isError={isError} handleCloseError={reset} />
+          <Container maxWidth="lg" className={classes.container}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={4} lg={4}>
+                <Paper className={classes.paper}>
+                  <Users
+                    text={(data?.active_users ?? 0) + (data?.deactivated_users ?? 0)}
+                    title="Всего Пользователей"
+                  />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={4} lg={4}>
+                <Paper className={classes.paper}>
+                  <Users text={data?.active_users ?? 0} title="Активных Пользователей" />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={4} lg={4}>
+                <Paper className={classes.paper}>
+                  <Users text={data?.deactivated_users ?? 0} title="Неактивных Пользователей" />
+                </Paper>
+              </Grid>
 
-        <Grid item xs={12} md={12} lg={12}>
-          <Paper className={clsx(classes.fixedHeight, classes.paper)}>
-            <Chart data={userStats} />
-          </Paper>
-        </Grid>
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
+                  <Chart data={data} />
+                </Paper>
+              </Grid>
 
-        <Grid item xs={12} md={6} lg={6}>
-          <Paper className={classes.paper}>
-            <Actions cardTitle="Статистика команд" title="Название Команды" actionsStats={userStats?.command_stats} />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6} lg={6}>
-          <Paper className={classes.paper}>
-            <Actions
-              cardTitle="Статистика отписок"
-              title="Причина отписки"
-              actionsStats={userStats?.reasons_canceling}
-            />
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+              <Grid item xs={12} md={6} lg={6}>
+                <Paper className={classes.paper}>
+                  <Actions cardTitle="Статистика команд" title="Название Команды" actionsStats={data?.command_stats} />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <Paper className={classes.paper}>
+                  <Actions
+                    cardTitle="Статистика отписок"
+                    title="Причина отписки"
+                    actionsStats={data?.reasons_canceling}
+                  />
+                </Paper>
+              </Grid>
+            </Grid>
+          </Container>
+        </>
+      )}
+    </>
   );
 };
 

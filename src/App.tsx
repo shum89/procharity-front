@@ -14,8 +14,14 @@ import RichTextEditor, { RichTextEditorFormValues } from './pages/RichTextEditor
 import useStyles from './App.styles';
 import Invite, { InviteFormValues } from './pages/Invite/Invite';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
-import StatusLabel from './components/StatusLabel/StatusLabel';
 import Users from './pages/Users/Users';
+
+interface StatusI<Data> {
+  status: string;
+  statusMessage: null | string;
+  isStatusLabelOpen: boolean;
+  data: Data | null;
+}
 
 function App() {
   const history = useHistory();
@@ -26,51 +32,17 @@ function App() {
     setUserToken(false);
     setRefreshToken(false);
   };
+  const [status, setStatus] = useState<StatusI<UserData | UsersTableData>>({
+    status: 'idle',
+    statusMessage: null,
+    isStatusLabelOpen: false,
+    data: null,
+  });
 
-  const [openError, setErrorOpen] = useState(false);
-  const [isError, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [usersStats, setUsersStats] = useState<UserData | null>(null);
-  const handleCloseError = () => setErrorOpen(false);
-  const [usersTable, setUsersTable] = useLocalStorage<null | UsersTableData>('users', null);
-  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 5);
-  const handleChangePage = (event: unknown, newPage: number) => {
-    // eslint-disable-next-line no-console
-    getUsersData(newPage + 1, rowsPerPage);
-  };
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const currentPage = usersTable?.current_page ?? 1;
-    setRowsPerPage(+event.target.value);
-    getUsersData(currentPage, +event.target.value);
-  };
-  useEffect(() => {
-    if (refreshToken === false) {
-      history.push('/');
-    }
-  }, [history, refreshToken]);
-
-  // const getRefreshedToken = async () => {
-  //   const responseToken = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       Authorization: `Bearer ${refreshToken}`,
-  //     },
-  //   });
-
-  //   if (responseToken.status === 401) {
-  //     removeToken();
-  //     history.push('/');
-  //   } else {
-  //     const refreshedToken = await responseToken.json();
-  //     setUserToken(refreshedToken.access_token as string);
-  //     setRefreshToken(refreshedToken.refresh_token as string);
-  //   }
-  // };
+  const handleCloseError = () => setStatus({ ...status, statusMessage: null, isStatusLabelOpen: false });
 
   const getUsers = async () => {
     try {
-      setErrorOpen(false);
       const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/analysis/`, {
         headers: {
           'Content-Type': 'application/json',
@@ -98,8 +70,6 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                // Get a fresh token
-                // eslint-disable-next-line no-console
                 const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
@@ -107,7 +77,6 @@ function App() {
                 });
 
                 if (resp.status === 200) {
-                  // eslint-disable-next-line no-console
                   const token = await resp.json();
                   request.headers.set('Authorization', `Bearer ${token.access_token}`);
                   setUserToken(token.access_token as string);
@@ -119,8 +88,6 @@ function App() {
                   setRefreshToken(false);
                   history.push('/');
                 }
-
-                // Retry with the token
               }
             },
           ],
@@ -129,39 +96,26 @@ function App() {
 
       if (response.status === 200) {
         const userData: UserData = (await response.json()) as UserData;
-        // eslint-disable-next-line no-console
-        setUsersStats(userData);
-      } else {
-        const error = await response.json();
-        setError(true);
-        throw new Error(error);
+
+        return userData;
       }
+      const error = await response.json();
+
+      throw new Error(error.message);
     } catch (e: any) {
-      setErrorMessage(e.message);
+      return Promise.reject(e.message);
     }
   };
+
   const getUsersData = async (page: number, limit: number) => {
     try {
-      setErrorOpen(false);
+      setStatus({ ...status, status: 'pending' });
       const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/users/?page=${page}&limit=${limit}`, {
         retry: {
           limit: 2,
           methods: ['get'],
           statusCodes: [401],
         },
-        // hooks: {
-        //   beforeRetry: [
-        //     // eslint-disable-next-line consistent-return
-        //     async ({ request, options, error, retryCount, response }) => {
-        //       if (retryCount === 1) {
-        //         setUserToken(false);
-        //         setRefreshToken(false);
-        //         history.push('/');
-        //         return ky.stop;
-        //       }
-        //     },
-        //   ],
-        // },
         hooks: {
           beforeRetry: [
             // eslint-disable-next-line consistent-return
@@ -178,8 +132,6 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                // Get a fresh token
-                // eslint-disable-next-line no-console
                 const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
@@ -187,7 +139,6 @@ function App() {
                 });
 
                 if (resp.status === 200) {
-                  // eslint-disable-next-line no-console
                   const token = await resp.json();
                   request.headers.set('Authorization', `Bearer ${token.access_token}`);
                   setUserToken(token.access_token as string);
@@ -199,8 +150,6 @@ function App() {
                   setRefreshToken(false);
                   history.push('/');
                 }
-
-                // Retry with the token
               }
             },
           ],
@@ -213,41 +162,38 @@ function App() {
 
       if (response.status === 200) {
         const userData = (await response.json()) as UsersTableData;
-        // eslint-disable-next-line no-console
-        setUsersTable(userData);
-      } else {
-        const error = await response.json();
-        setError(true);
-        throw new Error(error);
+        return userData;
       }
+      const error = await response.json();
+
+      throw new Error(error);
     } catch (e: any) {
-      setErrorMessage(e.message);
+      return Promise.reject(e.message);
     }
   };
 
   const onInvite = async (data: InviteFormValues) => {
     try {
-      setErrorOpen(false);
-      const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/invitation/`, {
+      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/invitation/`, {
         method: 'POST',
         body: JSON.stringify(data),
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${refreshToken}`,
+        },
+        throwHttpErrors: false,
       });
 
       if (response.status === 200) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result = await response.json();
-        setErrorOpen(true);
-        setErrorMessage(result.message);
-      } else {
-        const result = await response.json();
+        const result = (await response.json()) as { message: string };
 
-        throw new Error(result.message);
+        return result;
       }
+      const error = await response.json();
+      throw new Error(error.message);
     } catch (e: any) {
-      setError(true);
-      setErrorOpen(true);
-      setErrorMessage(e.message);
+      return Promise.reject(e);
     }
   };
 
@@ -264,22 +210,18 @@ function App() {
         const token: { access_token: string; refresh_token: string } = await response.json();
         setUserToken(token.access_token);
         setRefreshToken(token.refresh_token);
-        setError(false);
         history.push('/dashboard');
-      } else {
-        const error = await response.json();
-        throw new Error(error.message);
+        return Promise.resolve();
       }
+      const error = await response.json();
+      throw new Error(error.message);
     } catch (e: any) {
-      setError(true);
-      setErrorOpen(true);
-      setErrorMessage(e.message);
+      return Promise.reject(e);
     }
   };
 
   const onResetPassword = async (data: ResetPasswordFormValues) => {
     try {
-      setErrorMessage(null);
       const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/password_reset/`, {
         method: 'POST',
         body: JSON.stringify(data),
@@ -287,17 +229,13 @@ function App() {
       });
 
       if (response.status === 200) {
-        setErrorOpen(true);
         const result = await response.json();
-        setErrorMessage(result.message);
-      } else {
-        const error = await response.json();
-        throw new Error(error);
+        return result;
       }
+      const error = await response.json();
+      throw new Error(error.message);
     } catch (e: any) {
-      setError(true);
-      setErrorOpen(true);
-      setErrorMessage(e.message);
+      return Promise.reject(e);
     }
   };
 
@@ -306,7 +244,6 @@ function App() {
     const replaceEnclosedTag = stripTags.replace(/(<br[^>]+?>|<br>|<\/p>)/gim, '\n');
     const normalizedData = { message: replaceEnclosedTag };
     try {
-      setErrorMessage(null);
       const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/send_telegram_notification/`, {
         json: {
           has_mailing: data.has_mailing,
@@ -326,14 +263,13 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                // Get a fresh token
                 const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
                 });
                 const token = await resp.json();
-                // Retry with the token
+
                 request.headers.set('Authorization', `Bearer ${token.access_token}`);
                 if (resp.status === 200) {
                   setUserToken(token.access_token as string);
@@ -347,19 +283,13 @@ function App() {
         },
       });
       if (response.status === 200) {
-        setErrorOpen(true);
-        setError(false);
-
         const result = await response.json();
-        setErrorMessage(result.result);
-      } else {
-        const error = await response.json();
-        throw new Error(error.message);
+        return result;
       }
+      const error = await response.json();
+      throw new Error(error.message);
     } catch (e: any) {
-      setError(true);
-      setErrorOpen(true);
-      setErrorMessage(e.message);
+      return Promise.reject(e.message);
     }
   };
 
@@ -376,25 +306,20 @@ function App() {
       });
 
       if (response.status === 200) {
-        setError(false);
         history.push('/');
-      } else {
-        const error = await response.json();
-        throw new Error(error.message);
+        return Promise.resolve();
       }
+      const error = await response.json();
+      throw new Error(error.message);
     } catch (e: any) {
-      setError(true);
-      setErrorOpen(true);
-      setErrorMessage(e.message);
+      return Promise.reject(e);
     }
   };
 
   const handleSetTheme = () => {
     setThemeColor(!themeColor);
   };
-  const handleResetErrors = () => {
-    setErrorOpen(false);
-  };
+
   const [isMenuOpen, setMenuOpen] = React.useState(false);
   const handleDrawerOpen = () => {
     setMenuOpen(true);
@@ -527,24 +452,23 @@ function App() {
 
       <Container>
         <Header
+          isMenuOpen={isMenuOpen}
           isDark={themeColor}
           removeToken={removeToken}
           handleSetTheme={handleSetTheme}
-          isMenuOpen={isMenuOpen}
           handleDrawerOpen={handleDrawerOpen}
           handleDrawerClose={handleDrawerClose}
-          handleResetErrors={handleResetErrors}
+          handleCloseError={handleCloseError}
         />
 
         <Switch>
           <Route exact path="/">
-            <StatusLabel
-              isMenuOpen={isMenuOpen}
-              isError={isError}
-              statusMessage={errorMessage}
-              open={openError}
+            {/* <StatusLabel
+              isStatusLabelOpen={isStatusLabelOpen}
+              statusMessage={statusMessage}
+              isError={requestStatus}
               handleCloseError={handleCloseError}
-            />
+            /> */}
             {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect exact from="/" to="/dashboard" />}
           </Route>
 
@@ -555,7 +479,7 @@ function App() {
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
-                <Dashboard userStats={usersStats} fetchUserStats={getUsers} />
+                <Dashboard fetchUserStats={getUsers} />
               </main>
             }
             path="/dashboard"
@@ -567,13 +491,6 @@ function App() {
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
-                <StatusLabel
-                  isMenuOpen={isMenuOpen}
-                  isError={isError}
-                  statusMessage={errorMessage}
-                  open={openError}
-                  handleCloseError={handleCloseError}
-                />
                 <RichTextEditor onSubmit={onSubmitMessage} />
               </main>
             }
@@ -586,20 +503,7 @@ function App() {
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
-                <StatusLabel
-                  isMenuOpen={isMenuOpen}
-                  isError={isError}
-                  statusMessage={errorMessage}
-                  open={openError}
-                  handleCloseError={handleCloseError}
-                />
-                <Users
-                  fetchUserData={getUsersData}
-                  handleChangeRowsPerPage={handleChangeRowsPerPage}
-                  users={usersTable}
-                  handleChangePage={handleChangePage}
-                  rowsPerPage={rowsPerPage}
-                />
+                <Users fetchUserData={getUsersData} />
               </main>
             }
             path="/users"
@@ -621,38 +525,16 @@ function App() {
               className={clsx(classes.content, {
                 [classes.contentShift]: isMenuOpen,
               })}>
-              <StatusLabel
-                isMenuOpen={isMenuOpen}
-                isError={isError}
-                statusMessage={errorMessage}
-                open={openError}
-                handleCloseError={handleCloseError}
-              />
               <Invite onSubmit={onInvite} />
             </main>
           </Route>
 
           <Route path="/register/:id">
-            <StatusLabel
-              isMenuOpen={isMenuOpen}
-              isError={isError}
-              statusMessage={errorMessage}
-              open={openError}
-              handleCloseError={handleCloseError}
-            />
             <RegisterForm onSubmit={onRegister} />
           </Route>
           <Route path="/reset_password">
-            <StatusLabel
-              isMenuOpen={isMenuOpen}
-              isError={isError}
-              statusMessage={errorMessage}
-              open={openError}
-              handleCloseError={handleCloseError}
-            />
             <ResetPassword onSubmit={onResetPassword} />
           </Route>
-          <Redirect to="/" />
         </Switch>
       </Container>
     </ThemeProvider>

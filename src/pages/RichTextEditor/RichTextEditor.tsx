@@ -1,10 +1,12 @@
 import React from 'react';
-import { Button, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Button, CircularProgress, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
 import { Controller, useForm } from 'react-hook-form';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 import useStyles from './RichTextEditor.style';
+import StatusLabel from '../../components/StatusLabel/StatusLabel';
+import { useAsync } from '../../hooks/useAsync';
 
 export interface RichTextEditorFormValues {
   message: string;
@@ -25,9 +27,29 @@ interface RichTextEditorInterface {
 const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
   const classes = useStyles();
   const { handleSubmit, control } = useForm<RichTextEditorFormValues>();
+  const { data, error, run, isError, setError, setData, isLoading } = useAsync({
+    data: null,
+    error: null,
+  });
 
+  const statusMessage = isError ? (error as string) : ((data?.result ?? '') as string);
+
+  const isStatusLabelOpen = Boolean(error) || Boolean(data?.result);
+  const handleResetLabel = () => {
+    if (isError) {
+      setError(null);
+      return;
+    }
+    setData(null);
+  };
   return (
-    <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
+    <form className={classes.form} onSubmit={handleSubmit((dataS) => run(onSubmit(dataS)))}>
+      <StatusLabel
+        isStatusLabelOpen={isStatusLabelOpen}
+        statusMessage={statusMessage}
+        isError={isError}
+        handleCloseError={handleResetLabel}
+      />
       <Typography className={classes.title}>Выберите вариант отправки сообщения</Typography>
       <Controller
         defaultValue="subscribed"
@@ -49,9 +71,13 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
           <ReactQuill preserveWhitespace className={classes.quill} modules={modules} theme="snow" {...field} />
         )}
       />
-      <Button className={classes.authFormButton} type="submit">
-        Отправить
-      </Button>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <Button className={classes.authFormButton} type="submit">
+          отправить
+        </Button>
+      )}
     </form>
   );
 };

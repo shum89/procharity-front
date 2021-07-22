@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'grid',
     placeItems: 'center',
     gap: 30,
+    width: '90%',
   },
   authFormButtonContainer: {
     display: 'flex',

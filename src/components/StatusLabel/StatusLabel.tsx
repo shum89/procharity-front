@@ -7,14 +7,13 @@ import { useRouteMatch } from 'react-router-dom';
 import useStyles from './StatusLabel.style';
 
 interface StatusLabelProps {
-  open: boolean;
+  isStatusLabelOpen: boolean;
   isError: boolean;
   handleCloseError: () => void;
   statusMessage: null | string;
-  isMenuOpen: boolean;
 }
 
-const StatusLabel: React.FC<StatusLabelProps> = ({ open, handleCloseError, isError, statusMessage, isMenuOpen }) => {
+const StatusLabel: React.FC<StatusLabelProps> = ({ isStatusLabelOpen, handleCloseError, isError, statusMessage }) => {
   const classes = useStyles();
   const matchLogin = useRouteMatch('/')?.isExact ?? false;
 
@@ -22,7 +21,7 @@ const StatusLabel: React.FC<StatusLabelProps> = ({ open, handleCloseError, isErr
   const matchReset = useRouteMatch('/reset_password')?.isExact ?? false;
   return (
     <Collapse
-      in={open}
+      in={isStatusLabelOpen}
       className={clsx(classes.status, (matchLogin || matchRegister || matchReset) && classes.loggedOut)}>
       <Alert
         severity={isError ? 'error' : 'success'}

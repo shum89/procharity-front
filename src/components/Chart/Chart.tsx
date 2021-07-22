@@ -26,9 +26,7 @@ export default function Chart({ data }: ChartProps) {
     previousValue.push(newObject);
     return previousValue;
   }, [] as ChartData[]);
-  const label = (value: any, name: any, props: any) => {
-    return [value, 'Количество'];
-  };
+  const label = (value: any, name: any, props: any) => [value, 'Количество'];
   const laa = (lab: any, payload: any) => {
     if (lab === 0) {
       return 'date';
@@ -58,7 +56,8 @@ export default function Chart({ data }: ChartProps) {
           <XAxis
             tickFormatter={(value, index: number) => {
               const dateObj: Date = new Date(value);
-              const day = `${dateObj.getDate()}/${dateObj.getMonth()}`;
+              const day = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
+
               return day;
             }}
             interval={0}
@@ -66,6 +65,10 @@ export default function Chart({ data }: ChartProps) {
             dataKey="time"
             tickMargin={10}
             stroke={theme.palette.text.primary}
+            style={{
+              fontSize: 'clamp(0.875rem, calc(0.875rem + ((1vw - 0.9rem) * 0.8929)), 0.5rem)',
+              minHeight: '0vw',
+            }}
           />
           <Tooltip
             label="дата"

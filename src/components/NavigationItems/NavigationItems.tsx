@@ -13,7 +13,7 @@ import Divider from '@material-ui/core/Divider';
 import { makeStyles } from '@material-ui/core/styles';
 
 interface MainListItemsProps {
-  handleResetErrors: () => void;
+  handleCloseError: () => void;
 }
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 10,
   },
 }));
-export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors }) => {
+export const MainListItems: React.FC<MainListItemsProps> = ({ handleCloseError }) => {
   const history = useHistory();
   const classes = useStyles();
   return (
@@ -30,7 +30,7 @@ export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors 
         button
         onClick={() => {
           history.push('/dashboard');
-          handleResetErrors();
+          handleCloseError();
         }}>
         <ListItemIcon>
           <BarChartIcon />
@@ -41,7 +41,7 @@ export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors 
         button
         onClick={() => {
           history.push('/users');
-          handleResetErrors();
+          handleCloseError();
         }}>
         <ListItemIcon>
           <GroupIcon />
@@ -53,7 +53,7 @@ export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors 
         button
         onClick={() => {
           history.push('/send');
-          handleResetErrors();
+          handleCloseError();
         }}>
         <ListItemIcon>
           <SendIcon />
@@ -65,7 +65,7 @@ export const MainListItems: React.FC<MainListItemsProps> = ({ handleResetErrors 
         button
         onClick={() => {
           history.push('/invite');
-          handleResetErrors();
+          handleCloseError();
         }}>
         <ListItemIcon>
           <PersonAddIcon />
@@ -80,15 +80,13 @@ interface SecondaryListItemsProps {
   handleLogout: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export const SecondaryListItems: React.FC<SecondaryListItemsProps> = ({ handleLogout }) => {
-  return (
-    <div>
-      <ListItem onClick={handleLogout} component="button" button>
-        <ListItemIcon>
-          <ExitToAppIcon />
-        </ListItemIcon>
-        <ListItemText primary="Выйти" />
-      </ListItem>
-    </div>
-  );
-};
+export const SecondaryListItems: React.FC<SecondaryListItemsProps> = ({ handleLogout }) => (
+  <div>
+    <ListItem onClick={handleLogout} component="button" button>
+      <ListItemIcon>
+        <ExitToAppIcon />
+      </ListItemIcon>
+      <ListItemText primary="Выйти" />
+    </ListItem>
+  </div>
+);
