@@ -6,8 +6,8 @@ interface ProtectedRouteProps {
   path: string;
   condition: boolean | string;
 }
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component, path, condition }) => {
-  return <Route path={path}>{condition ? component : <Redirect to="/dashboard" />}</Route>;
-};
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component, path, condition }) => (
+  <Route path={path}>{condition ? component : <Redirect to="/dashboard" />}</Route>
+);
 
 export default ProtectedRoute;

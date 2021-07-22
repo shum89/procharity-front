@@ -1,12 +1,10 @@
 import { makeStyles, Theme } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: Theme) => ({
-  status: {
+  preloader: {
     position: 'absolute',
-    inset: '75px 0 0 0 ',
-  },
-  loggedOut: {
-    inset: '60px 10% 0 10%',
+    inset: '0',
+    margin: 'auto',
   },
 }));
 

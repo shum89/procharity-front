@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     content: {
       position: 'relative',
+      minHeight: '100vh',
       transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,

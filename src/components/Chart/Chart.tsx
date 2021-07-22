@@ -26,9 +26,7 @@ export default function Chart({ data }: ChartProps) {
     previousValue.push(newObject);
     return previousValue;
   }, [] as ChartData[]);
-  const label = (value: any, name: any, props: any) => {
-    return [value, 'Количество'];
-  };
+  const label = (value: any, name: any, props: any) => [value, 'Количество'];
   const laa = (lab: any, payload: any) => {
     if (lab === 0) {
       return 'date';

@@ -6,44 +6,47 @@ import Typography from '@material-ui/core/Typography';
 import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import { UsersTableData } from '../Dashboard/Dashboard';
+import Preloader from '../../components/Preloader/Preloader';
+import StatusLabel from '../../components/StatusLabel/StatusLabel';
+import { useAsync } from '../../hooks/useAsync';
+import useLocalStorage from '../../hooks/useLocalStorage';
 
 interface UsersProps {
   children?: React.ReactNode;
-  users: UsersTableData | null;
-  handleChangePage: (event: unknown, newPage: number) => void;
-  rowsPerPage: number;
-  fetchUserData: (limit: number, page: number) => Promise<void>;
 
-  handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  // handleChangePage: (event: unknown, newPage: number) => void;
+  // rowsPerPage: number;
+
+  fetchUserData: (limit: number, page: number) => Promise<UsersTableData>;
+
+  // handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
-const useStyles = makeStyles((theme: Theme) => {
-  return {
-    root: {
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-    },
-    section: {
-      paddingTop: theme.spacing(4),
-      paddingBottom: theme.spacing(4),
-    },
-    title: {
-      padding: 5,
-    },
-    iconCross: {
-      fill: theme.palette.error.main,
-    },
-    iconCheckMark: {
-      fill: theme.palette.success.main,
-    },
-    container: {
-      alignItems: 'center',
-      display: 'flex',
-      width: '95%',
-      justifyContent: 'space-between',
-    },
-  };
-});
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  section: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
+  title: {
+    padding: 5,
+  },
+  iconCross: {
+    fill: theme.palette.error.main,
+  },
+  iconCheckMark: {
+    fill: theme.palette.success.main,
+  },
+  container: {
+    alignItems: 'center',
+    display: 'flex',
+    width: '95%',
+    justifyContent: 'space-between',
+  },
+}));
 const formaData = (date) => {
   const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
   const dateIso = new Date(date);
@@ -52,80 +55,90 @@ const formaData = (date) => {
 };
 const columns = ['ФИО', 'E-mail', 'Рассылка', 'Имя пользователя', 'Дата Регистрации'];
 
-const Users: React.FC<UsersProps> = ({
-  fetchUserData,
-  rowsPerPage,
-  users,
-  handleChangePage,
-  handleChangeRowsPerPage,
-}) => {
+const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
   const classes = useStyles();
-
+  const { data, error, isLoading, run, isError, reset } = useAsync({ status: 'idle', data: null, error: null });
+  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 20);
+  const [page, setPage] = useLocalStorage<number>('page', 1);
+  const handleChangePage = (event: unknown, newPage: number) => {
+    run(fetchUserData(newPage + 1, rowsPerPage));
+    setPage(newPage + 1);
+  };
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(+event.target.value);
+    run(fetchUserData(1, +event.target.value));
+    setPage(1);
+  };
   React.useEffect(() => {
-    if (users === null) {
-      fetchUserData(1, 20);
-    } else {
-      const currentPage = users?.current_page ?? 1;
-      fetchUserData(currentPage, rowsPerPage);
-    }
+    run(fetchUserData(page, rowsPerPage));
   }, []);
 
   return (
-    <section className={classes.section}>
-      <Typography className={classes.title} variant="h5">
-        Пользователи
-      </Typography>
-      <TableContainer className={classes.root}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell key={column} align="left">
-                  <Typography variant="subtitle1">{column}</Typography>
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users?.result.map((result) => (
-              <TableRow key={result.telegram_id}>
-                <TableCell align="left">
-                  <Typography variant="subtitle1">{`${result.first_name} ${result.last_name ?? ''}`}</Typography>
-                </TableCell>
-                <TableCell align="left">
-                  <Typography variant="subtitle1">{result.email ?? 'Не указан '}</Typography>
-                </TableCell>
-                <TableCell align="left">
-                  <div className={classes.container}>
-                    <Typography variant="subtitle1">{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>
-                    {result.has_mailing ? (
-                      <CheckIcon fontSize="small" className={classes.iconCheckMark} />
-                    ) : (
-                      <ClearIcon fontSize="small" className={classes.iconCross} />
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell align="left">
-                  <Typography variant="subtitle1">{result.username ?? 'Не указан'}</Typography>
-                </TableCell>
-                <TableCell align="left">
-                  <Typography variant="subtitle1">{formaData(result.date_registration)}</Typography>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          component="div"
-          rowsPerPageOptions={[20, 50, 100]}
-          count={users?.total - 1 ?? 0}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-          page={users?.current_page - 1 ?? 0}
-          rowsPerPage={rowsPerPage}
-        />
-      </TableContainer>
-    </section>
+    <>
+      {isLoading ? (
+        <Preloader />
+      ) : (
+        <>
+          <StatusLabel isStatusLabelOpen={isError} statusMessage={error} handleCloseError={reset} />
+
+          <section className={classes.section}>
+            <Typography className={classes.title} variant="h5">
+              Пользователи
+            </Typography>
+            <TableContainer className={classes.root}>
+              <Table stickyHeader aria-label="sticky table">
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column) => (
+                      <TableCell key={column} align="left">
+                        <Typography variant="subtitle1">{column}</Typography>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data?.result.map((result) => (
+                    <TableRow key={result.telegram_id}>
+                      <TableCell align="left">
+                        <Typography variant="subtitle1">{`${result.first_name} ${result.last_name ?? ''}`}</Typography>
+                      </TableCell>
+                      <TableCell align="left">
+                        <Typography variant="subtitle1">{result.email ?? 'Не указан '}</Typography>
+                      </TableCell>
+                      <TableCell align="left">
+                        <div className={classes.container}>
+                          <Typography variant="subtitle1">{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>
+                          {result.has_mailing ? (
+                            <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                          ) : (
+                            <ClearIcon fontSize="small" className={classes.iconCross} />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell align="left">
+                        <Typography variant="subtitle1">{result.username ?? 'Не указан'}</Typography>
+                      </TableCell>
+                      <TableCell align="left">
+                        <Typography variant="subtitle1">{formaData(result.date_registration)}</Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <TablePagination
+                component="div"
+                rowsPerPageOptions={[20, 50, 100]}
+                count={data?.total - 1 ?? 0}
+                onChangePage={handleChangePage}
+                onChangeRowsPerPage={handleChangeRowsPerPage}
+                page={page - 1 ?? 0}
+                rowsPerPage={rowsPerPage}
+              />
+            </TableContainer>
+          </section>
+        </>
+      )}
+    </>
   );
 };
 export default Users;

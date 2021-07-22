@@ -138,7 +138,7 @@ interface HeaderProps {
   removeToken: () => void;
   isDark: boolean;
   isMenuOpen: boolean;
-  handleResetErrors: () => void;
+  handleCloseError: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -148,7 +148,7 @@ const Header: React.FC<HeaderProps> = ({
   handleSetTheme,
   isDark,
   removeToken,
-  handleResetErrors,
+  handleCloseError,
 }) => {
   const classes = useStyles();
   const history = useHistory();
@@ -214,7 +214,7 @@ const Header: React.FC<HeaderProps> = ({
               </div>
               <Divider />
               <List>
-                <MainListItems handleResetErrors={handleResetErrors} />
+                <MainListItems handleCloseError={handleCloseError} />
               </List>
               <Divider className={classes.divider} />
 
@@ -235,7 +235,7 @@ const Header: React.FC<HeaderProps> = ({
                 keepMounted: true, // Better open performance on mobile.
               }}>
               <List>
-                <MainListItems handleResetErrors={handleResetErrors} />
+                <MainListItems handleCloseError={handleCloseError} />
               </List>
               <Divider />
 
