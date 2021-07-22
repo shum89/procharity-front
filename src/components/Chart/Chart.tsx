@@ -57,8 +57,7 @@ export default function Chart({ data }: ChartProps) {
             tickFormatter={(value, index: number) => {
               const dateObj: Date = new Date(value);
               const day = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
-              // eslint-disable-next-line no-console
-              console.log(dateObj.getMonth());
+
               return day;
             }}
             interval={0}
@@ -66,6 +65,10 @@ export default function Chart({ data }: ChartProps) {
             dataKey="time"
             tickMargin={10}
             stroke={theme.palette.text.primary}
+            style={{
+              fontSize: 'clamp(0.875rem, calc(0.875rem + ((1vw - 0.9rem) * 0.8929)), 0.5rem)',
+              minHeight: '0vw',
+            }}
           />
           <Tooltip
             label="дата"
