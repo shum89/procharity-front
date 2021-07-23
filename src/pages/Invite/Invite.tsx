@@ -45,6 +45,7 @@ const Invite: React.FC<InviteProps> = ({ onSubmit }) => {
     handleSubmit,
     control,
     formState: { errors },
+    reset,
   } = useForm<Pick<InviteFormValues, 'email'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
 
   return (
@@ -55,7 +56,14 @@ const Invite: React.FC<InviteProps> = ({ onSubmit }) => {
         isError={isError}
         handleCloseError={handleResetLabel}
       />
-      <form className={classes.authForm} onSubmit={handleSubmit((dataS) => run(onSubmit(dataS)))}>
+      <form
+        className={classes.authForm}
+        onSubmit={handleSubmit((dataS, e) => {
+          run(onSubmit(dataS));
+          console.log(e?.target.reset());
+          reset({ email: '' });
+          e?.target.reset();
+        })}>
         <fieldset className={classes.authFormInputContainer}>
           <Controller
             name="email"

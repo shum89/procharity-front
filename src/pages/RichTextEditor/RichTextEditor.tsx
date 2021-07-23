@@ -26,7 +26,7 @@ interface RichTextEditorInterface {
 
 const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
   const classes = useStyles();
-  const { handleSubmit, control } = useForm<RichTextEditorFormValues>();
+  const { handleSubmit, control, reset } = useForm<RichTextEditorFormValues>();
   const { data, error, run, isError, setError, setData, isLoading } = useAsync({
     data: null,
     error: null,
@@ -43,7 +43,12 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
     setData(null);
   };
   return (
-    <form className={classes.form} onSubmit={handleSubmit((dataS) => run(onSubmit(dataS)))}>
+    <form
+      className={classes.form}
+      onSubmit={handleSubmit((dataS) => {
+        run(onSubmit(dataS));
+        reset({ message: '' });
+      })}>
       <StatusLabel
         isStatusLabelOpen={isStatusLabelOpen}
         statusMessage={statusMessage}
