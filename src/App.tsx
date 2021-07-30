@@ -1,5 +1,5 @@
-import { Container, CssBaseline, ThemeProvider, createTheme } from '@material-ui/core';
-
+import { Container, CssBaseline, ThemeProvider } from '@material-ui/core';
+import { createMuiTheme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
@@ -342,7 +342,7 @@ function App() {
 
   const themeOptions = React.useMemo(
     () =>
-      createTheme({
+      createMuiTheme({
         palette: {
           ...theme.palette,
         },
