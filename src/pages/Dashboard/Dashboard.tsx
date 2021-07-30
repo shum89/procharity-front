@@ -48,6 +48,7 @@ export interface UserData {
   active_users: number;
   deactivated_users: number;
   added_users: { [key: string]: number };
+  users_unsubscribed: { [key: string]: number };
   command_stats: {
     [key: string]: number;
   };
@@ -101,28 +102,32 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
               <Grid item xs={12} md={4} lg={4}>
                 <Paper className={classes.paper}>
                   <Users
-                    text={(data?.active_users ?? 0) + (data?.deactivated_users ?? 0)}
-                    title="Всего Пользователей"
+                    text={(data?.number_subscribed_users ?? 0) + (data?.number_not_subscribed_users ?? 0)}
+                    title="Всего пользователей"
                   />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4} lg={4}>
                 <Paper className={classes.paper}>
-                  <Users text={data?.active_users ?? 0} title="Активных Пользователей" />
+                  <Users text={data?.number_subscribed_users ?? 0} title="Подписка включена" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4} lg={4}>
                 <Paper className={classes.paper}>
-                  <Users text={data?.deactivated_users ?? 0} title="Неактивных Пользователей" />
+                  <Users text={data?.number_not_subscribed_users ?? 0} title="Подписка выключена" />
                 </Paper>
               </Grid>
 
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
-                  <Chart data={data} />
+                  <Chart data={data?.added_users} title="Статистика новых пользователей за месяц" />
                 </Paper>
               </Grid>
-
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
+                  <Chart data={data?.users_unsubscribed} title="Статистика отписавшихся пользователей за месяц" />
+                </Paper>
+              </Grid>
               <Grid item xs={12} md={6} lg={6}>
                 <Paper className={classes.paper}>
                   <Actions cardTitle="Статистика команд" title="Название Команды" actionsStats={data?.command_stats} />

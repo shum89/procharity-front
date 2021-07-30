@@ -1,4 +1,5 @@
-import { Container, createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
+import { Container, CssBaseline, ThemeProvider, createTheme } from '@material-ui/core';
+
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
@@ -43,7 +44,7 @@ function App() {
 
   const getUsers = async () => {
     try {
-      const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/analysis/`, {
+      const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/analytics/`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userToken}`,
@@ -341,7 +342,7 @@ function App() {
 
   const themeOptions = React.useMemo(
     () =>
-      createMuiTheme({
+      createTheme({
         palette: {
           ...theme.palette,
         },
@@ -508,26 +509,26 @@ function App() {
             }
             path="/users"
           />
-          {/* <ProtectedRoute
+          <ProtectedRoute
             condition={userToken}
             component={
               <main
                 className={clsx(classes.content, {
                   [classes.contentShift]: isMenuOpen,
                 })}>
-                <Invite />
+                <Invite onSubmit={onInvite} />
               </main>
             }
             path="/invite"
-          /> */}
-          <Route path="/invite">
+          />
+          {/* <Route path="/invite">
             <main
               className={clsx(classes.content, {
                 [classes.contentShift]: isMenuOpen,
               })}>
               <Invite onSubmit={onInvite} />
             </main>
-          </Route>
+          </Route> */}
 
           <Route path="/register/:id">
             <RegisterForm onSubmit={onRegister} />
