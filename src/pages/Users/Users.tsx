@@ -100,14 +100,16 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
                   {data?.result.map((result) => (
                     <TableRow key={result.telegram_id}>
                       <TableCell align="left">
-                        <Typography variant="subtitle1">{`${result.first_name} ${result.last_name ?? ''}`}</Typography>
+                        <Typography variant="subtitle1">{`${result.first_name ?? 'Не указан'} ${
+                          result.last_name ?? ''
+                        }`}</Typography>
                       </TableCell>
                       <TableCell align="left">
-                        <Typography variant="subtitle1">{result.email ?? 'Не указан '}</Typography>
+                        <Typography variant="subtitle1">{result.email ?? 'Не указан'}</Typography>
                       </TableCell>
                       <TableCell align="left">
                         <div className={classes.container}>
-                          <Typography variant="subtitle1">{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>
+                          <Typography variant="subtitle1">{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>§{' '}
                           {result.has_mailing ? (
                             <CheckIcon fontSize="small" className={classes.iconCheckMark} />
                           ) : (

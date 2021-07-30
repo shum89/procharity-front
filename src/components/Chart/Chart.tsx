@@ -4,22 +4,23 @@ import React from 'react';
 import { Typography } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts';
-import { UserData } from '../../pages/Dashboard/Dashboard';
+// import { UserData } from '../../pages/Dashboard/Dashboard';
 import useStyles from './Chart.styles';
 
 interface ChartProps {
-  data: UserData | null;
+  data: { [key: string]: number };
+  title: string;
 }
 interface ChartData {
   time: number;
   amount: number;
 }
 
-export default function Chart({ data }: ChartProps) {
+export default function Chart({ data, title }: ChartProps) {
   const theme = useTheme();
   const classes = useStyles();
-  const chartData: ChartData[] = Object.keys(data?.added_users ?? {}).reduce((previousValue, currentValue) => {
-    const amount = data?.added_users[currentValue] ?? 0;
+  const chartData: ChartData[] = Object.keys(data ?? {}).reduce((previousValue, currentValue) => {
+    const amount = data[currentValue] ?? 0;
     const day = Date.parse(currentValue);
 
     const newObject = { time: day, amount };
@@ -40,7 +41,7 @@ export default function Chart({ data }: ChartProps) {
   return (
     <>
       <Typography className={classes.title} variant="h5">
-        Cтатистика пользователей за текущий месяц
+        {title}
       </Typography>
       <ResponsiveContainer height={400}>
         <LineChart
