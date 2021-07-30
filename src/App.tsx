@@ -536,6 +536,7 @@ function App() {
           <Route path="/reset_password">
             <ResetPassword onSubmit={onResetPassword} />
           </Route>
+          <Redirect to="/" />
         </Switch>
       </Container>
     </ThemeProvider>
