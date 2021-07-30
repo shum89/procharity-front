@@ -109,7 +109,7 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
                       </TableCell>
                       <TableCell align="left">
                         <div className={classes.container}>
-                          <Typography variant="subtitle1">{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>§{' '}
+                          <Typography variant="subtitle1">{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>
                           {result.has_mailing ? (
                             <CheckIcon fontSize="small" className={classes.iconCheckMark} />
                           ) : (
