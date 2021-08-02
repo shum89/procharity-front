@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import React, { useDebugValue, useEffect } from 'react';
-import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Chart from '../../components/Chart/Chart';
-import Actions from '../../components/ActionsStats/Actions';
-import Users from '../../components/UserStats/Users';
-import Preloader from '../../components/Preloader/Preloader';
-import { useAsync } from '../../hooks/useAsync';
-import StatusLabel from '../../components/StatusLabel/StatusLabel';
+import React, { useDebugValue, useEffect } from 'react'
+import clsx from 'clsx'
+import { makeStyles } from '@material-ui/core/styles'
+import Container from '@material-ui/core/Container'
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Chart from '../../components/Chart/Chart'
+import Actions from '../../components/ActionsStats/Actions'
+import Users from '../../components/UserStats/Users'
+import Preloader from '../../components/Preloader/Preloader'
+import { useAsync } from '../../hooks/useAsync'
+import StatusLabel from '../../components/StatusLabel/StatusLabel'
 
 export interface userStats {
-  time: string;
-  amount: number;
+  time: string
+  amount: number
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -43,52 +43,52 @@ const useStyles = makeStyles((theme) => ({
   fixedHeight: {
     minHeight: 240,
   },
-}));
+}))
 export interface UserData {
-  active_users: number;
-  deactivated_users: number;
-  added_users: { [key: string]: number };
-  users_unsubscribed: { [key: string]: number };
+  active_users: number
+  deactivated_users: number
+  added_users: { [key: string]: number }
+  users_unsubscribed: { [key: string]: number }
   command_stats: {
-    [key: string]: number;
-  };
+    [key: string]: number
+  }
   reasons_canceling: {
-    [key: string]: number;
-  };
+    [key: string]: number
+  }
 }
 
 export interface UsersTableData {
-  total: number;
-  pages: number;
-  previous_page: null;
-  current_page: number;
-  next_page: number;
-  next_url: string;
-  previous_url: null;
-  result: Result[];
+  total: number
+  pages: number
+  previous_page: null
+  current_page: number
+  next_page: number
+  next_url: string
+  previous_url: null
+  result: Result[]
 }
 
 export interface Result {
-  telegram_id: number;
-  username: string;
-  email: null;
-  first_name: string;
-  last_name: string;
-  external_id: null;
-  has_mailing: boolean;
-  date_registration: string;
+  telegram_id: number
+  username: string
+  email: null
+  first_name: string
+  last_name: string
+  external_id: null
+  has_mailing: boolean
+  date_registration: string
 }
 
 interface DashboardProps {
-  fetchUserStats: () => Promise<UserData>;
+  fetchUserStats: () => Promise<UserData>
 }
 const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
-  const classes = useStyles();
-  const { data, error, status, run, isError, reset, isLoading } = useAsync({ status: 'idle', data: null, error: null });
+  const classes = useStyles()
+  const { data, error, status, run, isError, reset, isLoading } = useAsync({ status: 'idle', data: null, error: null })
 
   useEffect(() => {
-    run(fetchUserStats());
-  }, []);
+    run(fetchUserStats())
+  }, [])
 
   return (
     <>
@@ -120,14 +120,20 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
 
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
-                  <Chart data={data?.added_users} title="Статистика новых пользователей за месяц" />
+                  <Chart data={data} title="Статистика новых пользователей за месяц" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
-                  <Chart data={data?.users_unsubscribed} title="Статистика отписавшихся пользователей за месяц" />
+                  <Chart data={data} title="Статистика отписавшихся пользователей за месяц" />
                 </Paper>
               </Grid>
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
+                  <Chart data={data} title="Статистика пользователей за месяц" />
+                </Paper>
+              </Grid>
+
               <Grid item xs={12} md={6} lg={6}>
                 <Paper className={classes.paper}>
                   <Actions cardTitle="Статистика команд" title="Название Команды" actionsStats={data?.command_stats} />
@@ -147,7 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
         </>
       )}
     </>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard

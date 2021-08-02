@@ -1,42 +1,55 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
-import React from 'react';
-import { Typography } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
-import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts';
-// import { UserData } from '../../pages/Dashboard/Dashboard';
-import useStyles from './Chart.styles';
+import React from 'react'
+import { Typography } from '@material-ui/core'
+import { useTheme } from '@material-ui/core/styles'
+import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, CartesianGrid, Tooltip } from 'recharts'
+import { UserData } from '../../pages/Dashboard/Dashboard'
+import useStyles from './Chart.styles'
 
 interface ChartProps {
-  data: { [key: string]: number };
-  title: string;
+  data: UserData | null
+  title: string
 }
 interface ChartData {
-  time: number;
-  amount: number;
+  time: number
+  amountAdded?: number
+  amountUnsubscribed?: number
 }
 
 export default function Chart({ data, title }: ChartProps) {
-  const theme = useTheme();
-  const classes = useStyles();
-  const chartData: ChartData[] = Object.keys(data ?? {}).reduce((previousValue, currentValue) => {
-    const amount = data[currentValue] ?? 0;
-    const day = Date.parse(currentValue);
-
-    const newObject = { time: day, amount };
-    previousValue.push(newObject);
-    return previousValue;
-  }, [] as ChartData[]);
-  const label = (value: any, name: any, props: any) => [value, 'Количество'];
+  const theme = useTheme()
+  const classes = useStyles()
+  // eslint-disable-next-line no-console
+  const chartData: ChartData[] = Object.keys(data?.added_users ?? {}).reduce((previousValue, currentValue) => {
+    const amountAdded = data?.added_users[currentValue] ?? 0
+    const day = Date.parse(currentValue)
+    const amountUnsubscribed = data?.users_unsubscribed[currentValue] ?? 0
+    let newObject
+    if (title === 'Статистика новых пользователей за месяц') {
+      newObject = { time: day, amountAdded }
+    } else if (title === 'Статистика отписавшихся пользователей за месяц') {
+      newObject = { time: day, amountUnsubscribed }
+    } else {
+      newObject = { time: day, amountUnsubscribed, amountAdded }
+    }
+    previousValue.push(newObject)
+    return previousValue
+  }, [] as ChartData[])
+  const label = (value: any, name: any, props: any) => {
+    const labelName =
+      name === 'amountAdded' ? 'Количество новых пользователей' : 'Количество отписавшихся пользователей'
+    return [value, labelName]
+  }
   const laa = (lab: any, payload: any) => {
     if (lab === 0) {
-      return 'date';
+      return 'date'
     }
-    const db = new Date(lab);
-    const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
-    const date = new Intl.DateTimeFormat('ru-Ru', options).format(db);
-    return date;
-  };
+    const db = new Date(lab)
+    const options: any = { day: 'numeric', month: 'long', year: 'numeric' }
+    const date = new Intl.DateTimeFormat('ru-Ru', options).format(db)
+    return date
+  }
 
   return (
     <>
@@ -51,15 +64,16 @@ export default function Chart({ data, title }: ChartProps) {
             right: 16,
             bottom: 0,
             left: 24,
-          }}>
+          }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis
             tickFormatter={(value, index: number) => {
-              const dateObj: Date = new Date(value);
-              const day = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
+              const dateObj: Date = new Date(value)
+              const day = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`
 
-              return day;
+              return day
             }}
             interval={0}
             angle={30}
@@ -75,16 +89,17 @@ export default function Chart({ data, title }: ChartProps) {
             label="дата"
             labelFormatter={laa}
             formatter={label}
-            wrapperStyle={{ width: 300, backgroundColor: '#FFF', color: 'black' }}
+            wrapperStyle={{ width: 350, backgroundColor: '#FFF', color: 'black' }}
           />
           <YAxis allowDecimals={false} stroke={theme.palette.text.primary}>
             <Label angle={270} position="left" style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}>
               Пользователи
             </Label>
           </YAxis>
-          <Line type="monotone" dataKey="amount" stroke={theme.palette.secondary.light} dot={false} />
+          <Line type="monotone" dataKey="amountAdded" stroke={theme.palette.secondary.light} dot={false} />
+          <Line type="monotone" dataKey="amountUnsubscribed" stroke={theme.palette.error.main} dot={false} />
         </LineChart>
       </ResponsiveContainer>
     </>
-  );
+  )
 }
