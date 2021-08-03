@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { Button, CircularProgress, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
 import { Controller, useForm } from 'react-hook-form';
@@ -47,9 +46,7 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
     <form
       className={classes.form}
       onSubmit={handleSubmit((dataS, e) => {
-        // eslint-disable-next-line no-console
-        console.log(dataS)
-        // run(onSubmit(dataS));
+        run(onSubmit(dataS));
         reset({ message: '' });
       })}>
       <StatusLabel
