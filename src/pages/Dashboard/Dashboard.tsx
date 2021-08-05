@@ -124,11 +124,11 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
                 </Paper>
               </Grid>
 
-              {/* <Grid item xs={12} md={12} lg={12}>
+              <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
                   <Chart data={data} title="Статистика новых пользователей за месяц" />
                 </Paper>
-              </Grid> */}
+              </Grid>
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
                   <Chart data={data} title="Статистика отписавшихся пользователей за месяц" />
