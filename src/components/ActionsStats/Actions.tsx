@@ -25,9 +25,15 @@ const Actions: React.FC<ActionsProps> = ({ actionsStats, title, cardTitle }) => 
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography>{title}</Typography>
+              <Typography className={classes.subtitle} variant="subtitle1">
+                {title}
+              </Typography>
             </TableCell>
-            <TableCell align="right">Количество</TableCell>
+            <TableCell align="right">
+              <Typography className={classes.subtitle} variant="subtitle1">
+                Количество
+              </Typography>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -40,7 +46,7 @@ const Actions: React.FC<ActionsProps> = ({ actionsStats, title, cardTitle }) => 
         </TableBody>
       </Table>
     </>
-  );
+  )
 };
 
 export default Actions;

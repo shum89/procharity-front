@@ -15,6 +15,7 @@ interface ChartData {
   time: number
   amountAdded?: number
   amountUnsubscribed?: number
+  amountDistinctUnsubscribed?: number
 }
 
 export default function Chart({ data, title }: ChartProps) {
@@ -25,11 +26,12 @@ export default function Chart({ data, title }: ChartProps) {
     const amountAdded = data?.added_users[currentValue] ?? 0
     const day = Date.parse(currentValue)
     const amountUnsubscribed = data?.users_unsubscribed[currentValue] ?? 0
+    const amountDistinctUnsubscribed = data?.distinct_users_unsubscribed[currentValue] ?? 0
     let newObject
     if (title === 'Статистика новых пользователей за месяц') {
       newObject = { time: day, amountAdded }
     } else if (title === 'Статистика отписавшихся пользователей за месяц') {
-      newObject = { time: day, amountUnsubscribed }
+      newObject = { time: day, amountUnsubscribed, amountDistinctUnsubscribed }
     } else {
       newObject = { time: day, amountUnsubscribed, amountAdded }
     }
@@ -37,8 +39,21 @@ export default function Chart({ data, title }: ChartProps) {
     return previousValue
   }, [] as ChartData[])
   const label = (value: any, name: any, props: any) => {
-    const labelName =
-      name === 'amountAdded' ? 'Количество новых пользователей' : 'Количество отписавшихся пользователей'
+    let labelName;
+    switch (name) {
+      case 'amountAdded':
+        labelName = 'Количество новых пользователей'
+        break
+      case 'amountUnsubscribed': 
+      labelName = 'Количество отписавшихся пользователей'
+        break
+      case 'amountDistinctUnsubscribed':
+          labelName = 'Количество отписавшихся уникальных пользователей'
+          break
+      default:
+        break
+    }
+
     return [value, labelName]
   }
   const laa = (lab: any, payload: any) => {
@@ -89,7 +104,7 @@ export default function Chart({ data, title }: ChartProps) {
             label="дата"
             labelFormatter={laa}
             formatter={label}
-            wrapperStyle={{ width: 350, backgroundColor: '#FFF', color: 'black' }}
+            wrapperStyle={{ width: 420, backgroundColor: '#FFF', color: 'black' }}
           />
           <YAxis allowDecimals={false} stroke={theme.palette.text.primary}>
             <Label angle={270} position="left" style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}>
@@ -98,6 +113,12 @@ export default function Chart({ data, title }: ChartProps) {
           </YAxis>
           <Line type="monotone" dataKey="amountAdded" stroke={theme.palette.secondary.light} dot={false} />
           <Line type="monotone" dataKey="amountUnsubscribed" stroke={theme.palette.error.main} dot={false} />
+          <Line
+            type="monotone"
+            dataKey="amountDistinctUnsubscribed"
+            stroke={theme.palette.secondary.light}
+            dot={false}
+          />
         </LineChart>
       </ResponsiveContainer>
     </>

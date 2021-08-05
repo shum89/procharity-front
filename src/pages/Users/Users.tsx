@@ -1,25 +1,19 @@
 // @ts-nocheck
-import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody, makeStyles } from '@material-ui/core';
-import React from 'react';
-import TablePagination from '@material-ui/core/TablePagination';
-import Typography from '@material-ui/core/Typography';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-import { UsersTableData } from '../Dashboard/Dashboard';
-import Preloader from '../../components/Preloader/Preloader';
-import StatusLabel from '../../components/StatusLabel/StatusLabel';
-import { useAsync } from '../../hooks/useAsync';
-import useLocalStorage from '../../hooks/useLocalStorage';
+import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody, makeStyles } from '@material-ui/core'
+import React from 'react'
+import TablePagination from '@material-ui/core/TablePagination'
+import Typography from '@material-ui/core/Typography'
+import CheckIcon from '@material-ui/icons/Check'
+import ClearIcon from '@material-ui/icons/Clear'
+import { UsersTableData } from '../Dashboard/Dashboard'
+import Preloader from '../../components/Preloader/Preloader'
+import StatusLabel from '../../components/StatusLabel/StatusLabel'
+import { useAsync } from '../../hooks/useAsync'
+import useLocalStorage from '../../hooks/useLocalStorage'
 
 interface UsersProps {
   children?: React.ReactNode;
-
-  // handleChangePage: (event: unknown, newPage: number) => void;
-  // rowsPerPage: number;
-
   fetchUserData: (limit: number, page: number) => Promise<UsersTableData>;
-
-  // handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -34,6 +28,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   title: {
     padding: 5,
   },
+  subtitle: {
+    fontWeight:'bold'
+  },
   iconCross: {
     fill: theme.palette.error.main,
   },
@@ -46,32 +43,32 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '95%',
     justifyContent: 'space-between',
   },
-}));
+}))
 const formaData = (date) => {
-  const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
-  const dateIso = new Date(date);
-  const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso);
-  return dateLocalized;
-};
-const columns = ['ФИО', 'E-mail', 'Рассылка', 'Имя пользователя', 'Дата Регистрации'];
+  const options: any = { day: 'numeric', month: 'long', year: 'numeric' }
+  const dateIso = new Date(date)
+  const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso)
+  return dateLocalized
+}
+const columns = ['ФИО', 'E-mail', 'Рассылка', 'Имя пользователя', 'Дата Регистрации']
 
 const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
-  const classes = useStyles();
-  const { data, error, isLoading, run, isError, reset } = useAsync({ status: 'idle', data: null, error: null });
-  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 20);
-  const [page, setPage] = useLocalStorage<number>('page', 1);
+  const classes = useStyles()
+  const { data, error, isLoading, run, isError, reset } = useAsync({ status: 'idle', data: null, error: null })
+  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 20)
+  const [page, setPage] = useLocalStorage<number>('page', 1)
   const handleChangePage = (event: unknown, newPage: number) => {
-    run(fetchUserData(newPage + 1, rowsPerPage));
-    setPage(newPage + 1);
-  };
+    run(fetchUserData(newPage + 1, rowsPerPage))
+    setPage(newPage + 1)
+  }
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value);
-    run(fetchUserData(1, +event.target.value));
-    setPage(1);
-  };
+    setRowsPerPage(+event.target.value)
+    run(fetchUserData(1, +event.target.value))
+    setPage(1)
+  }
   React.useEffect(() => {
-    run(fetchUserData(page, rowsPerPage));
-  }, []);
+    run(fetchUserData(page, rowsPerPage))
+  }, [])
 
   return (
     <>
@@ -91,7 +88,7 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
                   <TableRow>
                     {columns.map((column) => (
                       <TableCell key={column} align="left">
-                        <Typography variant="subtitle1">{column}</Typography>
+                        <Typography className={classes.subtitle} variant="subtitle1">{column}</Typography>
                       </TableCell>
                     ))}
                   </TableRow>
@@ -141,6 +138,6 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
         </>
       )}
     </>
-  );
-};
-export default Users;
+  )
+}
+export default Users

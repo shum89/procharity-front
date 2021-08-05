@@ -49,6 +49,7 @@ export interface UserData {
   deactivated_users: number
   added_users: { [key: string]: number }
   users_unsubscribed: { [key: string]: number }
+  distinct_users_unsubscribed: { [key: string]: number }
   command_stats: {
     [key: string]: number
   }
@@ -117,20 +118,20 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
                   <Users text={data?.number_not_subscribed_users ?? 0} title="Подписка выключена" />
                 </Paper>
               </Grid>
-
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
-                  <Chart data={data} title="Статистика новых пользователей за месяц" />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
-                  <Chart data={data} title="Статистика отписавшихся пользователей за месяц" />
-                </Paper>
-              </Grid>
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
                   <Chart data={data} title="Статистика пользователей за месяц" />
+                </Paper>
+              </Grid>
+
+              {/* <Grid item xs={12} md={12} lg={12}>
+                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
+                  <Chart data={data} title="Статистика новых пользователей за месяц" />
+                </Paper>
+              </Grid> */}
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
+                  <Chart data={data} title="Статистика отписавшихся пользователей за месяц" />
                 </Paper>
               </Grid>
 
