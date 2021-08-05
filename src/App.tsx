@@ -112,6 +112,7 @@ function App() {
     try {
       setStatus({ ...status, status: 'pending' });
       const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/users/?page=${page}&limit=${limit}`, {
+
         retry: {
           limit: 2,
           methods: ['get'],
@@ -155,6 +156,7 @@ function App() {
             },
           ],
         },
+        
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${JSON.parse(localStorage.getItem('user') ?? '')}`,
@@ -176,15 +178,59 @@ function App() {
   const onInvite = async (data: InviteFormValues) => {
     try {
       const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/invitation/`, {
+        retry: {
+          limit: 2,
+          methods: ['get'],
+          statusCodes: [401],
+        },
+        hooks: {
+          beforeRetry: [
+            // eslint-disable-next-line consistent-return
+            async ({ request, options, error, retryCount }) => {
+              if (retryCount === 1) {
+                setUserToken(false)
+                setRefreshToken(false)
+                history.push('/')
+                return ky.stop
+              }
+            },
+          ],
+          afterResponse: [
+            // eslint-disable-next-line consistent-return
+            async (request, options, res) => {
+              if (res.status === 401) {
+                const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                  headers: {
+                    Authorization: `Bearer ${refreshToken}`,
+                  },
+                })
+
+                if (resp.status === 200) {
+                  const token = await resp.json()
+                  request.headers.set('Authorization', `Bearer ${token.access_token}`)
+                  setUserToken(token.access_token as string)
+                  setRefreshToken(token.refresh_token as string)
+                  return ky(request)
+                }
+                if (resp.status === 401) {
+                  setUserToken(false)
+                  setRefreshToken(false)
+                  history.push('/')
+                }
+              }
+            },
+          ],
+        },
+
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${refreshToken}`,
+          Authorization: `Bearer ${userToken}`,
         },
         throwHttpErrors: false,
-      });
+      })
 
       if (response.status === 200) {
         const result = (await response.json()) as { message: string };
