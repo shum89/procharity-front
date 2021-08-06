@@ -221,7 +221,6 @@ function App() {
             },
           ],
         },
-
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
