@@ -9,9 +9,14 @@ export const themeLight: ThemeOptions = {
     secondary: {
       main: '#3f51b5',
       dark: '#e3e3e3',
+      light: '#C62FC6',
+    },
+    info: {
+      main: '#AB81F1',
+      light: '#1E0AB2',
     },
   },
-};
+}
 
 export const themeDark: ThemeOptions = {
   palette: {
@@ -33,6 +38,7 @@ export const themeDark: ThemeOptions = {
     divider: 'rgba(255,255,255,0.1)',
     info: {
       main: '#AB81F1',
+      light: '#0AB242'
     },
     text: {
       primary: '#ffffff',

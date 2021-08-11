@@ -24,6 +24,7 @@ interface StatusI<Data> {
   data: Data | null;
 }
 
+const apiUrl = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_API_DEV_ADDRESS : process.env.REACT_APP_API_ADDRESS
 function App() {
   const history = useHistory();
   const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
@@ -44,7 +45,7 @@ function App() {
 
   const getUsers = async () => {
     try {
-      const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/analytics/`, {
+      const response = await ky(`${apiUrl}/analytics/`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userToken}`,
@@ -71,7 +72,7 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
@@ -111,7 +112,7 @@ function App() {
   const getUsersData = async (page: number, limit: number) => {
     try {
       setStatus({ ...status, status: 'pending' });
-      const response = await ky(`${process.env.REACT_APP_API_ADDRESS}/users/?page=${page}&limit=${limit}`, {
+      const response = await ky(`${apiUrl}/users/?page=${page}&limit=${limit}`, {
 
         retry: {
           limit: 2,
@@ -134,7 +135,7 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
@@ -177,7 +178,7 @@ function App() {
 
   const onInvite = async (data: InviteFormValues) => {
     try {
-      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/invitation/`, {
+      const response = await ky.post(`${apiUrl}/auth/invitation/`, {
         retry: {
           limit: 2,
           methods: ['get'],
@@ -199,7 +200,7 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
@@ -245,7 +246,7 @@ function App() {
 
   const onLogin = async (data: LoginFormValues) => {
     try {
-      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/login/`, {
+      const response = await ky.post(`${apiUrl}/auth/login/`, {
         json: {
           ...data,
         },
@@ -268,7 +269,7 @@ function App() {
 
   const onResetPassword = async (data: ResetPasswordFormValues) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_ADDRESS}/auth/password_reset/`, {
+      const response = await fetch(`${apiUrl}/auth/password_reset/`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -290,7 +291,7 @@ function App() {
     const replaceEnclosedTag = stripTags.replace(/(<br[^>]+?>|<br>|<\/p>)/gim, '\n');
     const normalizedData = { message: replaceEnclosedTag };
     try {
-      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/send_telegram_notification/`, {
+      const response = await ky.post(`${apiUrl}/send_telegram_notification/`, {
         json: {
           has_mailing: data.has_mailing,
           ...normalizedData,
@@ -309,7 +310,7 @@ function App() {
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
               if (res.status === 401) {
-                const resp = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/token_refresh/`, {
+                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
@@ -343,7 +344,7 @@ function App() {
     try {
       const dataForRegistration = data;
       delete dataForRegistration?.passwordConfirmation;
-      const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/register/`, {
+      const response = await ky.post(`${apiUrl}/auth/register/`, {
         json: {
           ...data,
           token: params.id,

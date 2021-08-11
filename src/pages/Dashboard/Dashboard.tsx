@@ -50,6 +50,17 @@ export interface UserData {
   added_users: { [key: string]: number }
   users_unsubscribed: { [key: string]: number }
   distinct_users_unsubscribed: { [key: string]: number }
+  active_users_statistic: {
+    all: {
+      [key: string]: number
+    }
+    subscribed: {
+      [key: string]: number
+    }
+    unsubscribed: {
+      [key: string]: number
+    }
+  }
   command_stats: {
     [key: string]: number
   }
@@ -123,7 +134,11 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
                   <Chart data={data} title="Статистика пользователей за месяц" />
                 </Paper>
               </Grid>
-
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
+                  <Chart data={data} title="Статистика активных пользователей за месяц" />
+                </Paper>
+              </Grid>
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
                   <Chart data={data} title="Статистика новых пользователей за месяц" />
