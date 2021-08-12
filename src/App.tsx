@@ -23,8 +23,12 @@ interface StatusI<Data> {
   isStatusLabelOpen: boolean;
   data: Data | null;
 }
+const devLocation = process.env.NODE_ENV === 'development' || window.location.origin === 'http://178.154.202.217'
 
-const apiUrl = process.env.NODE_ENV === 'development' ? process.env.REACT_APP_API_DEV_ADDRESS : process.env.REACT_APP_API_ADDRESS
+const apiUrl =
+  devLocation
+    ? process.env.REACT_APP_API_DEV_ADDRESS
+    : process.env.REACT_APP_API_ADDRESS
 function App() {
   const history = useHistory();
   const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
