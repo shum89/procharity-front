@@ -23,6 +23,7 @@ interface StatusI<Data> {
   isStatusLabelOpen: boolean;
   data: Data | null;
 }
+
 const devLocation = process.env.NODE_ENV === 'development' || window.location.origin === 'http://178.154.202.217'
 
 const apiUrl =

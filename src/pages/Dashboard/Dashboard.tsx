@@ -46,6 +46,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 export interface UserData {
   active_users: number
+  number_users: {
+    all_users: number
+    banned_users: number
+    not_subscribed_users: number
+    subscribed_users: number
+  }
   deactivated_users: number
   added_users: { [key: string]: number }
   users_unsubscribed: { [key: string]: number }
@@ -111,22 +117,24 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
           <StatusLabel isStatusLabelOpen={isError} statusMessage={error} isError={isError} handleCloseError={reset} />
           <Container maxWidth="lg" className={classes.container}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={4} lg={4}>
+              <Grid item xs={12} md={3} lg={3}>
                 <Paper className={classes.paper}>
-                  <Users
-                    text={(data?.number_subscribed_users ?? 0) + (data?.number_not_subscribed_users ?? 0)}
-                    title="Всего пользователей"
-                  />
+                  <Users text={data?.number_users.all_users ?? 0} title="Всего пользователей" />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={4} lg={4}>
+              <Grid item xs={12} md={3} lg={3}>
                 <Paper className={classes.paper}>
-                  <Users text={data?.number_subscribed_users ?? 0} title="Подписка включена" />
+                  <Users text={data?.number_users.subscribed_users ?? 0} title="Подписка включена" />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={4} lg={4}>
+              <Grid item xs={12} md={3} lg={3}>
                 <Paper className={classes.paper}>
-                  <Users text={data?.number_not_subscribed_users ?? 0} title="Подписка выключена" />
+                  <Users text={data?.number_users.not_subscribed_users ?? 0} title="Подписка выключена" />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={3} lg={3}>
+                <Paper className={classes.paper}>
+                  <Users text={data?.number_users.banned_users ?? 0} title="Бот выключен" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={12} lg={12}>
