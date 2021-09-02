@@ -11,6 +11,7 @@ import useStyles from './RegisterForm.styles';
 import { useAsync } from '../../hooks/useAsync';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import Preloader from '../../components/Preloader/Preloader';
+import { apiUrl } from '../../App';
 
 const schema = yup.object().shape({
   last_name: yup.string().required('Поле Имя необходимо к заполнению'),
@@ -49,7 +50,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
     const handleTokenValidity = async () => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const response = await ky.post(`${process.env.REACT_APP_API_ADDRESS}/auth/invitation_checker/`, {
+        const response = await ky.post(`${apiUrl}/auth/invitation_checker/`, {
           json: {
             token: params.id,
           },
