@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, TextField, CircularProgress } from '@material-ui/core';
+import { Button, TextField, CircularProgress, Typography } from '@material-ui/core';
 import * as yup from 'yup';
 import { Options } from 'ky';
 import React from 'react';
@@ -56,6 +56,7 @@ const Invite: React.FC<InviteProps> = ({ onSubmit }) => {
         isError={isError}
         handleCloseError={handleResetLabel}
       />
+      <Typography variant="h4">Пригласить нового администратора</Typography>
       <form
         className={classes.authForm}
         onSubmit={handleSubmit((dataS, e) => {

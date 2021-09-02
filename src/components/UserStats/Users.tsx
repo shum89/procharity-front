@@ -22,7 +22,7 @@ const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
       <Typography component="p" variant="h4">
         {text}
       </Typography>
-      <Typography component="p" variant="body1">
+      <Typography component="p" variant="h6">
         {title}
       </Typography>
       {!lastUpdate && (

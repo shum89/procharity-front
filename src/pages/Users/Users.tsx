@@ -50,7 +50,7 @@ const formaData = (date) => {
   const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso)
   return dateLocalized
 }
-const columns = ['ФИО', 'E-mail', 'Рассылка', 'Бот забанен', 'Имя пользователя', 'Дата Регистрации'];
+const columns = ['ФИО', 'E-mail', 'Рассылка', 'Бот заблокирован', 'Имя пользователя', 'Дата Регистрации'];
 
 const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
   const classes = useStyles()

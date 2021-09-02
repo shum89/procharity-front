@@ -141,7 +141,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
               </Grid>
               <Grid item xs={12} md={3} lg={3}>
                 <Paper className={classes.paper}>
-                  <Users text={data?.number_users.banned_users ?? 0} title="Бот выключен" />
+                  <Users text={data?.number_users.banned_users ?? 0} title="Бот заблокирован" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4} lg={4}>
@@ -164,11 +164,6 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
                   <Chart data={data} title="Статистика активных пользователей за месяц" />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper className={clsx(classes.fixedHeight, classes.paper)}>
-                  <Chart data={data} title="Статистика новых пользователей за месяц" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={12} lg={12}>
