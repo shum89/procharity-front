@@ -13,6 +13,7 @@ module.exports = {
   },
   plugins: ['prettier', 'react', '@typescript-eslint'],
   rules: {
+    "no-unused-vars": "warn",
     'react/prop-types': 'off',
     'react/jsx-props-no-spreading': 'off',
     'no-shadow': 'off',
