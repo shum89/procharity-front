@@ -50,7 +50,7 @@ const formaData = (date) => {
   const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso)
   return dateLocalized
 }
-const columns = ['ФИО', 'E-mail', 'Рассылка', 'Имя пользователя', 'Дата Регистрации']
+const columns = ['ФИО', 'E-mail', 'Рассылка', 'Бот заблокирован', 'Имя пользователя', 'Дата Регистрации'];
 
 const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
   const classes = useStyles()
@@ -88,7 +88,9 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
                   <TableRow>
                     {columns.map((column) => (
                       <TableCell key={column} align="left">
-                        <Typography className={classes.subtitle} variant="subtitle1">{column}</Typography>
+                        <Typography className={classes.subtitle} variant="subtitle1">
+                          {column}
+                        </Typography>
                       </TableCell>
                     ))}
                   </TableRow>
@@ -106,8 +108,16 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
                       </TableCell>
                       <TableCell align="left">
                         <div className={classes.container}>
-                          <Typography variant="subtitle1">{result.has_mailing ? 'Включена' : 'Выключена'}</Typography>
                           {result.has_mailing ? (
+                            <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                          ) : (
+                            <ClearIcon fontSize="small" className={classes.iconCross} />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell align="left">
+                        <div className={classes.container}>
+                          {result.banned ? (
                             <CheckIcon fontSize="small" className={classes.iconCheckMark} />
                           ) : (
                             <ClearIcon fontSize="small" className={classes.iconCross} />
@@ -138,6 +148,6 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
         </>
       )}
     </>
-  )
+  );
 }
 export default Users

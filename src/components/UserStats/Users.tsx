@@ -10,22 +10,36 @@ const useStyles = makeStyles({
 interface UsersProps {
   text: number;
   title: string;
+  lastUpdate?:string;
 }
-const Users: React.FC<UsersProps> = ({ text, title }) => {
+const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
   const classes = useStyles();
   const date = Date.now();
+  const lastUpdateDate = new Date(lastUpdate)
   const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
   return (
     <>
       <Typography component="p" variant="h4">
         {text}
       </Typography>
-      <Typography component="p" variant="body1">
+      <Typography component="p" variant="h6">
         {title}
       </Typography>
-      <Typography variant="body1" color="textSecondary" className={classes.depositContext}>
-        {new Intl.DateTimeFormat('ru-Ru', options).format(date)}
-      </Typography>
+      {!lastUpdate && (
+        <Typography variant="body1" color="textSecondary" className={classes.depositContext}>
+          {new Intl.DateTimeFormat('ru-Ru', options).format(date)}
+        </Typography>
+      )}
+      {lastUpdate && (
+        <div>
+          <Typography variant="body1" color="textSecondary" className={classes.depositContext}>
+            Последнее обновление заданий
+          </Typography>
+          <Typography variant="body1" color="textSecondary" className={classes.depositContext}>
+            {new Intl.DateTimeFormat('ru-Ru', options).format(lastUpdateDate)}
+          </Typography>
+        </div>
+      )}
       <div />
     </>
   );
