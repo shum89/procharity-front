@@ -15,7 +15,7 @@ interface UsersProps {
 const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
   const classes = useStyles();
   const date = Date.now();
-  const lastUpdateDate = new Date(lastUpdate)
+  const lastUpdateDate = new Date(lastUpdate.replace(/-/g, '/'));
   const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
   return (
     <>
