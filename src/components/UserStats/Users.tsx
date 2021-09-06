@@ -14,7 +14,6 @@ interface UsersProps {
 }
 const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
   const classes = useStyles();
-  const date = Date.now();
   const lastUpdateDate = new Date(lastUpdate.replace(/-/g, '/'));
   const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
   return (
@@ -25,11 +24,6 @@ const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
       <Typography component="p" variant="h6">
         {title}
       </Typography>
-      {!lastUpdate && (
-        <Typography variant="body1" color="textSecondary" className={classes.depositContext}>
-          {new Intl.DateTimeFormat('ru-Ru', options).format(date)}
-        </Typography>
-      )}
       {lastUpdate && (
         <div>
           <Typography variant="body1" color="textSecondary" className={classes.depositContext}>

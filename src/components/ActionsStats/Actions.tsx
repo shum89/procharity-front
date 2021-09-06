@@ -18,19 +18,19 @@ const Actions: React.FC<ActionsProps> = ({ actionsStats, title, cardTitle }) => 
   const stats = actionsStats ?? { command_stats: 0 };
   return (
     <>
-      <Typography className={classes.title} variant="h4">
+      <Typography className={classes.title} variant="h5">
         {cardTitle}
       </Typography>
       <Table className={classes.table} size="small">
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography className={classes.subtitle} variant="h5">
+              <Typography className={classes.subtitle} variant="h6">
                 {title}
               </Typography>
             </TableCell>
             <TableCell align="right">
-              <Typography className={classes.subtitle} variant="h5">
+              <Typography className={classes.subtitle} variant="h6">
                 Количество
               </Typography>
             </TableCell>
@@ -40,10 +40,10 @@ const Actions: React.FC<ActionsProps> = ({ actionsStats, title, cardTitle }) => 
           {Object.keys(stats).map((actionName) => (
             <TableRow key={actionName}>
               <TableCell>
-                <Typography variant="h6">{actionName}</Typography>
+                <Typography variant="body1">{actionName}</Typography>
               </TableCell>
               <TableCell align="right">
-                <Typography variant="h6">{stats[actionName]}</Typography>
+                <Typography variant="body1">{stats[actionName]}</Typography>
               </TableCell>
             </TableRow>
           ))}

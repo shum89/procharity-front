@@ -10,7 +10,7 @@ const BotStatus: React.FC<BotStatusProps> = ({ status }) => {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <Badge color={status ? 'error':"secondary" }variant="dot">
+      <Badge color={status ? 'secondary' : 'error'} variant="dot">
         <TelegramIcon />
       </Badge>
     </div>

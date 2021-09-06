@@ -1,14 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
-import React from 'react';
-import { makeStyles, AppBar, Toolbar, IconButton, Drawer, Divider, List, Hidden } from '@material-ui/core';
+import React, { useEffect } from 'react';
+import {
+  makeStyles,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Drawer,
+  Divider,
+  List,
+  Hidden,
+  Popover,
+  Paper,
+  Typography,
+  Badge,
+  Button,
+} from '@material-ui/core';
 import clsx from 'clsx';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import MenuIcon from '@material-ui/icons/Menu';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { MainListItems, SecondaryListItems } from '../NavigationItems/NavigationItems';
+import { useAsync } from '../../hooks/useAsync';
+import { HealthCheck } from '../../App';
+import BotStatus from '../BotStatus/BotStatus';
+import { formatData } from '../../pages/Users/Users';
 
 const drawerWidth = 250;
 
@@ -63,6 +83,19 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
+  paper: {
+    padding: 20,
+    display: 'flex',
+    overflow: 'hidden',
+    flexDirection: 'column',
+    gap: 30,
+  },
+  iconCross: {
+    fill: theme.palette.error.main,
+  },
+  iconCheckMark: {
+    fill: theme.palette.success.main,
+  },
   drawerPaper: {
     position: 'relative',
     whiteSpace: 'nowrap',
@@ -103,13 +136,6 @@ const useStyles = makeStyles((theme) => ({
   richTextEditor: {
     maxWidth: '60%',
   },
-
-  paper: {
-    padding: theme.spacing(2),
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-  },
   fixedHeight: {
     height: 240,
   },
@@ -130,6 +156,12 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     right: '0',
   },
+  statusContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    minWidth: 180,
+    gap: 20,
+  },
 }));
 interface HeaderProps {
   handleDrawerOpen: () => void;
@@ -139,6 +171,7 @@ interface HeaderProps {
   isDark: boolean;
   isMenuOpen: boolean;
   handleCloseError: () => void;
+  getHealthCheck: () => Promise<HealthCheck>;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -149,6 +182,7 @@ const Header: React.FC<HeaderProps> = ({
   isDark,
   removeToken,
   handleCloseError,
+  getHealthCheck,
 }) => {
   const classes = useStyles();
   const history = useHistory();
@@ -162,10 +196,31 @@ const Header: React.FC<HeaderProps> = ({
   const matchRegister = useRouteMatch('/register/:id')?.isExact ?? false;
   const matchReset = useRouteMatch('/reset_password')?.isExact ?? false;
 
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const handleLogout = () => {
     removeToken();
     history.push('/');
   };
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const { run, data } = useAsync({ status: 'idle', data: null, error: null });
+   const options: any = { day: 'numeric', month: 'numeric', year: 'numeric' };
+  const update = data?.db.last_update ?? '1-11-1111';
+   const lastUpdateDate = new Date(update.replace(/-/g, '/'));
+  const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(lastUpdateDate);
+ 
+
+  useEffect(() => {
+    run(getHealthCheck());
+  }, []);
+  const open = Boolean(anchorEl);
 
   return (
     <>
@@ -196,6 +251,55 @@ const Header: React.FC<HeaderProps> = ({
                 </IconButton>
               </Hidden>
               <div className={classes.appBarSpacer} />
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}>
+                <Paper className={classes.paper}>
+                  <div className={classes.statusContainer}>
+                    <Typography>Статус бота</Typography>
+                    {data?.bot.status ? (
+                      <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                    ) : (
+                      <ClearIcon fontSize="small" className={classes.iconCross} />
+                    )}
+                    {!data?.bot.status && <Typography>{data?.bot.error}</Typography>}
+                  </div>
+                  <div className={classes.statusContainer}>
+                    <Typography>Метод бота</Typography>
+                    <Typography>{data?.bot.method}</Typography>
+                  </div>
+                  <div className={classes.statusContainer}>
+                    <Typography>Статус сервера</Typography>
+                    {data?.db.status ? (
+                      <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                    ) : (
+                      <ClearIcon fontSize="small" className={classes.iconCross} />
+                    )}
+                    {!data?.db.status && <Typography>{data?.db.error}</Typography>}
+                  </div>
+                  <div className={classes.statusContainer}>
+                    <Typography>Активных задач</Typography>
+                    <Typography>{data?.db.active_tasks}</Typography>
+                  </div>
+                  <div className={classes.statusContainer}>
+                    <Typography>Последнне обновление</Typography>
+                    <Typography>{dateLocalized}</Typography>
+                  </div>
+                </Paper>
+              </Popover>
+              <IconButton onClick={handleClick}>
+                <BotStatus status={data?.bot.status && data?.db.status} />
+              </IconButton>
+
               <IconButton onClick={handleSetTheme}>{isDark ? <Brightness4Icon /> : <Brightness7Icon />}</IconButton>
             </Toolbar>
           </AppBar>
@@ -250,6 +354,25 @@ const Header: React.FC<HeaderProps> = ({
           <h1 className={classes.authFormTitle}>ProCharity</h1>
           <div className={classes.buttonThemeContainer}>
             <IconButton onClick={handleSetTheme}>{isDark ? <Brightness4Icon /> : <Brightness7Icon />}</IconButton>
+
+            <Button onClick={handleClick}>
+              <BotStatus status={false} />
+            </Button>
+
+            <Popover
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}>
+              The content of the Popover.
+            </Popover>
           </div>
         </div>
       )}

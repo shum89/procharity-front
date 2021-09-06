@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: 'space-between',
   },
 }))
-const formaData = (date) => {
+export const formatData = (date) => {
   const options: any = { day: 'numeric', month: 'long', year: 'numeric' }
   const dateIso = new Date(date)
   const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso)
@@ -128,7 +128,7 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
                         <Typography variant="subtitle1">{result.username ?? 'Не указан'}</Typography>
                       </TableCell>
                       <TableCell align="left">
-                        <Typography variant="subtitle1">{formaData(result.date_registration)}</Typography>
+                        <Typography variant="subtitle1">{formatData(result.date_registration)}</Typography>
                       </TableCell>
                     </TableRow>
                   ))}

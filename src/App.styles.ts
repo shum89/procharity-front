@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) => {
         duration: theme.transitions.duration.enteringScreen,
       }),
       width: match ? `calc(100% - ${drawerWidth}px)` : `calc(100% - ${drawerWidth + 20}px)`,
-      marginLeft: drawerWidth,
+      marginLeft: 255,
     },
   };
 });

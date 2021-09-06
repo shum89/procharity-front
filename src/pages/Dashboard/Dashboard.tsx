@@ -144,7 +144,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
                   <Users text={data?.number_users.banned_users ?? 0} title="Бот заблокирован" />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={4} lg={4}>
+              <Grid item xs={12} md={3} lg={3}>
                 <Paper className={classes.paper}>
                   <Users
                     lastUpdate={data?.tasks.last_update}

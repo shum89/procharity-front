@@ -24,6 +24,18 @@ interface StatusI<Data> {
   data: Data | null;
 }
 
+export interface HealthCheck {
+  db: {
+    status: boolean;
+    db_connection_error: string;
+    active_tasks: number;
+    last_update: string;
+  };
+  bot: {
+    status: boolean;
+    error: string;
+  };
+}
 const devLocation = process.env.NODE_ENV === 'development' || window.location.origin === 'http://178.154.202.217'
 
 export const apiUrl =
@@ -103,6 +115,33 @@ function App() {
 
       if (response.status === 200) {
         const userData: UserData = (await response.json()) as UserData;
+
+        return userData;
+      }
+      const error = await response.json();
+
+      throw new Error(error.message);
+    } catch (e: any) {
+      return Promise.reject(e.message);
+    }
+  };
+
+ const getHealthCheck = async () => {
+    try {
+      const response = await ky(`${apiUrl}/health_check/`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        throwHttpErrors: false,
+        retry: {
+          limit: 2,
+          methods: ['get'],
+          statusCodes: [401],
+        },
+      });
+
+      if (response.status === 200) {
+        const userData: HealthCheck = (await response.json()) as HealthCheck;
 
         return userData;
       }
@@ -398,6 +437,11 @@ function App() {
           ...theme.palette,
         },
         overrides: {
+          MuiBadge: {
+            colorSecondary: {
+              backgroundColor: '#4caf50',
+            },
+          },
           MuiFormHelperText: {
             root: {
               position: 'absolute',
@@ -511,6 +555,7 @@ function App() {
           handleDrawerOpen={handleDrawerOpen}
           handleDrawerClose={handleDrawerClose}
           handleCloseError={handleCloseError}
+          getHealthCheck={getHealthCheck}
         />
 
         <Switch>
