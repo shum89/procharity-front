@@ -66,6 +66,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     '& .ql-picker-label': {
       color: theme.palette.type === 'dark' ? 'white' : 'black',
     },
+    '& .ql-editor': {
+      minHeight: 150,
+    },
   },
 }));
 
