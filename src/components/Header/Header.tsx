@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import {
-  makeStyles,
   AppBar,
   Toolbar,
   IconButton,
@@ -13,7 +10,6 @@ import {
   Popover,
   Paper,
   Typography,
-  Badge,
   Button,
 } from '@material-ui/core';
 import clsx from 'clsx';
