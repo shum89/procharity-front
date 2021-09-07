@@ -1,16 +1,16 @@
-
-import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody } from '@material-ui/core'
-import React from 'react'
-import TablePagination from '@material-ui/core/TablePagination'
-import Typography from '@material-ui/core/Typography'
-import CheckIcon from '@material-ui/icons/Check'
-import ClearIcon from '@material-ui/icons/Clear'
-import { UsersTableData } from '../Dashboard/Dashboard'
-import Preloader from '../../components/Preloader/Preloader'
-import StatusLabel from '../../components/StatusLabel/StatusLabel'
-import { useAsync } from '../../hooks/useAsync'
-import useLocalStorage from '../../hooks/useLocalStorage'
-import useStyles from './Users.styles'
+// @ts-nocheck
+import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody } from '@material-ui/core';
+import React from 'react';
+import TablePagination from '@material-ui/core/TablePagination';
+import Typography from '@material-ui/core/Typography';
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
+import { UsersTableData } from '../Dashboard/Dashboard';
+import Preloader from '../../components/Preloader/Preloader';
+import StatusLabel from '../../components/StatusLabel/StatusLabel';
+import { useAsync } from '../../hooks/useAsync';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import useStyles from './Users.styles';
 
 interface UsersProps {
   children?: React.ReactNode;
@@ -18,30 +18,30 @@ interface UsersProps {
 }
 
 export const formatData = (date: string) => {
-  const options: any = { day: 'numeric', month: 'long', year: 'numeric' }
-  const dateIso = new Date(date)
-  const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso)
-  return dateLocalized
-}
+  const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
+  const dateIso = new Date(date);
+  const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso);
+  return dateLocalized;
+};
 const columns = ['ФИО', 'E-mail', 'Рассылка', 'Бот заблокирован', 'Имя пользователя', 'Дата Регистрации'];
 
 const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
-  const classes = useStyles()
-  const { data, error, isLoading, run, isError, reset } = useAsync({ status: 'idle', data: null, error: null })
-  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 20)
-  const [page, setPage] = useLocalStorage<number>('page', 1)
+  const classes = useStyles();
+  const { data, error, isLoading, run, isError, reset } = useAsync({ status: 'idle', data: null, error: null });
+  const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 20);
+  const [page, setPage] = useLocalStorage<number>('page', 1);
   const handleChangePage = (event: unknown, newPage: number) => {
-    run(fetchUserData(newPage + 1, rowsPerPage))
-    setPage(newPage + 1)
-  }
+    run(fetchUserData(newPage + 1, rowsPerPage));
+    setPage(newPage + 1);
+  };
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    run(fetchUserData(1, +event.target.value))
-    setPage(1)
-  }
+    setRowsPerPage(+event.target.value);
+    run(fetchUserData(1, +event.target.value));
+    setPage(1);
+  };
   React.useEffect(() => {
-    run(fetchUserData(page, rowsPerPage))
-  }, [])
+    run(fetchUserData(page, rowsPerPage));
+  }, []);
 
   return (
     <>
@@ -122,5 +122,5 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
       )}
     </>
   );
-}
-export default Users
+};
+export default Users;
