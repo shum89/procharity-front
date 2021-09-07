@@ -49,6 +49,7 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
         run(onSubmit(dataS));
         reset({ message: '' });
       })}>
+      <Typography variant="h4">Отправить сообщение пользователям</Typography>
       <StatusLabel
         isStatusLabelOpen={isStatusLabelOpen}
         statusMessage={statusMessage}

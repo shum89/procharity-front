@@ -1,18 +1,17 @@
 /* eslint-disable no-nested-ternary */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import React, { useDebugValue, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Chart from '../../components/Chart/Chart';
-import Actions from '../../components/ActionsStats/Actions';
+import ActionsStats from '../../components/ActionsStats/ActionsStats';
 import Users from '../../components/UserStats/Users';
 import Preloader from '../../components/Preloader/Preloader';
 import { useAsync } from '../../hooks/useAsync';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
+import useStyles from './Dashboard.styles';
 
 export interface userStats {
   time: string;
@@ -25,32 +24,7 @@ function declOfNum(n: number, titles: any) {
     n % 10 === 1 && n % 100 !== 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2
   ];
 }
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  title: {
-    flexGrow: 1,
-  },
-  content: {
-    flexGrow: 1,
-    height: '100%',
-    overflow: 'auto',
-  },
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-  },
-  paper: {
-    padding: theme.spacing(2),
-    display: 'flex',
-    overflow: 'hidden',
-    flexDirection: 'column',
-  },
-  fixedHeight: {
-    minHeight: 240,
-  },
-}));
+
 export interface UserData {
   active_users: number;
   number_users: {
@@ -109,7 +83,7 @@ interface DashboardProps {
 }
 const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
   const classes = useStyles();
-  const { data, error, status, run, isError, reset, isLoading } = useAsync({ status: 'idle', data: null, error: null });
+  const { data, error, run, isError, reset, isLoading } = useAsync({ status: 'idle', data: null, error: null });
 
   useEffect(() => {
     run(fetchUserStats());
@@ -174,12 +148,12 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
 
               <Grid item xs={12} md={6} lg={6}>
                 <Paper className={classes.paper}>
-                  <Actions cardTitle="Статистика команд" title="Название Команды" actionsStats={data?.command_stats} />
+                  <ActionsStats cardTitle="Статистика команд" title="Название Команды" actionsStats={data?.command_stats} />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6} lg={6}>
                 <Paper className={classes.paper}>
-                  <Actions
+                  <ActionsStats
                     cardTitle="Статистика отписок"
                     title="Причина отписки"
                     actionsStats={data?.reasons_canceling}

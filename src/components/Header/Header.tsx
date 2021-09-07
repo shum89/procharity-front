@@ -28,141 +28,9 @@ import { MainListItems, SecondaryListItems } from '../NavigationItems/Navigation
 import { useAsync } from '../../hooks/useAsync';
 import { HealthCheck } from '../../App';
 import BotStatus from '../BotStatus/BotStatus';
-import { formatData } from '../../pages/Users/Users';
+import useStyles from './Header.styles';
 
-const drawerWidth = 250;
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  toolbar: {
-    paddingRight: 24,
-    // keep right padding when drawer closed
-  },
-  divider: {
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  drawerPosition: {
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    height: '100%',
-    background: theme.palette.background.paper,
-  },
-  toolbarIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    position: 'fixed',
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
-  title: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: 20,
-    display: 'flex',
-    overflow: 'hidden',
-    flexDirection: 'column',
-    gap: 30,
-  },
-  iconCross: {
-    fill: theme.palette.error.main,
-  },
-  iconCheckMark: {
-    fill: theme.palette.success.main,
-  },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    background: theme.palette.background.paper,
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
-    },
-  },
-  appBarSpacer: {
-    flexGrow: 1,
-  },
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto',
-    marginTop: 100,
-    '& .quill': {
-      width: '90%',
-    },
-  },
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-  },
-  richTextEditor: {
-    maxWidth: '60%',
-  },
-  fixedHeight: {
-    height: 240,
-  },
-  authFormTitle: {
-    width: '100%',
-    textAlign: 'center',
-    fontSize: '2rem',
-    lineHeight: '2rem',
-  },
-  headerContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    position: 'relative',
-  },
-  buttonThemeContainer: {
-    paddingRight: 10,
-    position: 'absolute',
-    right: '0',
-  },
-  statusContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    minWidth: 180,
-    gap: 20,
-  },
-}));
 interface HeaderProps {
   handleDrawerOpen: () => void;
   handleDrawerClose: () => void;
@@ -291,7 +159,7 @@ const Header: React.FC<HeaderProps> = ({
                     <Typography>{data?.db.active_tasks}</Typography>
                   </div>
                   <div className={classes.statusContainer}>
-                    <Typography>Последнне обновление</Typography>
+                    <Typography>Последнее обновление</Typography>
                     <Typography>{dateLocalized}</Typography>
                   </div>
                 </Paper>
@@ -356,7 +224,7 @@ const Header: React.FC<HeaderProps> = ({
             <IconButton onClick={handleSetTheme}>{isDark ? <Brightness4Icon /> : <Brightness7Icon />}</IconButton>
 
             <Button onClick={handleClick}>
-              <BotStatus status={false} />
+              <BotStatus status={data?.bot.status && data?.db.status} />
             </Button>
 
             <Popover
@@ -371,7 +239,38 @@ const Header: React.FC<HeaderProps> = ({
                 vertical: 'top',
                 horizontal: 'center',
               }}>
-              The content of the Popover.
+              <Paper className={classes.paper}>
+                <div className={classes.statusContainer}>
+                  <Typography>Статус бота</Typography>
+                  {data?.bot.status ? (
+                    <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                  ) : (
+                    <ClearIcon fontSize="small" className={classes.iconCross} />
+                  )}
+                  {!data?.bot.status && <Typography>{data?.bot.error}</Typography>}
+                </div>
+                <div className={classes.statusContainer}>
+                  <Typography>Метод бота</Typography>
+                  <Typography>{data?.bot.method}</Typography>
+                </div>
+                <div className={classes.statusContainer}>
+                  <Typography>Статус сервера</Typography>
+                  {data?.db.status ? (
+                    <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                  ) : (
+                    <ClearIcon fontSize="small" className={classes.iconCross} />
+                  )}
+                  {!data?.db.status && <Typography>{data?.db.error}</Typography>}
+                </div>
+                <div className={classes.statusContainer}>
+                  <Typography>Активных задач</Typography>
+                  <Typography>{data?.db.active_tasks}</Typography>
+                </div>
+                <div className={classes.statusContainer}>
+                  <Typography>Последнее обновление</Typography>
+                  <Typography>{dateLocalized}</Typography>
+                </div>
+              </Paper>
             </Popover>
           </div>
         </div>

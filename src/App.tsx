@@ -560,12 +560,6 @@ function App() {
 
         <Switch>
           <Route exact path="/">
-            {/* <StatusLabel
-              isStatusLabelOpen={isStatusLabelOpen}
-              statusMessage={statusMessage}
-              isError={requestStatus}
-              handleCloseError={handleCloseError}
-            /> */}
             {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect exact from="/" to="/dashboard" />}
           </Route>
 
@@ -617,15 +611,6 @@ function App() {
             }
             path="/invite"
           />
-          {/* <Route path="/invite">
-            <main
-              className={clsx(classes.content, {
-                [classes.contentShift]: isMenuOpen,
-              })}>
-              <Invite onSubmit={onInvite} />
-            </main>
-          </Route> */}
-
           <Route path="/register/:id">
             <RegisterForm onSubmit={onRegister} />
           </Route>

@@ -73,11 +73,11 @@ export default function Chart({ data, title }: ChartProps) {
 
     return [value, labelName];
   };
-  const laa = (lab: any, payload: any) => {
-    if (lab === 0) {
+  const tooltipText = (tooltipDate: any, payload: any) => {
+    if (tooltipDate === 0) {
       return 'date';
     }
-    const db = new Date(lab);
+    const db = new Date(tooltipDate);
     const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
     const date = new Intl.DateTimeFormat('ru-Ru', options).format(db);
     return date;
@@ -101,11 +101,7 @@ export default function Chart({ data, title }: ChartProps) {
 
           <XAxis
             tickFormatter={(value, index: number) => {
-              // eslint-disable-next-line no-console
               const dateObj: Date = new Date(value);
-              // if (value) {
-              //   dateObj = new Date(value.replace(/-/g, '/'));
-              // }
               const day = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
               return day;
             }}
@@ -121,7 +117,7 @@ export default function Chart({ data, title }: ChartProps) {
           />
           <Tooltip
             label="дата"
-            labelFormatter={laa}
+            labelFormatter={tooltipText}
             formatter={label}
             wrapperStyle={{ width: 420, backgroundColor: '#FFF', color: 'black' }}
           />

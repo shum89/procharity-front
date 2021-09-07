@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { themeDark } from './App.theme';

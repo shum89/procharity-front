@@ -10,17 +10,12 @@ import { useHistory } from 'react-router-dom';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import GroupIcon from '@material-ui/icons/Group';
 import Divider from '@material-ui/core/Divider';
-import { makeStyles } from '@material-ui/core/styles';
+import useStyles from './NavigationItems.styles';
 
 interface MainListItemsProps {
   handleCloseError: () => void;
 }
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: 10,
-    marginBottom: 10,
-  },
-}));
+
 export const MainListItems: React.FC<MainListItemsProps> = ({ handleCloseError }) => {
   const history = useHistory();
   const classes = useStyles();

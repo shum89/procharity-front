@@ -1,5 +1,5 @@
-// @ts-nocheck
-import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody, makeStyles } from '@material-ui/core'
+
+import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody } from '@material-ui/core'
 import React from 'react'
 import TablePagination from '@material-ui/core/TablePagination'
 import Typography from '@material-ui/core/Typography'
@@ -10,41 +10,14 @@ import Preloader from '../../components/Preloader/Preloader'
 import StatusLabel from '../../components/StatusLabel/StatusLabel'
 import { useAsync } from '../../hooks/useAsync'
 import useLocalStorage from '../../hooks/useLocalStorage'
+import useStyles from './Users.styles'
 
 interface UsersProps {
   children?: React.ReactNode;
   fetchUserData: (limit: number, page: number) => Promise<UsersTableData>;
 }
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  section: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-  },
-  title: {
-    padding: 5,
-  },
-  subtitle: {
-    fontWeight:'bold'
-  },
-  iconCross: {
-    fill: theme.palette.error.main,
-  },
-  iconCheckMark: {
-    fill: theme.palette.success.main,
-  },
-  container: {
-    alignItems: 'center',
-    display: 'flex',
-    width: '95%',
-    justifyContent: 'space-between',
-  },
-}))
-export const formatData = (date) => {
+
+export const formatData = (date: string) => {
   const options: any = { day: 'numeric', month: 'long', year: 'numeric' }
   const dateIso = new Date(date)
   const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(dateIso)
@@ -76,7 +49,7 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
         <Preloader />
       ) : (
         <>
-          <StatusLabel isStatusLabelOpen={isError} statusMessage={error} handleCloseError={reset} />
+          <StatusLabel isError={isError} isStatusLabelOpen={isError} statusMessage={error} handleCloseError={reset} />
 
           <section className={classes.section}>
             <Typography className={classes.title} variant="h5">
@@ -96,7 +69,7 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {data?.result.map((result) => (
+                  {data?.result.map((result: any) => (
                     <TableRow key={result.telegram_id}>
                       <TableCell align="left">
                         <Typography variant="subtitle1">{`${result.first_name ?? 'Не указан'} ${
