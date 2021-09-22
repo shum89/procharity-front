@@ -7,15 +7,13 @@ import { useHistory, useParams, Link as RouterLink } from 'react-router-dom';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import ky, { Options } from 'ky';
-import useStyles from './RegisterForm.styles';
+import useStyles from './ResetForm.styles';
 import { useAsync } from '../../hooks/useAsync';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import Preloader from '../../components/Preloader/Preloader';
 import { apiUrl } from '../../App';
 
 const schema = yup.object().shape({
-  last_name: yup.string().required('Поле Имя необходимо к заполнению'),
-  first_name: yup.string().required('Поле Фамилия необходимо к заполнению'),
   password: yup
     .string()
     .required('Поле пароль необходимо к заполнению')
@@ -28,17 +26,15 @@ const paramsSchema = yup.object().shape({
   id: yup.string().uuid(),
 });
 
-export interface RegisterFormValues extends Options {
-  first_name: string;
-  last_name: string;
+export interface ResetFormValues extends Options {
   password: string;
   passwordConfirmation?: string;
 }
-interface RegisterFormProps {
-  onSubmit: (data: RegisterFormValues, params: { id: string }) => Promise<void>;
+interface ResetFormProps {
+  onSubmit: (data: ResetFormValues, params: { id: string }) => Promise<void>;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
+const ResetForm: React.FC<ResetFormProps> = ({ onSubmit }) => {
   const history = useHistory();
   const password = useRef({});
 
@@ -74,7 +70,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
     control,
     watch,
     formState: { errors },
-  } = useForm<Pick<RegisterFormValues, 'first_name' | 'password' | 'last_name' | 'passwordConfirmation'>>({
+  } = useForm<Pick<ResetFormValues, 'password' | 'passwordConfirmation'>>({
     resolver: yupResolver(schema),
     mode: 'onTouched',
   });
@@ -90,8 +86,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
     }
     setData(null);
   };
-  const submitRegisterForm = (data: RegisterFormValues) => {
-    run(onSubmit(data, params));
+  const submitResetForm = (data: ResetFormValues) => {
+    const newData = data
+    delete newData?.passwordConfirmation;
+    run(onSubmit(newData, params));
   };
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const handleClickShowPassword = () => {
@@ -109,42 +107,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
             isError={isError}
             handleCloseError={handleResetLabel}
           />
-          <form className={classes.authForm} onSubmit={handleSubmit(submitRegisterForm)}>
+          <form className={classes.authForm} onSubmit={handleSubmit(submitResetForm)}>
             <fieldset className={classes.authFormInputContainer}>
-              <Controller
-                name="first_name"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    label="Имя"
-                    fullWidth
-                    error={Boolean(errors.first_name?.message)}
-                    helperText={errors.first_name?.message}
-                    className={classes.authFormInput}
-                    size="medium"
-                    variant="outlined"
-                    {...field}
-                  />
-                )}
-              />
-              <Controller
-                name="last_name"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    label="Фамилия"
-                    error={Boolean(errors.last_name?.message)}
-                    helperText={errors.last_name?.message}
-                    className={classes.authFormInput}
-                    size="medium"
-                    variant="outlined"
-                    {...field}
-                  />
-                )}
-              />
-
               <Controller
                 name="password"
                 control={control}
@@ -210,7 +174,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
           </form>
         </>
       ) : (
-        <div className={classes.authFormRegisterError}>
+        <div className={classes.authFormResetError}>
           <Typography variant="h4">{isSuccess ? 'Вы успешно зарегистрировались' : isInviteValid}</Typography>
           <Link component={RouterLink} to="/">
             Вернуться на главную
@@ -221,4 +185,4 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
   );
 };
 
-export default RegisterForm;
+export default ResetForm;

@@ -16,6 +16,7 @@ import useStyles from './App.styles';
 import Invite, { InviteFormValues } from './pages/Invite/Invite';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Users from './pages/Users/Users';
+import ResetForm, { ResetFormValues } from './pages/ResetForm/ResetForm';
 
 interface StatusI<Data> {
   status: string;
@@ -36,12 +37,10 @@ export interface HealthCheck {
     error: string;
   };
 }
-const devLocation = process.env.NODE_ENV === 'development' || window.location.origin === 'http://178.154.202.217'
+const devLocation = process.env.NODE_ENV === 'development' || window.location.origin === 'http://178.154.202.217';
 
-export const apiUrl =
-  devLocation
-    ? process.env.REACT_APP_API_DEV_ADDRESS
-    : process.env.REACT_APP_API_ADDRESS
+export const apiUrl = devLocation ? process.env.REACT_APP_API_DEV_ADDRESS : process.env.REACT_APP_API_ADDRESS;
+
 function App() {
   const history = useHistory();
   const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
@@ -126,9 +125,9 @@ function App() {
     }
   };
 
- const getHealthCheck = async () => {
+  const getHealthCheck = async () => {
     try {
-      const response = await ky(`${apiUrl}/health_check/`, {
+      const response = await ky(`${apiUrl}/health_checks/`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -157,7 +156,6 @@ function App() {
     try {
       setStatus({ ...status, status: 'pending' });
       const response = await ky(`${apiUrl}/users/?page=${page}&limit=${limit}`, {
-
         retry: {
           limit: 2,
           methods: ['get'],
@@ -201,7 +199,7 @@ function App() {
             },
           ],
         },
-        
+
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${JSON.parse(localStorage.getItem('user') ?? '')}`,
@@ -233,10 +231,10 @@ function App() {
             // eslint-disable-next-line consistent-return
             async ({ request, options, error, retryCount }) => {
               if (retryCount === 1) {
-                setUserToken(false)
-                setRefreshToken(false)
-                history.push('/')
-                return ky.stop
+                setUserToken(false);
+                setRefreshToken(false);
+                history.push('/');
+                return ky.stop;
               }
             },
           ],
@@ -248,19 +246,19 @@ function App() {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
                   },
-                })
+                });
 
                 if (resp.status === 200) {
-                  const token = await resp.json()
-                  request.headers.set('Authorization', `Bearer ${token.access_token}`)
-                  setUserToken(token.access_token as string)
-                  setRefreshToken(token.refresh_token as string)
-                  return ky(request)
+                  const token = await resp.json();
+                  request.headers.set('Authorization', `Bearer ${token.access_token}`);
+                  setUserToken(token.access_token as string);
+                  setRefreshToken(token.refresh_token as string);
+                  return ky(request);
                 }
                 if (resp.status === 401) {
-                  setUserToken(false)
-                  setRefreshToken(false)
-                  history.push('/')
+                  setUserToken(false);
+                  setRefreshToken(false);
+                  history.push('/');
                 }
               }
             },
@@ -274,7 +272,7 @@ function App() {
           Authorization: `Bearer ${userToken}`,
         },
         throwHttpErrors: false,
-      })
+      });
 
       if (response.status === 200) {
         const result = (await response.json()) as { message: string };
@@ -406,7 +404,26 @@ function App() {
       return Promise.reject(e);
     }
   };
+  const onReset = async (data: ResetFormValues, params: { id: string }) => {
+    try {
+      const response = await ky.post(`${apiUrl}/auth/password_reset_confirm/`, {
+        json: {
+          ...data,
+          token: params.id,
+        },
+        throwHttpErrors: false,
+      });
 
+      if (response.status === 200) {
+        history.push('/');
+        return Promise.resolve();
+      }
+      const error = await response.json();
+      throw new Error(error.message);
+    } catch (e: any) {
+      return Promise.reject(e);
+    }
+  };
   const handleSetTheme = () => {
     setThemeColor(!themeColor);
   };
@@ -613,6 +630,9 @@ function App() {
           />
           <Route path="/register/:id">
             <RegisterForm onSubmit={onRegister} />
+          </Route>
+          <Route path="/password_reset_confirm/:id">
+            <ResetForm onSubmit={onReset} />
           </Route>
           <Route path="/reset_password">
             <ResetPassword onSubmit={onResetPassword} />

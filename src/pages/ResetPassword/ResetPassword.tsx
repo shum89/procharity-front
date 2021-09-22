@@ -24,10 +24,12 @@ export interface ResetPasswordFormValues extends Options {
 }
 const ResetPassword: React.FC<ResetPasswordProps> = ({ onSubmit }) => {
   const classes = useStyles();
-  const { error, run, isError, setError, setData, isLoading } = useAsync({
+  const { error, run, isError, setError, setData, isLoading, data } = useAsync({
     data: null,
     error: null,
   });
+   const statusMessage = isError ? (error as string) : ((data?.message ?? '') as string);
+  const isStatusLabelOpen = Boolean(error) || Boolean(data?.message);
   const handleResetLabel = () => {
     if (isError) {
       setError(null);
@@ -46,8 +48,8 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onSubmit }) => {
   return (
     <>
       <StatusLabel
-        isStatusLabelOpen={error}
-        statusMessage={error}
+        isStatusLabelOpen={isStatusLabelOpen}
+        statusMessage={statusMessage}
         isError={isError}
         handleCloseError={handleResetLabel}
       />

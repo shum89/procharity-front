@@ -19,6 +19,7 @@ const StatusLabel: React.FC<StatusLabelProps> = ({ isStatusLabelOpen, handleClos
 
   const matchRegister = useRouteMatch('/register/:id')?.isExact ?? false;
   const matchReset = useRouteMatch('/reset_password')?.isExact ?? false;
+  
   return (
     <Collapse
       in={isStatusLabelOpen}

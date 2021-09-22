@@ -10,7 +10,6 @@ import {
   Popover,
   Paper,
   Typography,
-  Button,
 } from '@material-ui/core';
 import clsx from 'clsx';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
@@ -59,6 +58,9 @@ const Header: React.FC<HeaderProps> = ({
   };
   const matchRegister = useRouteMatch('/register/:id')?.isExact ?? false;
   const matchReset = useRouteMatch('/reset_password')?.isExact ?? false;
+    const matchConfirm = useRouteMatch('/password_reset_confirm/:id')?.isExact ?? false;
+    // eslint-disable-next-line no-console
+    console.log(matchConfirm)
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const handleLogout = () => {
@@ -74,7 +76,10 @@ const Header: React.FC<HeaderProps> = ({
     setAnchorEl(null);
   };
 
-  const { run, data } = useAsync({ status: 'idle', data: null, error: null });
+  const { run, data, isError } = useAsync({ status: 'idle', data: null, error: null });
+  // const ErrorFallback = ({error, resetErrorBoundary}) => {
+    
+  // }
    const options: any = { day: 'numeric', month: 'numeric', year: 'numeric' };
   const update = data?.db.last_update ?? '1-11-1111';
    const lastUpdateDate = new Date(update.replace(/-/g, '/'));
@@ -88,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      {!(matchLogin || matchRegister || matchReset) ? (
+      {!(matchLogin || matchRegister || matchReset || matchConfirm) ? (
         <>
           <AppBar
             position="absolute"
@@ -219,9 +224,9 @@ const Header: React.FC<HeaderProps> = ({
           <div className={classes.buttonThemeContainer}>
             <IconButton onClick={handleSetTheme}>{isDark ? <Brightness4Icon /> : <Brightness7Icon />}</IconButton>
 
-            <Button onClick={handleClick}>
-              <BotStatus status={data?.bot.status && data?.db.status} />
-            </Button>
+            <IconButton onClick={handleClick}>
+              <BotStatus status={data?.bot.status && data?.db.status && isError} />
+            </IconButton>
 
             <Popover
               open={open}
@@ -245,10 +250,12 @@ const Header: React.FC<HeaderProps> = ({
                   )}
                   {!data?.bot.status && <Typography>{data?.bot.error}</Typography>}
                 </div>
-                <div className={classes.statusContainer}>
-                  <Typography>Метод бота</Typography>
-                  <Typography>{data?.bot.method}</Typography>
-                </div>
+                {!isError && (
+                  <div className={classes.statusContainer}>
+                    <Typography>Метод бота</Typography>
+                    <Typography>{data?.bot.method}</Typography>
+                  </div>
+                )}
                 <div className={classes.statusContainer}>
                   <Typography>Статус сервера</Typography>
                   {data?.db.status ? (
@@ -258,14 +265,18 @@ const Header: React.FC<HeaderProps> = ({
                   )}
                   {!data?.db.status && <Typography>{data?.db.error}</Typography>}
                 </div>
-                <div className={classes.statusContainer}>
-                  <Typography>Активных задач</Typography>
-                  <Typography>{data?.db.active_tasks}</Typography>
-                </div>
-                <div className={classes.statusContainer}>
-                  <Typography>Последнее обновление</Typography>
-                  <Typography>{dateLocalized}</Typography>
-                </div>
+                {!isError && (
+                  <div className={classes.statusContainer}>
+                    <Typography>Активных задач</Typography>
+                    <Typography>{data?.db.active_tasks}</Typography>
+                  </div>
+                )}
+                {!isError && (
+                  <div className={classes.statusContainer}>
+                    <Typography>Последнее обновление</Typography>
+                    <Typography>{dateLocalized}</Typography>
+                  </div>
+                )}
               </Paper>
             </Popover>
           </div>

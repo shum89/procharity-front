@@ -32,7 +32,7 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
     error: null,
   });
 
-  const statusMessage = isError ? (error as string) : ((data?.result ?? '') as string);
+ const statusMessage = isError ? (error as string) : ((data?.result ?? '') as string); 
 
   const isStatusLabelOpen = Boolean(error) || Boolean(data?.result);
   const handleResetLabel = () => {
