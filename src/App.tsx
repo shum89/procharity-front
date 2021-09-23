@@ -127,7 +127,7 @@ function App() {
 
   const getHealthCheck = async () => {
     try {
-      const response = await ky(`${apiUrl}/health_checks/`, {
+      const response = await ky(`${apiUrl}/health_check/`, {
         headers: {
           'Content-Type': 'application/json',
         },

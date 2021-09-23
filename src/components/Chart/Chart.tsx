@@ -121,23 +121,49 @@ export default function Chart({ data, title }: ChartProps) {
             formatter={label}
             wrapperStyle={{ width: 420, backgroundColor: '#FFF', color: 'black' }}
           />
-          <YAxis allowDecimals={false} stroke={theme.palette.text.primary}>
+          <YAxis yAxisId="left" orientation='left' allowDecimals={false} stroke={theme.palette.text.primary}>
+            <YAxis allowDecimals={false} stroke={theme.palette.text.primary} yAxisId="right" orientation="right" />
             <Label angle={270} position="left" style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}>
               Пользователи
             </Label>
           </YAxis>
-          <Line type="monotone" dataKey="amountAdded" stroke={theme.palette.secondary.light} dot={false} />
-          <Line type="monotone" dataKey="amountUnsubscribed" stroke={theme.palette.error.main} dot={false} />
           <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="amountAdded"
+            stroke={theme.palette.secondary.light}
+            dot={false}
+          />
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="amountUnsubscribed"
+            stroke={theme.palette.error.main}
+            dot={false}
+          />
+          <Line
+            yAxisId="left"
             type="monotone"
             dataKey="amountDistinctUnsubscribed"
             stroke={theme.palette.info.light}
             dot={false}
           />
 
-          <Line type="monotone" dataKey="activeSubscribed" stroke={theme.palette.secondary.light} dot={false} />
-          <Line type="monotone" dataKey="activeUnsubscribed" stroke={theme.palette.error.main} dot={false} />
-          <Line type="monotone" dataKey="allActive" stroke={theme.palette.info.light} dot={false} />
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="activeSubscribed"
+            stroke={theme.palette.secondary.light}
+            dot={false}
+          />
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="activeUnsubscribed"
+            stroke={theme.palette.error.main}
+            dot={false}
+          />
+          <Line yAxisId="left" type="monotone" dataKey="allActive" stroke={theme.palette.info.light} dot={false} />
         </LineChart>
       </ResponsiveContainer>
     </>
