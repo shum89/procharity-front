@@ -13,7 +13,6 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 import useStyles from './Users.styles';
 
 interface UsersProps {
-  children?: React.ReactNode;
   fetchUserData: (limit: number, page: number) => Promise<UsersTableData>;
 }
 

@@ -2,6 +2,8 @@
 /* eslint-disable no-param-reassign */
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
+import { ErrorBoundary } from 'react-error-boundary';
+import { Button } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -12,6 +14,8 @@ import Preloader from '../../components/Preloader/Preloader';
 import { useAsync } from '../../hooks/useAsync';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import useStyles from './Dashboard.styles';
+
+
 
 export interface userStats {
   time: string;
@@ -24,7 +28,17 @@ function declOfNum(n: number, titles: any) {
     n % 10 === 1 && n % 100 !== 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2
   ];
 }
-
+// interface ErrorFallbackProps {
+//   error: {message: string};
+//   resetErrorBoundary: () => void;
+// }
+const ErrorFallback = ({ error, resetErrorBoundary }: any) => (
+    <div role="alert">
+      <p>Something went wrong:</p>
+      <pre>{error.message}</pre>
+      <Button onClick={resetErrorBoundary}>Try again</Button>
+    </div>
+  );
 export interface UserData {
   active_users: number;
   number_users: {
@@ -45,6 +59,17 @@ export interface UserData {
       [key: string]: number;
     };
     unsubscribed: {
+      [key: string]: number;
+    };
+  };
+  all_users_statistic: {
+    added_external_users: {
+      [key: string]: number;
+    };
+    added_users: {
+      [key: string]: number;
+    };
+    users_unsubscribed: {
       [key: string]: number;
     };
   };
@@ -85,7 +110,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
   const classes = useStyles();
   const { data, error, run, isError, reset, isLoading } = useAsync({ status: 'idle', data: null, error: null });
 
-  useEffect(() => {
+  useEffect(() => { 
     run(fetchUserStats());
   }, []);
 
@@ -94,7 +119,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
       {isLoading ? (
         <Preloader />
       ) : (
-        <>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
           <StatusLabel isStatusLabelOpen={isError} statusMessage={error} isError={isError} handleCloseError={reset} />
           <Container maxWidth="lg" className={classes.container}>
             <Grid container spacing={3}>
@@ -116,6 +141,14 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
               <Grid item xs={12} md={3} lg={3}>
                 <Paper className={classes.paper}>
                   <Users text={data?.number_users.banned_users ?? 0} title="Бот заблокирован" />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={3} lg={3}>
+                <Paper className={classes.paper}>
+                  <Users
+                    text={data?.active_users_statistic.active_users_per_month ?? 0}
+                    title="Активных пользователей в месяц"
+                  />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3} lg={3}>
@@ -148,7 +181,11 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
 
               <Grid item xs={12} md={6} lg={6}>
                 <Paper className={classes.paper}>
-                  <ActionsStats cardTitle="Статистика команд" title="Название Команды" actionsStats={data?.command_stats} />
+                  <ActionsStats
+                    cardTitle="Статистика команд"
+                    title="Название Команды"
+                    actionsStats={data?.command_stats}
+                  />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6} lg={6}>
@@ -162,7 +199,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats }) => {
               </Grid>
             </Grid>
           </Container>
-        </>
+        </ErrorBoundary>
       )}
     </>
   );

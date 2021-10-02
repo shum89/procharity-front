@@ -17,6 +17,7 @@ module.exports = {
     'react/prop-types': 'off',
     'react/jsx-props-no-spreading': 'off',
     'no-shadow': 'off',
+    'react/require-default-props': 'off',
     camelcase: 'off',
     '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/no-shadow': ['error'],
