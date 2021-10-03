@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -7,6 +7,34 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
+  },
+  errorDate: {
+        position: 'absolute',
+    bottom: '-35px',
+    color: 'red',
+  },
+  errorDateHidden: {
+    display: 'none',
+    visibility: 'hidden'
+  },
+  pickerContainer: {
+    display: 'flex',
+    marginBottom: 30,
+  },
+  formContainer: {
+    display: 'flex',
+    maxWidth: '90%',
+    marginTop: 'auto',
+    gap: '20px',
+    '& .MuiTextField-root': {},
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'black',
+    },
+    position: 'relative',
+  },
+  button: {
+    color: 'white',
+    background: theme.palette.secondary.main,
   },
   content: {
     flexGrow: 1,
@@ -22,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     overflow: 'hidden',
     flexDirection: 'column',
+    height: '100%',
   },
   fixedHeight: {
     minHeight: 240,

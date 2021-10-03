@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, TextField, Link, CircularProgress } from '@material-ui/core';
+import { Button, TextField, Link, CircularProgress } from '@mui/material';
 import * as yup from 'yup';
 import { Options } from 'ky';
 import React from 'react';

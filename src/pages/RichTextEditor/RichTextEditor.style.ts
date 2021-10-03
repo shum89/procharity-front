@@ -1,4 +1,6 @@
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles((theme: Theme) => ({
   form: {
@@ -52,19 +54,19 @@ const useStyles = makeStyles((theme: Theme) => ({
       minHeight: '150px',
     },
     '& .ql-fill': {
-      fill: theme.palette.type === 'dark' ? 'white' : 'black',
-      color: theme.palette.type === 'dark' ? 'white' : 'black',
+      fill: theme.palette.mode === 'dark' ? 'white' : 'black',
+      color: theme.palette.mode === 'dark' ? 'white' : 'black',
     },
     '& .ql-snow': {
-      fill: theme.palette.type === 'dark' ? 'white' : 'black',
-      color: theme.palette.type === 'dark' ? 'white' : 'black',
+      fill: theme.palette.mode === 'dark' ? 'white' : 'black',
+      color: theme.palette.mode === 'dark' ? 'white' : 'black',
     },
     '& .ql-stroke': {
-      stroke: theme.palette.type === 'dark' ? 'white' : 'black',
-      color: theme.palette.type === 'dark' ? 'white' : 'black',
+      stroke: theme.palette.mode === 'dark' ? 'white' : 'black',
+      color: theme.palette.mode === 'dark' ? 'white' : 'black',
     },
     '& .ql-picker-label': {
-      color: theme.palette.type === 'dark' ? 'white' : 'black',
+      color: theme.palette.mode === 'dark' ? 'white' : 'black',
     },
     '& .ql-editor': {
       minHeight: 150,

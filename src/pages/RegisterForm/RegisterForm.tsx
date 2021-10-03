@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useRef, useState, Suspense } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
-import { TextField, Button, Typography, Link, IconButton, InputAdornment, CircularProgress } from '@material-ui/core';
+import { TextField, Button, Typography, Link, IconButton, InputAdornment, CircularProgress } from '@mui/material';
 import { useHistory, useParams, Link as RouterLink } from 'react-router-dom';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import ky, { Options } from 'ky';
 import useStyles from './RegisterForm.styles';
 import { useAsync } from '../../hooks/useAsync';
@@ -161,7 +163,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            size="large">
                             {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
                           </IconButton>
                         </InputAdornment>
@@ -187,7 +192,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            size="large">
                             {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
                           </IconButton>
                         </InputAdornment>

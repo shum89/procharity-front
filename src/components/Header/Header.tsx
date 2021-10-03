@@ -10,14 +10,14 @@ import {
   Popover,
   Paper,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import clsx from 'clsx';
-import Brightness4Icon from '@material-ui/icons/Brightness4';
-import MenuIcon from '@material-ui/icons/Menu';
-import Brightness7Icon from '@material-ui/icons/Brightness7';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import MenuIcon from '@mui/icons-material/Menu';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { MainListItems, SecondaryListItems } from '../NavigationItems/NavigationItems';
 import { useAsync } from '../../hooks/useAsync';
@@ -76,10 +76,9 @@ const Header: React.FC<HeaderProps> = ({
     setAnchorEl(null);
   };
 
-  const { run, data, isError } = useAsync({ status: 'idle', data: null, error: null });
-  // const ErrorFallback = ({error, resetErrorBoundary}) => {
-    
-  // }
+  const { run, data, isError, isSuccess, isLoading } = useAsync({ status: 'idle', data: null, error: null });
+  // eslint-disable-next-line no-console
+  console.log(data?.bot.status && data?.db.status && !isError);
    const options: any = { day: 'numeric', month: 'numeric', year: 'numeric' };
   const update = data?.db.last_update ?? '1-11-1111';
    const lastUpdateDate = new Date(update.replace(/-/g, '/'));
@@ -99,13 +98,14 @@ const Header: React.FC<HeaderProps> = ({
             position="absolute"
             className={clsx(classes.appBar, isMenuOpen && !mobileOpen && classes.appBarShift)}>
             <Toolbar className={classes.toolbar}>
-              <Hidden xsDown implementation="css">
+              <Hidden smDown implementation="css">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="isMenuOpen drawer"
                   onClick={handleDrawerOpen}
-                  className={clsx(classes.menuButton, isMenuOpen && classes.menuButtonHidden)}>
+                  className={clsx(classes.menuButton, isMenuOpen && classes.menuButtonHidden)}
+                  size="large">
                   <MenuIcon />
                 </IconButton>
               </Hidden>
@@ -115,7 +115,8 @@ const Header: React.FC<HeaderProps> = ({
                   color="inherit"
                   aria-label="isMenuOpen drawer"
                   onClick={handleDrawerToggle}
-                  className={clsx(classes.menuButton)}>
+                  className={clsx(classes.menuButton)}
+                  size="large">
                   <MenuIcon />
                 </IconButton>
               </Hidden>
@@ -165,14 +166,16 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                 </Paper>
               </Popover>
-              <IconButton onClick={handleClick}>
-                <BotStatus status={data?.bot.status && data?.db.status} />
+              <IconButton onClick={handleClick} size="large">
+                {!isLoading && <BotStatus status={data?.bot.status && data?.db.status && isSuccess} />}
               </IconButton>
 
-              <IconButton onClick={handleSetTheme}>{isDark ? <Brightness4Icon /> : <Brightness7Icon />}</IconButton>
+              <IconButton onClick={handleSetTheme} size="large">
+                {isDark ? <Brightness4Icon /> : <Brightness7Icon />}
+              </IconButton>
             </Toolbar>
           </AppBar>
-          <Hidden xsDown implementation="css">
+          <Hidden smDown implementation="css">
             <Drawer
               variant="permanent"
               classes={{
@@ -181,7 +184,7 @@ const Header: React.FC<HeaderProps> = ({
               }}
               open={isMenuOpen}>
               <div className={classes.toolbarIcon}>
-                <IconButton onClick={handleDrawerClose}>
+                <IconButton onClick={handleDrawerClose} size="large">
                   <ChevronLeftIcon />
                 </IconButton>
               </div>
@@ -204,6 +207,7 @@ const Header: React.FC<HeaderProps> = ({
               classes={{
                 paper: classes.drawerPaper,
               }}
+              className={classes.drawerPaperMobile}
               ModalProps={{
                 keepMounted: true, // Better open performance on mobile.
               }}>
@@ -222,10 +226,12 @@ const Header: React.FC<HeaderProps> = ({
         <div className={classes.headerContainer}>
           <h1 className={classes.authFormTitle}>ProCharity</h1>
           <div className={classes.buttonThemeContainer}>
-            <IconButton onClick={handleSetTheme}>{isDark ? <Brightness4Icon /> : <Brightness7Icon />}</IconButton>
+            <IconButton onClick={handleSetTheme} size="large">
+              {isDark ? <Brightness4Icon /> : <Brightness7Icon />}
+            </IconButton>
 
-            <IconButton onClick={handleClick}>
-              <BotStatus status={data?.bot.status && data?.db.status && isError} />
+            <IconButton onClick={handleClick} size="large">
+              <BotStatus status={data?.bot.status && data?.db.status && !isError} />
             </IconButton>
 
             <Popover

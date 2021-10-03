@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, CircularProgress, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { Button, CircularProgress, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
+import clsx from 'clsx';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
+import useMainStyles from '../../App.styles'
 import useStyles from './RichTextEditor.style';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import { useAsync } from '../../hooks/useAsync';
@@ -22,10 +23,13 @@ const modules = {
 
 interface RichTextEditorInterface {
   onSubmit: (data: RichTextEditorFormValues) => Promise<void>;
+  isMenuOpen: boolean
 }
 
-const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
+const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit,isMenuOpen }) => {
   const classes = useStyles();
+  const mainClasses = useMainStyles();
+
   const { handleSubmit, control, reset } = useForm<RichTextEditorFormValues>();
   const { data, error, run, isError, setError, setData, isLoading } = useAsync({
     data: null,
@@ -43,6 +47,10 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
     setData(null);
   };
   return (
+         <main
+                  className={clsx(mainClasses.content, {
+                    [mainClasses.contentShift]: isMenuOpen,
+                  })}>
     <form
       className={classes.form}
       onSubmit={handleSubmit((dataS, e) => {
@@ -85,6 +93,7 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit }) => {
         </Button>
       )}
     </form>
+    </main>
   );
 };
 

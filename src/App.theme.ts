@@ -1,8 +1,8 @@
-import { ThemeOptions } from '@material-ui/core/styles';
+import { DeprecatedThemeOptions } from '@mui/material/styles';
 
-export const themeLight: ThemeOptions = {
+export const themeLight: DeprecatedThemeOptions = {
   palette: {
-    type: 'light',
+    mode: 'light',
     primary: {
       main: '#3f51b5',
     },
@@ -18,9 +18,9 @@ export const themeLight: ThemeOptions = {
   },
 }
 
-export const themeDark: ThemeOptions = {
+export const themeDark: DeprecatedThemeOptions = {
   palette: {
-    type: 'dark',
+    mode: 'dark',
     primary: {
       main: '#44318d',
     },

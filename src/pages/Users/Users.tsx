@@ -1,10 +1,10 @@
 // @ts-nocheck
-import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody } from '@material-ui/core';
+import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody } from '@mui/material';
 import React from 'react';
-import TablePagination from '@material-ui/core/TablePagination';
-import Typography from '@material-ui/core/Typography';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
+import TablePagination from '@mui/material/TablePagination';
+import Typography from '@mui/material/Typography';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 import { UsersTableData } from '../Dashboard/Dashboard';
 import Preloader from '../../components/Preloader/Preloader';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
@@ -13,7 +13,6 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 import useStyles from './Users.styles';
 
 interface UsersProps {
-  children?: React.ReactNode;
   fetchUserData: (limit: number, page: number) => Promise<UsersTableData>;
 }
 
@@ -43,84 +42,82 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
     run(fetchUserData(page, rowsPerPage));
   }, []);
 
-  return (
-    <>
-      {isLoading ? (
-        <Preloader />
-      ) : (
-        <>
-          <StatusLabel isError={isError} isStatusLabelOpen={isError} statusMessage={error} handleCloseError={reset} />
+  return <>
+    {isLoading ? (
+      <Preloader />
+    ) : (
+      <>
+        <StatusLabel isError={isError} isStatusLabelOpen={isError} statusMessage={error} handleCloseError={reset} />
 
-          <section className={classes.section}>
-            <Typography className={classes.title} variant="h5">
-              Пользователи
-            </Typography>
-            <TableContainer className={classes.root}>
-              <Table stickyHeader aria-label="sticky table">
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell key={column} align="left">
-                        <Typography className={classes.subtitle} variant="subtitle1">
-                          {column}
-                        </Typography>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data?.result.map((result: any) => (
-                    <TableRow key={result.telegram_id}>
-                      <TableCell align="left">
-                        <Typography variant="subtitle1">{`${result.first_name ?? 'Не указан'} ${
-                          result.last_name ?? ''
-                        }`}</Typography>
-                      </TableCell>
-                      <TableCell align="left">
-                        <Typography variant="subtitle1">{result.email ?? 'Не указан'}</Typography>
-                      </TableCell>
-                      <TableCell align="left">
-                        <div className={classes.container}>
-                          {result.has_mailing ? (
-                            <CheckIcon fontSize="small" className={classes.iconCheckMark} />
-                          ) : (
-                            <ClearIcon fontSize="small" className={classes.iconCross} />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell align="left">
-                        <div className={classes.container}>
-                          {result.banned ? (
-                            <CheckIcon fontSize="small" className={classes.iconCheckMark} />
-                          ) : (
-                            <ClearIcon fontSize="small" className={classes.iconCross} />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell align="left">
-                        <Typography variant="subtitle1">{result.username ?? 'Не указан'}</Typography>
-                      </TableCell>
-                      <TableCell align="left">
-                        <Typography variant="subtitle1">{formatData(result.date_registration)}</Typography>
-                      </TableCell>
-                    </TableRow>
+        <section className={classes.section}>
+          <Typography className={classes.title} variant="h5">
+            Пользователи
+          </Typography>
+          <TableContainer className={classes.root}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell key={column} align="left">
+                      <Typography className={classes.subtitle} variant="subtitle1">
+                        {column}
+                      </Typography>
+                    </TableCell>
                   ))}
-                </TableBody>
-              </Table>
-              <TablePagination
-                component="div"
-                rowsPerPageOptions={[20, 50, 100]}
-                count={data?.total - 1 ?? 0}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-                page={page - 1 ?? 0}
-                rowsPerPage={rowsPerPage}
-              />
-            </TableContainer>
-          </section>
-        </>
-      )}
-    </>
-  );
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data?.result.map((result: any) => (
+                  <TableRow key={result.telegram_id}>
+                    <TableCell align="left">
+                      <Typography variant="subtitle1">{`${result.first_name ?? 'Не указан'} ${
+                        result.last_name ?? ''
+                      }`}</Typography>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Typography variant="subtitle1">{result.email ?? 'Не указан'}</Typography>
+                    </TableCell>
+                    <TableCell align="left">
+                      <div className={classes.container}>
+                        {result.has_mailing ? (
+                          <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                        ) : (
+                          <ClearIcon fontSize="small" className={classes.iconCross} />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell align="left">
+                      <div className={classes.container}>
+                        {result.banned ? (
+                          <CheckIcon fontSize="small" className={classes.iconCheckMark} />
+                        ) : (
+                          <ClearIcon fontSize="small" className={classes.iconCross} />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Typography variant="subtitle1">{result.username ?? 'Не указан'}</Typography>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Typography variant="subtitle1">{formatData(result.date_registration)}</Typography>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              component="div"
+              rowsPerPageOptions={[20, 50, 100]}
+              count={data?.total - 1 ?? 0}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              page={page - 1 ?? 0}
+              rowsPerPage={rowsPerPage}
+            />
+          </TableContainer>
+        </section>
+      </>
+    )}
+  </>;
 };
 export default Users;

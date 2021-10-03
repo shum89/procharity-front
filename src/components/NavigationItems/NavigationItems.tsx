@@ -1,15 +1,15 @@
 import React from 'react';
-import ListItem from '@material-ui/core/ListItem';
+import ListItem from '@mui/material/ListItem';
 
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import SendIcon from '@material-ui/icons/Send';
-import BarChartIcon from '@material-ui/icons/BarChart';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import SendIcon from '@mui/icons-material/Send';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useHistory } from 'react-router-dom';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import GroupIcon from '@material-ui/icons/Group';
-import Divider from '@material-ui/core/Divider';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import GroupIcon from '@mui/icons-material/Group';
+import Divider from '@mui/material/Divider';
 import useStyles from './NavigationItems.styles';
 
 interface MainListItemsProps {

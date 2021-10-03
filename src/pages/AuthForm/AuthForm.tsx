@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
-import { TextField, Button, Link, IconButton, InputAdornment, CircularProgress } from '@material-ui/core';
+import { TextField, Button, Link, IconButton, InputAdornment, CircularProgress } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import useStyles from './AuthForm.styles';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import { useAsync } from '../../hooks/useAsync';
@@ -52,75 +52,76 @@ const AuthForm: React.FC<AuthFormI> = ({ onLogin }) => {
     run(onLogin(userData));
   };
 
-  return (
-    <>
-      <StatusLabel
-        isStatusLabelOpen={error}
-        statusMessage={error}
-        isError={isError}
-        handleCloseError={handleResetLabel}
-      />
-      <form className={classes.authForm} onSubmit={handleSubmit(onSubmit)}>
-        <fieldset className={classes.authFormInputContainer}>
-          <Controller
-            name="email"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                label="E-mail"
-                error={Boolean(errors.email?.message)}
-                helperText={errors.email?.message}
-                className={classes.authFormInput}
-                size="medium"
-                variant="outlined"
-                {...field}
-              />
-            )}
-          />
+  return <>
+    <StatusLabel
+      isStatusLabelOpen={error}
+      statusMessage={error}
+      isError={isError}
+      handleCloseError={handleResetLabel}
+    />
+    <form className={classes.authForm} onSubmit={handleSubmit(onSubmit)}>
+      <fieldset className={classes.authFormInputContainer}>
+        <Controller
+          name="email"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField
+              label="E-mail"
+              error={Boolean(errors.email?.message)}
+              helperText={errors.email?.message}
+              className={classes.authFormInput}
+              size="medium"
+              variant="outlined"
+              {...field}
+            />
+          )}
+        />
 
-          <Controller
-            name="password"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                variant="outlined"
-                label="Пароль"
-                error={Boolean(errors.password?.message)}
-                helperText={errors.password?.message}
-                className={classes.authFormInput}
-                type={isPasswordVisible ? 'text' : 'password'}
-                size="medium"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword}>
-                        {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-                {...field}
-              />
-            )}
-          />
-        </fieldset>
-        {isLoading ? (
-          <CircularProgress />
-        ) : (
-          <>
-            <Link component={RouterLink} to="/reset_password">
-              Забыли пароль?
-            </Link>
-            <Button className={classes.authFormButton} type="submit">
-              Войти
-            </Button>
-          </>
-        )}
-      </form>
-    </>
-  );
+        <Controller
+          name="password"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField
+              variant="outlined"
+              label="Пароль"
+              error={Boolean(errors.password?.message)}
+              helperText={errors.password?.message}
+              className={classes.authFormInput}
+              type={isPasswordVisible ? 'text' : 'password'}
+              size="medium"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      size="large">
+                      {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              {...field}
+            />
+          )}
+        />
+      </fieldset>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          <Link component={RouterLink} to="/reset_password">
+            Забыли пароль?
+          </Link>
+          <Button className={classes.authFormButton} type="submit">
+            Войти
+          </Button>
+        </>
+      )}
+    </form>
+  </>;
 };
 
 export default AuthForm;
