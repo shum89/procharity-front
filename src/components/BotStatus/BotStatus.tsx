@@ -1,6 +1,6 @@
 import React from 'react'
-import { Badge } from '@material-ui/core';
-import TelegramIcon from '@material-ui/icons/Telegram';
+import { Badge } from '@mui/material';
+import TelegramIcon from '@mui/icons-material/Telegram';
 import useStyles from './BotStatus.styles';
 
 interface BotStatusProps {

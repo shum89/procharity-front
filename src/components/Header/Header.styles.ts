@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 const drawerWidth = 250;
 
@@ -75,6 +75,9 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
+  },
+  drawerPaperMobile: {
+    marginTop: 65
   },
   drawerPaperClose: {
     overflowX: 'hidden',

@@ -1,14 +1,15 @@
 import { useRouteMatch } from 'react-router-dom';
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { themeDark } from './App.theme';
 
 const drawerWidth = 268;
 
-const useStyles = makeStyles((theme: Theme) => {
+const useMainStyles = makeStyles((theme: Theme) => {
   const match = useRouteMatch('/send')?.isExact ?? false;
   return {
     root: {
-      background: theme.palette.type === 'light' ? themeDark.palette?.background?.default : '#FFFFF',
+      background: theme.palette.mode === 'light' ? themeDark.palette?.background?.default : '#FFFFF',
     },
     formContent: {
       position: 'relative',
@@ -21,14 +22,15 @@ const useStyles = makeStyles((theme: Theme) => {
         duration: theme.transitions.duration.leavingScreen,
       }),
       overflow: 'visible',
-      marginLeft: '75px',
+      marginLeft: '120px',
       marginTop: '60px',
       display: 'flex',
       flexDirection: 'column',
       width: `calc(100% - 175px)`,
       '@media (max-width: 599px)': {
         width: '90%',
-        marginLeft: 0,
+        marginLeft: 'auto',
+        marginRight: 'auto'
       },
     },
     contentShift: {
@@ -38,9 +40,9 @@ const useStyles = makeStyles((theme: Theme) => {
         duration: theme.transitions.duration.enteringScreen,
       }),
       width: match ? `calc(100% - ${drawerWidth}px)` : `calc(100% - ${drawerWidth + 20}px)`,
-      marginLeft: 255,
+      marginLeft: 270,
     },
   };
 });
 
-export default useStyles;
+export default useMainStyles;

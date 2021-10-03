@@ -1,7 +1,6 @@
 import React from 'react';
-import { Collapse, IconButton } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import CloseIcon from '@material-ui/icons/Close';
+import { Collapse, IconButton, Alert } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import clsx from 'clsx';
 import { useRouteMatch } from 'react-router-dom';
 import useStyles from './StatusLabel.style';

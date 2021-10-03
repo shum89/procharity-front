@@ -1,5 +1,14 @@
-import { Container, CssBaseline, ThemeProvider } from '@material-ui/core';
-import { createMuiTheme } from '@material-ui/core/styles';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
+import {
+  Container,
+  CssBaseline,
+  ThemeProvider,
+  Theme,
+  StyledEngineProvider,
+  adaptV4Theme,
+} from '@mui/material';
+import { createTheme } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
@@ -17,6 +26,13 @@ import Invite, { InviteFormValues } from './pages/Invite/Invite';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Users from './pages/Users/Users';
 import ResetForm, { ResetFormValues } from './pages/ResetForm/ResetForm';
+
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 
 interface StatusI<Data> {
   status: string;
@@ -59,9 +75,12 @@ function App() {
 
   const handleCloseError = () => setStatus({ ...status, statusMessage: null, isStatusLabelOpen: false });
 
-  const getUsers = async () => {
+  const getUsers = async (usersDate: string) => {
     try {
-      const response = await ky(`${apiUrl}/analytics/`, {
+      const dateLimit = usersDate ? `?date_limit=${usersDate}` : ''
+      // eslint-disable-next-line no-console
+      console.log(dateLimit)
+      const response = await ky(`${apiUrl}/analytics/${dateLimit}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${userToken}`,
@@ -70,7 +89,7 @@ function App() {
         retry: {
           limit: 2,
           methods: ['get'],
-          statusCodes: [401],
+          statusCodes: [401, 422],
         },
         hooks: {
           beforeRetry: [
@@ -87,7 +106,7 @@ function App() {
           afterResponse: [
             // eslint-disable-next-line consistent-return
             async (request, options, res) => {
-              if (res.status === 401) {
+              if (res.status === 401 || res.status === 422) {
                 const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
                   headers: {
                     Authorization: `Bearer ${refreshToken}`,
@@ -101,7 +120,8 @@ function App() {
                   setRefreshToken(token.refresh_token as string);
                   return ky(request);
                 }
-                if (resp.status === 401) {
+                console.log(resp.status)
+                if (resp.status === 401 || resp.status === 422) {
                   setUserToken(false);
                   setRefreshToken(false);
                   history.push('/');
@@ -159,7 +179,7 @@ function App() {
         retry: {
           limit: 2,
           methods: ['get'],
-          statusCodes: [401],
+          statusCodes: [401, 422],
         },
         hooks: {
           beforeRetry: [
@@ -190,7 +210,7 @@ function App() {
                   setRefreshToken(token.refresh_token as string);
                   return ky(request);
                 }
-                if (resp.status === 401) {
+                if (resp.status === 401 || resp.status === 422) {
                   setUserToken(false);
                   setRefreshToken(false);
                   history.push('/');
@@ -224,7 +244,7 @@ function App() {
         retry: {
           limit: 2,
           methods: ['get'],
-          statusCodes: [401],
+          statusCodes: [401, 422],
         },
         hooks: {
           beforeRetry: [
@@ -255,7 +275,7 @@ function App() {
                   setRefreshToken(token.refresh_token as string);
                   return ky(request);
                 }
-                if (resp.status === 401) {
+                if (resp.status === 401 || resp.status === 422) {
                   setUserToken(false);
                   setRefreshToken(false);
                   history.push('/');
@@ -341,7 +361,7 @@ function App() {
         retry: {
           limit: 2,
           methods: ['post'],
-          statusCodes: [401],
+          statusCodes: [401, 422],
         },
         throwHttpErrors: false,
         headers: {
@@ -436,7 +456,7 @@ function App() {
   const handleDrawerClose = () => {
     setMenuOpen(false);
   };
-  const classes = useStyles();
+
   useEffect(() => {
     const handleSetThemeLocal = () => {
       setThemeColor(themeColor);
@@ -449,7 +469,7 @@ function App() {
 
   const themeOptions = React.useMemo(
     () =>
-      createMuiTheme({
+      createTheme(adaptV4Theme({
         palette: {
           ...theme.palette,
         },
@@ -555,92 +575,94 @@ function App() {
             },
           },
         },
-      }),
+      })),
     [theme.palette, themeColor],
   );
 
   return (
-    <ThemeProvider theme={themeOptions}>
-      <CssBaseline />
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={themeOptions}>
+        <CssBaseline />
 
-      <Container>
-        <Header
-          isMenuOpen={isMenuOpen}
-          isDark={themeColor}
-          removeToken={removeToken}
-          handleSetTheme={handleSetTheme}
-          handleDrawerOpen={handleDrawerOpen}
-          handleDrawerClose={handleDrawerClose}
-          handleCloseError={handleCloseError}
-          getHealthCheck={getHealthCheck}
-        />
-
-        <Switch>
-          <Route exact path="/">
-            {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect exact from="/" to="/dashboard" />}
-          </Route>
-
-          <ProtectedRoute
-            condition={userToken}
-            component={
-              <main
-                className={clsx(classes.content, {
-                  [classes.contentShift]: isMenuOpen,
-                })}>
-                <Dashboard fetchUserStats={getUsers} />
-              </main>
-            }
-            path="/dashboard"
+        <Container>
+          <Header
+            isMenuOpen={isMenuOpen}
+            isDark={themeColor}
+            removeToken={removeToken}
+            handleSetTheme={handleSetTheme}
+            handleDrawerOpen={handleDrawerOpen}
+            handleDrawerClose={handleDrawerClose}
+            handleCloseError={handleCloseError}
+            getHealthCheck={getHealthCheck}
           />
-          <ProtectedRoute
-            condition={userToken}
-            component={
-              <main
-                className={clsx(classes.content, {
-                  [classes.contentShift]: isMenuOpen,
-                })}>
-                <RichTextEditor onSubmit={onSubmitMessage} />
-              </main>
-            }
-            path="/send"
-          />
-          <ProtectedRoute
-            condition={userToken}
-            component={
-              <main
-                className={clsx(classes.content, {
-                  [classes.contentShift]: isMenuOpen,
-                })}>
+
+          <Switch>
+            <Route exact path="/">
+              {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect exact from="/" to="/dashboard" />}
+            </Route>
+
+            <ProtectedRoute
+              condition={userToken}
+              component={
+                // <main
+                //   className={clsx(classes.content, {
+                //     [classes.contentShift]: isMenuOpen,
+                //   })}>
+                <Dashboard fetchUserStats={getUsers} isMenuOpen={isMenuOpen} />
+                // {/* </main> */}
+              }
+              path="/dashboard"
+            />
+            <ProtectedRoute
+              condition={userToken}
+              component={
+                // <main
+                //   className={clsx(classes.content, {
+                //     [classes.contentShift]: isMenuOpen,
+                //   })}>
+                <RichTextEditor onSubmit={onSubmitMessage} isMenuOpen={isMenuOpen} />
+                // </main>
+              }
+              path="/send"
+            />
+            <ProtectedRoute
+              condition={userToken}
+              component={
+                // <main
+                //   className={clsx(classes.content, {
+                //     [classes.contentShift]: isMenuOpen,
+                //   })}>
                 <Users fetchUserData={getUsersData} />
-              </main>
-            }
-            path="/users"
-          />
-          <ProtectedRoute
-            condition={userToken}
-            component={
-              <main
-                className={clsx(classes.content, {
-                  [classes.contentShift]: isMenuOpen,
-                })}>
+                // </main>
+              }
+              path="/users"
+            />
+            <ProtectedRoute
+              condition={userToken}
+              component={
+                // <main
+                //   className={clsx(classes.content, {
+                //     [classes.contentShift]: isMenuOpen,
+                //   })}>
                 <Invite onSubmit={onInvite} />
-              </main>
-            }
-            path="/invite"
-          />
-          <Route path="/register/:id">
-            <RegisterForm onSubmit={onRegister} />
-          </Route>
-          <Route path="/password_reset_confirm/:id">
-            <ResetForm onSubmit={onReset} />
-          </Route>
-          <Route path="/reset_password">
-            <ResetPassword onSubmit={onResetPassword} />
-          </Route>
-          <Redirect to="/" />
-        </Switch>
-      </Container>
-    </ThemeProvider>
+                // </main>
+              }
+              path="/invite"
+            />
+            <Route path="/register/:id">
+              <RegisterForm onSubmit={onRegister} />
+            </Route>
+            <Route path="/password_reset_confirm/:id">
+              <ResetForm onSubmit={onReset} />
+            </Route>
+            <Route path="/reset_password">
+              <ResetPassword onSubmit={onResetPassword} />
+            </Route>
+            <Redirect to="/" />
+          </Switch>
+        </Container>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }
 
