@@ -239,7 +239,9 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                         </LocalizationProvider>
                       </div>
                       <Button className={classes.button} type="submit">
-                        Показать
+                        <Typography className={classes.buttonText} variant="body1">
+                          Показать
+                        </Typography>
                       </Button>
                       <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
                         Введите дату до 01.05.2021
@@ -296,7 +298,9 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                         </LocalizationProvider>
                       </div>
                       <Button className={classes.button} type="submit">
-                        Показать
+                        <Typography className={classes.buttonText} variant="body1">
+                          Показать
+                        </Typography>
                       </Button>
                       <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
                         Введите дату до 01.05.2021

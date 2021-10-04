@@ -15,9 +15,13 @@ const useStyles = makeStyles((theme) => ({
   },
   picker: {
     display: 'flex',
-    flexDirection: 'column',
     gap: 20,
+    alignItems: 'center',
   },
+  buttonText: {
+    fontSize: '0.8rem'
+  },
+
   errorDateHidden: {
     display: 'none',
     visibility: 'hidden'
@@ -25,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
   pickerContainer: {
     display: 'flex',
     marginBottom: 30,
+    gap: 30,
   },
   formContainer: {
     display: 'flex',
@@ -35,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
       borderColor: 'black',
     },
     position: 'relative',
-    alignItems: 'end',
+    alignItems: 'center',
   },
   button: {
     color: 'white',
