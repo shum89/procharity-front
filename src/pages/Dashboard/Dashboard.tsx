@@ -191,7 +191,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                   />
                 </Paper>
               </Grid>
-              <Grid item xs={6} md={6} lg={6} />
+      
 
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>

@@ -21,10 +21,10 @@ const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
       </Typography>
       {lastUpdate && (
         <div>
-          <Typography variant="body1" color="textSecondary" className={classes.depositContext}>
+          <Typography variant="body1"className={classes.depositContext}>
             Последнее обновление заданий
           </Typography>
-          <Typography variant="body1" color="textSecondary" className={classes.depositContext}>
+          <Typography variant="body1" className={classes.depositContext}>
             {new Intl.DateTimeFormat('ru-Ru', options).format(lastUpdateDate)}
           </Typography>
         </div>
