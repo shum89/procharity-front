@@ -191,7 +191,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                   />
                 </Paper>
               </Grid>
-              <Grid item xs={6} md={6} lg={6} />
+      
 
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
@@ -239,7 +239,9 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                         </LocalizationProvider>
                       </div>
                       <Button className={classes.button} type="submit">
-                        Показать
+                        <Typography className={classes.buttonText} variant="body1">
+                          Показать
+                        </Typography>
                       </Button>
                       <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
                         Введите дату до 01.05.2021
@@ -296,7 +298,9 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                         </LocalizationProvider>
                       </div>
                       <Button className={classes.button} type="submit">
-                        Показать
+                        <Typography className={classes.buttonText} variant="body1">
+                          Показать
+                        </Typography>
                       </Button>
                       <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
                         Введите дату до 01.05.2021
