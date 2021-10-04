@@ -13,6 +13,11 @@ const useStyles = makeStyles((theme) => ({
     bottom: '-35px',
     color: 'red',
   },
+  picker: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+  },
   errorDateHidden: {
     display: 'none',
     visibility: 'hidden'
@@ -23,7 +28,6 @@ const useStyles = makeStyles((theme) => ({
   },
   formContainer: {
     display: 'flex',
-    maxWidth: '90%',
     marginTop: 'auto',
     gap: '20px',
     '& .MuiTextField-root': {},
@@ -31,10 +35,12 @@ const useStyles = makeStyles((theme) => ({
       borderColor: 'black',
     },
     position: 'relative',
+    alignItems: 'end',
   },
   button: {
     color: 'white',
     background: theme.palette.secondary.main,
+    minHeight: 56,
   },
   content: {
     flexGrow: 1,

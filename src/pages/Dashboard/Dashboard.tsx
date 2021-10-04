@@ -209,32 +209,37 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                           setErrorDate(true);
                         }
                       })}>
-                      <LocalizationProvider dateAdapter={AdapterDateFns} locale={ru}>
-                        <DesktopDatePicker
-                          disableFuture
-                          openTo="day"
-                          orientation="portrait"
-                          value={value}
-                          label="ДД.ММ.ГГГГ"
-                          mask="__.__.____"
-                          onChange={(val) => {
-                            if (val && isValid(val)) {
-                              setValue('date', format(val, 'yyyy-MM-dd'), {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              });
-                              setDateValue(val);
-                            } else {
-                              const v = ((val as unknown) as string) ?? '';
-                              setValue('date', v);
-                              setDateValue(null);
-                            }
-                          }}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
-                      </LocalizationProvider>
+                      <div className={classes.picker}>
+                        <Typography className={classes.title} variant="h6">
+                          Cтатистика до
+                        </Typography>
+                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={ru}>
+                          <DesktopDatePicker
+                            disableFuture
+                            openTo="day"
+                            orientation="portrait"
+                            value={value}
+                            label="ДД.ММ.ГГГГ"
+                            mask="__.__.____"
+                            onChange={(val) => {
+                              if (val && isValid(val)) {
+                                setValue('date', format(val, 'yyyy-MM-dd'), {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                });
+                                setDateValue(val);
+                              } else {
+                                const v = ((val as unknown) as string) ?? '';
+                                setValue('date', v);
+                                setDateValue(null);
+                              }
+                            }}
+                            renderInput={(params) => <TextField {...params} />}
+                          />
+                        </LocalizationProvider>
+                      </div>
                       <Button className={classes.button} type="submit">
-                        Отправить
+                        Показать
                       </Button>
                       <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
                         Введите дату до 01.05.2021
@@ -261,32 +266,37 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                           setErrorDate(true);
                         }
                       })}>
-                      <LocalizationProvider dateAdapter={AdapterDateFns} locale={ru}>
-                        <DesktopDatePicker
-                          disableFuture
-                          openTo="day"
-                          orientation="portrait"
-                          value={value}
-                          label="ДД.ММ.ГГГГ"
-                          mask="__.__.____"
-                          onChange={(val) => {
-                            if (val && isValid(val)) {
-                              setValue('date', format(val, 'yyyy-MM-dd'), {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              });
-                              setDateValue(val);
-                            } else {
-                              const v = ((val as unknown) as string) ?? '';
-                              setValue('date', v);
-                              setDateValue(null);
-                            }
-                          }}
-                          renderInput={(params) => <TextField {...params} placeholder="ДД.ММ.ГГГГ" />}
-                        />
-                      </LocalizationProvider>
+                      <div className={classes.picker}>
+                        <Typography className={classes.title} variant="h6">
+                          Cтатистика до
+                        </Typography>
+                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={ru}>
+                          <DesktopDatePicker
+                            disableFuture
+                            openTo="day"
+                            orientation="portrait"
+                            value={value}
+                            label="ДД.ММ.ГГГГ"
+                            mask="__.__.____"
+                            onChange={(val) => {
+                              if (val && isValid(val)) {
+                                setValue('date', format(val, 'yyyy-MM-dd'), {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                });
+                                setDateValue(val);
+                              } else {
+                                const v = ((val as unknown) as string) ?? '';
+                                setValue('date', v);
+                                setDateValue(null);
+                              }
+                            }}
+                            renderInput={(params) => <TextField {...params} placeholder="ДД.ММ.ГГГГ" />}
+                          />
+                        </LocalizationProvider>
+                      </div>
                       <Button className={classes.button} type="submit">
-                        Отправить
+                        Показать
                       </Button>
                       <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
                         Введите дату до 01.05.2021
