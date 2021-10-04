@@ -79,7 +79,14 @@ const Header: React.FC<HeaderProps> = ({
   const { run, data, isError, isSuccess, isLoading } = useAsync({ status: 'idle', data: null, error: null });
   // eslint-disable-next-line no-console
   console.log(data?.bot.status && data?.db.status && !isError);
-   const options: any = { day: 'numeric', month: 'numeric', year: 'numeric' };
+   const options: any = {
+     day: 'numeric',
+     month: 'numeric',
+     year: 'numeric',
+     hour: 'numeric',
+     minute: 'numeric',
+     second: 'numeric',
+   };
   const update = data?.db.last_update ?? '1-11-1111';
    const lastUpdateDate = new Date(update.replace(/-/g, '/'));
   const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(lastUpdateDate);
@@ -162,7 +169,7 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                   <div className={classes.statusContainer}>
                     <Typography>Последнее обновление</Typography>
-                    <Typography>{dateLocalized}</Typography>
+                    <Typography className={classes.date}>{dateLocalized}</Typography>
                   </div>
                 </Paper>
               </Popover>

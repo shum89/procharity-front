@@ -8,7 +8,9 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     paddingRight: 24,
-    // keep right padding when drawer closed
+  },
+  date: {
+    textAlign: 'right'
   },
   divider: {
     marginTop: 10,
