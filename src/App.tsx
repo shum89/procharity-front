@@ -632,9 +632,9 @@ function App() {
                 //   className={clsx(classes.content, {
                 //     [classes.contentShift]: isMenuOpen,
                 //   })}>
-                <Users fetchUserData={getUsersData} />
+                <Users isMenuOpen={isMenuOpen} fetchUserData={getUsersData} />
                 // </main>
-              }
+              } 
               path="/users"
             />
             <ProtectedRoute
@@ -644,7 +644,7 @@ function App() {
                 //   className={clsx(classes.content, {
                 //     [classes.contentShift]: isMenuOpen,
                 //   })}>
-                <Invite onSubmit={onInvite} />
+                <Invite isMenuOpen={isMenuOpen} onSubmit={onInvite} />
                 // </main>
               }
               path="/invite"
