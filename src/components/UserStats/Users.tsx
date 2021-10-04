@@ -10,7 +10,14 @@ interface UsersProps {
 const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
   const classes = useStyles();
   const lastUpdateDate = new Date(lastUpdate.replace(/-/g, '/'));
-  const options: any = { day: 'numeric', month: 'long', year: 'numeric' };
+  const options: any = {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  };
   return (
     <>
       <Typography component="p" variant="h4">
