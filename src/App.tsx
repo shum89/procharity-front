@@ -120,7 +120,7 @@ function App() {
                   setRefreshToken(token.refresh_token as string);
                   return ky(request);
                 }
-                console.log(resp.status)
+    
                 if (resp.status === 401 || resp.status === 422) {
                   setUserToken(false);
                   setRefreshToken(false);
