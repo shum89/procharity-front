@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody } from '@mui/material';
 import React from 'react';
+import clsx from 'clsx';
 import TablePagination from '@mui/material/TablePagination';
 import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
@@ -11,8 +11,10 @@ import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import { useAsync } from '../../hooks/useAsync';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useStyles from './Users.styles';
+import useMainStyles from '../../App.styles';
 
 interface UsersProps {
+  isMenuOpen: boolean
   fetchUserData: (limit: number, page: number) => Promise<UsersTableData>;
 }
 
@@ -24,8 +26,9 @@ export const formatData = (date: string) => {
 };
 const columns = ['ФИО', 'E-mail', 'Рассылка', 'Бот заблокирован', 'Имя пользователя', 'Дата Регистрации'];
 
-const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
+const Users: React.FC<UsersProps> = ({ fetchUserData, isMenuOpen }) => {
   const classes = useStyles();
+    const mainClasses = useMainStyles();
   const { data, error, isLoading, run, isError, reset } = useAsync({ status: 'idle', data: null, error: null });
   const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 20);
   const [page, setPage] = useLocalStorage<number>('page', 1);
@@ -46,7 +49,10 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
     {isLoading ? (
       <Preloader />
     ) : (
-      <>
+      <main
+      className={clsx(mainClasses.content, {
+        [mainClasses.contentShift]: isMenuOpen,
+      })}>
         <StatusLabel isError={isError} isStatusLabelOpen={isError} statusMessage={error} handleCloseError={reset} />
 
         <section className={classes.section}>
@@ -116,7 +122,7 @@ const Users: React.FC<UsersProps> = ({ fetchUserData }) => {
             />
           </TableContainer>
         </section>
-      </>
+      </main>
     )}
   </>;
 };
