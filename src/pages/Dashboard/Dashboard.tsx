@@ -191,7 +191,6 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                   />
                 </Paper>
               </Grid>
-      
 
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
@@ -214,7 +213,8 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                           Cтатистика до
                         </Typography>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={ru}>
-                          <DesktopDatePicker minDate={ new Date(2021,7,1)}
+                          <DesktopDatePicker
+                            minDate={new Date(2021, 7, 1)}
                             disableFuture
                             openTo="day"
                             orientation="portrait"
@@ -229,7 +229,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                                 });
                                 setDateValue(val);
                               } else {
-                                const v = ((val as unknown) as string) ?? '';
+                                const v = (val as unknown as string) ?? '';
                                 setValue('date', v);
                                 setDateValue(null);
                               }
@@ -237,15 +237,15 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                             renderInput={(params) => <TextField {...params} />}
                           />
                         </LocalizationProvider>
+                        <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
+                          Введите дату до 01.05.2021
+                        </span>
                       </div>
                       <Button className={classes.button} type="submit">
                         <Typography className={classes.buttonText} variant="body1">
                           Показать
                         </Typography>
                       </Button>
-                      <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
-                        Введите дату до 01.05.2021
-                      </span>
                     </form>
                   </div>
                   <Chart data={data} title="Статистика пользователей за месяц" />
@@ -273,7 +273,8 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                           Cтатистика до
                         </Typography>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={ru}>
-                          <DesktopDatePicker minDate={ new Date(2021, 7,1)}
+                          <DesktopDatePicker
+                            minDate={new Date(2021, 7, 1)}
                             disableFuture
                             openTo="day"
                             orientation="portrait"
@@ -288,7 +289,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                                 });
                                 setDateValue(val);
                               } else {
-                                const v = ((val as unknown) as string) ?? '';
+                                const v = (val as unknown as string) ?? '';
                                 setValue('date', v);
                                 setDateValue(null);
                               }
@@ -296,15 +297,15 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                             renderInput={(params) => <TextField {...params} placeholder="ДД.ММ.ГГГГ" />}
                           />
                         </LocalizationProvider>
+                        <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
+                          Введите дату до 01.05.2021
+                        </span>
                       </div>
                       <Button className={classes.button} type="submit">
                         <Typography className={classes.buttonText} variant="body1">
                           Показать
                         </Typography>
                       </Button>
-                      <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
-                        Введите дату до 01.05.2021
-                      </span>
                     </form>
                   </div>
                   <Chart data={data} title="Статистика активных пользователей за месяц" />

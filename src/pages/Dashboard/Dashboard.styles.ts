@@ -12,11 +12,13 @@ const useStyles = makeStyles((theme) => ({
         position: 'absolute',
     bottom: '-35px',
     color: 'red',
+    right: 0,
   },
   picker: {
     display: 'flex',
     gap: 20,
     alignItems: 'center',
+    position:'relative'
   },
   buttonText: {
     fontSize: '0.8rem'
