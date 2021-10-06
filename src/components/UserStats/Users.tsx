@@ -1,6 +1,9 @@
 import React from 'react';
+import ru from 'date-fns/locale/ru';
+import { isValid, parseISO, format } from 'date-fns';
 import Typography from '@mui/material/Typography';
 import useStyles from './Users.styles';
+
 
 interface UsersProps {
   text: number;
@@ -9,15 +12,7 @@ interface UsersProps {
 }
 const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
   const classes = useStyles();
-  const lastUpdateDate = new Date(lastUpdate.replace(/-/g, '/'));
-  const options: any = {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-  };
+
   return (
     <>
       <Typography component="p" variant="h5">
@@ -28,11 +23,11 @@ const Users: React.FC<UsersProps> = ({ text, title, lastUpdate = '' }) => {
       </Typography>
       {lastUpdate && (
         <div>
-          <Typography variant="body1"className={classes.depositContext}>
+          <Typography variant="body1" className={classes.depositContext}>
             Последнее обновление заданий
           </Typography>
           <Typography variant="body1" className={classes.depositContext}>
-            {new Intl.DateTimeFormat('ru-Ru', options).format(lastUpdateDate)}
+            {isValid(parseISO(lastUpdate)) ? format(parseISO(lastUpdate), 'dd.MM.yyyy, hh:mm:ss', { locale: ru }) : ''}
           </Typography>
         </div>
       )}
