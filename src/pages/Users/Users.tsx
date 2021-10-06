@@ -45,17 +45,16 @@ const Users: React.FC<UsersProps> = ({ fetchUserData, isMenuOpen }) => {
     run(fetchUserData(page, rowsPerPage));
   }, []);
 
-  return <>
-    {isLoading ? (
-      <Preloader />
-    ) : (
-      <main
+  return (
+    <main
       className={clsx(mainClasses.content, {
         [mainClasses.contentShift]: isMenuOpen,
       })}>
-        <StatusLabel isError={isError} isStatusLabelOpen={isError} statusMessage={error} handleCloseError={reset} />
-
+      {isLoading ? (
+        <Preloader />
+      ) : (
         <section className={classes.section}>
+          <StatusLabel isError={isError} isStatusLabelOpen={isError} statusMessage={error} handleCloseError={reset} />
           <Typography className={classes.title} variant="h5">
             Пользователи
           </Typography>
@@ -122,8 +121,8 @@ const Users: React.FC<UsersProps> = ({ fetchUserData, isMenuOpen }) => {
             />
           </TableContainer>
         </section>
-      </main>
-    )}
-  </>;
+      )}
+    </main>
+  );
 };
 export default Users;

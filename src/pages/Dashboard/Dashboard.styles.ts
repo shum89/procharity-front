@@ -63,6 +63,14 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     height: '100%',
   },
+  paperUsers: {
+     padding: theme.spacing(2),
+    display: 'flex',
+    overflow: 'hidden',
+    flexDirection: 'column',
+    height: '100%',
+    justifyContent:'space-between'
+  },
   fixedHeight: {
     minHeight: 240,
   },

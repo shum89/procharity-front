@@ -604,48 +604,34 @@ function App() {
             <ProtectedRoute
               condition={userToken}
               component={
-                // <main
-                //   className={clsx(classes.content, {
-                //     [classes.contentShift]: isMenuOpen,
-                //   })}>
+    
                 <Dashboard fetchUserStats={getUsers} isMenuOpen={isMenuOpen} />
-                // {/* </main> */}
+          
               }
               path="/dashboard"
             />
             <ProtectedRoute
               condition={userToken}
               component={
-                // <main
-                //   className={clsx(classes.content, {
-                //     [classes.contentShift]: isMenuOpen,
-                //   })}>
+               
                 <RichTextEditor onSubmit={onSubmitMessage} isMenuOpen={isMenuOpen} />
-                // </main>
+    
               }
               path="/send"
             />
             <ProtectedRoute
               condition={userToken}
               component={
-                // <main
-                //   className={clsx(classes.content, {
-                //     [classes.contentShift]: isMenuOpen,
-                //   })}>
                 <Users isMenuOpen={isMenuOpen} fetchUserData={getUsersData} />
-                // </main>
               } 
               path="/users"
             />
             <ProtectedRoute
               condition={userToken}
               component={
-                // <main
-                //   className={clsx(classes.content, {
-                //     [classes.contentShift]: isMenuOpen,
-                //   })}>
+               
                 <Invite isMenuOpen={isMenuOpen} onSubmit={onInvite} />
-                // </main>
+    
               }
               path="/invite"
             />

@@ -57,7 +57,7 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit,isMenuOpen
         run(onSubmit(dataS));
         reset({ message: '' });
       })}>
-      <Typography variant="h4">Отправить сообщение пользователям</Typography>
+      <Typography variant="h5">Отправить сообщение пользователям</Typography>
       <StatusLabel
         isStatusLabelOpen={isStatusLabelOpen}
         statusMessage={statusMessage}

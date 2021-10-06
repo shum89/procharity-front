@@ -152,27 +152,27 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
           <Container maxWidth="lg" className={classes.container}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={3} lg={3}>
-                <Paper className={classes.paper}>
+                <Paper className={classes.paperUsers}>
                   <Users text={data?.number_users.all_users ?? 0} title="Всего пользователей" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3} lg={3}>
-                <Paper className={classes.paper}>
+                <Paper className={classes.paperUsers}>
                   <Users text={data?.number_users.subscribed_users ?? 0} title="Подписка включена" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3} lg={3}>
-                <Paper className={classes.paper}>
+                <Paper className={classes.paperUsers}>
                   <Users text={data?.number_users.not_subscribed_users ?? 0} title="Подписка выключена" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3} lg={3}>
-                <Paper className={classes.paper}>
+                <Paper className={classes.paperUsers}>
                   <Users text={data?.number_users.banned_users ?? 0} title="Бот заблокирован" />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3} lg={3}>
-                <Paper className={classes.paper}>
+                <Paper className={classes.paperUsers}>
                   <Users
                     text={data?.active_users_statistic.active_users_per_month ?? 0}
                     title="Активных пользователей в месяц"
@@ -180,7 +180,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3} lg={3}>
-                <Paper className={classes.paper}>
+                <Paper className={classes.paperUsers}>
                   <Users
                     lastUpdate={data?.tasks.last_update}
                     text={data?.tasks.active_tasks ?? 0}
@@ -196,14 +196,14 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
                   <div className={classes.pickerContainer}>
-                    <Typography className={classes.title} variant="h5">
+                    <Typography className={classes.title} variant="h6">
                       Статистика пользователей за месяц
                     </Typography>
                     <form
                       className={classes.formContainer}
                       onSubmit={handleSubmit((dataDate, e) => {
                         setErrorDate(false);
-                        if (!isBefore(parseISO(dataDate.date), new Date(2021, 5, 1))) {
+                        if (!isBefore(parseISO(dataDate.date), new Date(2021, 8, 1))) {
                           run(fetchUserStats(dataDate.date));
                         } else {
                           setErrorDate(true);
@@ -214,7 +214,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                           Cтатистика до
                         </Typography>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={ru}>
-                          <DesktopDatePicker
+                          <DesktopDatePicker minDate={ new Date(2021,7,1)}
                             disableFuture
                             openTo="day"
                             orientation="portrait"
@@ -255,14 +255,14 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
               <Grid item xs={12} md={12} lg={12}>
                 <Paper className={clsx(classes.fixedHeight, classes.paper)}>
                   <div className={classes.pickerContainer}>
-                    <Typography className={classes.title} variant="h5">
+                    <Typography className={classes.title} variant="h6">
                       Статистика активных пользователей за месяц
                     </Typography>
                     <form
                       className={classes.formContainer}
                       onSubmit={handleSubmit((dataDate, e) => {
                         setErrorDate(false);
-                        if (!isBefore(parseISO(dataDate.date), new Date(2021, 5, 1))) {
+                        if (!isBefore(parseISO(dataDate.date), new Date(2021, 8, 1))) {
                           run(fetchUserStats(dataDate.date));
                         } else {
                           setErrorDate(true);
@@ -273,7 +273,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                           Cтатистика до
                         </Typography>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={ru}>
-                          <DesktopDatePicker
+                          <DesktopDatePicker minDate={ new Date(2021, 7,1)}
                             disableFuture
                             openTo="day"
                             orientation="portrait"

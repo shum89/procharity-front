@@ -9,9 +9,15 @@ fieldset {
   margin: 0;
   border: none;
 }
+
 body {
+  width: 100%;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+div {
+  width: 100%;
 }

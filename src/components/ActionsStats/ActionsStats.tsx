@@ -18,19 +18,19 @@ const Actions: React.FC<ActionsProps> = ({ actionsStats, title, cardTitle }) => 
   const stats = actionsStats ?? { command_stats: 0 };
   return (
     <>
-      <Typography className={classes.title} variant="h5">
+      <Typography className={classes.title} variant="h6">
         {cardTitle}
       </Typography>
       <Table className={classes.table} size="small">
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography className={classes.subtitle} variant="h6">
+              <Typography className={classes.subtitle} variant="body1">
                 {title}
               </Typography>
             </TableCell>
             <TableCell align="right">
-              <Typography className={classes.subtitle} variant="h6">
+              <Typography className={classes.subtitle} variant="body1">
                 Количество
               </Typography>
             </TableCell>

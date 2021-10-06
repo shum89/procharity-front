@@ -12,6 +12,8 @@ import {
   Typography,
 } from '@mui/material';
 import clsx from 'clsx';
+import { parseISO, isValid, format } from 'date-fns';
+import ru from 'date-fns/locale/ru';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import MenuIcon from '@mui/icons-material/Menu';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -24,6 +26,7 @@ import { useAsync } from '../../hooks/useAsync';
 import { HealthCheck } from '../../App';
 import BotStatus from '../BotStatus/BotStatus';
 import useStyles from './Header.styles';
+
 
 
 interface HeaderProps {
@@ -59,8 +62,6 @@ const Header: React.FC<HeaderProps> = ({
   const matchRegister = useRouteMatch('/register/:id')?.isExact ?? false;
   const matchReset = useRouteMatch('/reset_password')?.isExact ?? false;
     const matchConfirm = useRouteMatch('/password_reset_confirm/:id')?.isExact ?? false;
-    // eslint-disable-next-line no-console
-    console.log(matchConfirm)
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const handleLogout = () => {
@@ -77,19 +78,16 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const { run, data, isError, isSuccess, isLoading } = useAsync({ status: 'idle', data: null, error: null });
-  // eslint-disable-next-line no-console
-  console.log(data?.bot.status && data?.db.status && !isError);
-   const options: any = {
-     day: 'numeric',
-     month: 'numeric',
-     year: 'numeric',
-     hour: 'numeric',
-     minute: 'numeric',
-     second: 'numeric',
-   };
-  const update = data?.db.last_update ?? '1-11-1111';
-   const lastUpdateDate = new Date(update.replace(/-/g, '/'));
-  const dateLocalized = new Intl.DateTimeFormat('ru-Ru', options).format(lastUpdateDate);
+
+
+  const update = data?.db.last_update ?? '';
+  const updateCommit = data?.git.commit_date ?? ""
+   const lastUpdateDate = parseISO(update);
+   const updateCommitDate = parseISO(updateCommit);
+     const commitDateLocalized = isValid(updateCommitDate)
+       ? format(updateCommitDate, 'dd.MM.yyyy, hh:mm:ss', { locale: ru })
+       : '';
+  const dateLocalized = isValid(lastUpdateDate) ? format(lastUpdateDate, 'dd.MM.yyyy, hh:mm:ss', {locale: ru}) : '';
  
 
   useEffect(() => {
@@ -171,6 +169,24 @@ const Header: React.FC<HeaderProps> = ({
                     <Typography>Последнее обновление</Typography>
                     <Typography className={classes.date}>{dateLocalized}</Typography>
                   </div>
+                  {!isError && (
+                    <div className={classes.statusContainer}>
+                      <Typography>Последний коммит</Typography>
+                      <Typography>{data?.git.last_commit}</Typography>
+                    </div>
+                  )}
+                  {!isError && (
+                    <div className={classes.statusContainer}>
+                      <Typography>Дата последнего коммита</Typography>
+                      <Typography>{commitDateLocalized}</Typography>
+                    </div>
+                  )}
+                  {!isError && data?.git.tag && (
+                    <div className={classes.statusContainer}>
+                      <Typography>Версия</Typography>
+                      <Typography>{data?.git.tag}</Typography>
+                    </div>
+                  )}
                 </Paper>
               </Popover>
               <IconButton onClick={handleClick} size="large">
@@ -288,6 +304,24 @@ const Header: React.FC<HeaderProps> = ({
                   <div className={classes.statusContainer}>
                     <Typography>Последнее обновление</Typography>
                     <Typography>{dateLocalized}</Typography>
+                  </div>
+                )}
+                {!isError && (
+                  <div className={classes.statusContainer}>
+                    <Typography>Последний коммит</Typography>
+                    <Typography>{data?.git.last_commit}</Typography>
+                  </div>
+                )}
+                {!isError && (
+                  <div className={classes.statusContainer}>
+                    <Typography>Дата последнего коммита</Typography>
+                    <Typography>{commitDateLocalized}</Typography>
+                  </div>
+                )}
+                {!isError && data?.git.tag && (
+                  <div className={classes.statusContainer}>
+                    <Typography>Версия</Typography>
+                    <Typography>{data?.git.tag}</Typography>
                   </div>
                 )}
               </Paper>

@@ -64,7 +64,7 @@ const Invite: React.FC<InviteProps> = ({ onSubmit, isMenuOpen }) => {
           isError={isError}
           handleCloseError={handleResetLabel}
         />
-        <Typography align='center' variant="h4">Пригласить нового администратора</Typography>
+        <Typography align='center' variant="h5">Пригласить нового администратора</Typography>
         <form
           className={classes.authForm}
           onSubmit={handleSubmit((dataS, e) => {
