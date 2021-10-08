@@ -238,7 +238,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                           />
                         </LocalizationProvider>
                         <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
-                          Введите дату до 01.05.2021
+                          Введите дату до 01.08.2021
                         </span>
                       </div>
                       <Button className={classes.button} type="submit">
@@ -298,7 +298,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                           />
                         </LocalizationProvider>
                         <span className={errorDate ? classes.errorDate : classes.errorDateHidden}>
-                          Введите дату до 01.05.2021
+                          Введите дату до 01.08.2021
                         </span>
                       </div>
                       <Button className={classes.button} type="submit">
