@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable no-return-assign */
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable import/prefer-default-export */

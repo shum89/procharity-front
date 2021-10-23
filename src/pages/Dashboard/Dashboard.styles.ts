@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   errorDate: {
-        position: 'absolute',
+    position: 'absolute',
     bottom: '-35px',
     color: 'red',
     right: 0,
@@ -18,15 +18,15 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     gap: 20,
     alignItems: 'center',
-    position:'relative'
+    position: 'relative',
   },
   buttonText: {
-    fontSize: '0.8rem'
+    fontSize: '0.8rem',
   },
 
   errorDateHidden: {
     display: 'none',
-    visibility: 'hidden'
+    visibility: 'hidden',
   },
   pickerContainer: {
     display: 'flex',
@@ -64,14 +64,26 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     flexDirection: 'column',
     height: '100%',
+    '& .recharts-responsive-container': {
+      '& .recharts-wrapper': {
+        '& g.yAxis:nth-of-type(3)': {
+          transform: 'translate(CALC(100% - 100PX), 0px) ',
+          '& .recharts-layer.recharts-cartesian-axis-tick': {
+     
+              transform: 'translate(23PX, 0px) ',
+
+          },
+        },
+      },
+    },
   },
   paperUsers: {
-     padding: theme.spacing(2),
+    padding: theme.spacing(2),
     display: 'flex',
     overflow: 'hidden',
     flexDirection: 'column',
     height: '100%',
-    justifyContent:'space-between'
+    justifyContent: 'space-between',
   },
   fixedHeight: {
     minHeight: 240,

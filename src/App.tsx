@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-unused-vars */
+
 import {
   Container,
   CssBaseline,
@@ -9,8 +8,7 @@ import {
   adaptV4Theme,
 } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import React, { useEffect, useState } from 'react';
-import clsx from 'clsx';
+import React, {useState } from 'react';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import ky from 'ky';
 import AuthForm, { LoginFormValues } from './pages/AuthForm/AuthForm';
@@ -21,11 +19,11 @@ import ResetPassword, { ResetPasswordFormValues } from './pages/ResetPassword/Re
 import { themeLight, themeDark } from './App.theme';
 import useLocalStorage from './hooks/useLocalStorage';
 import RichTextEditor, { RichTextEditorFormValues } from './pages/RichTextEditor/RichTextEditor';
-import useStyles from './App.styles';
 import Invite, { InviteFormValues } from './pages/Invite/Invite';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Users from './pages/Users/Users';
 import ResetForm, { ResetFormValues } from './pages/ResetForm/ResetForm';
+import useThemeColor from './hooks/useThemeColor';
 
 
 declare module '@mui/styles/defaultTheme' {
@@ -59,7 +57,7 @@ export const apiUrl = devLocation ? process.env.REACT_APP_API_DEV_ADDRESS : proc
 
 function App() {
   const history = useHistory();
-  const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
+ 
   const [userToken, setUserToken] = useLocalStorage<string | boolean>('user', false);
   const [refreshToken, setRefreshToken] = useLocalStorage<string | boolean>('refresh_token', false);
   const removeToken = () => {
@@ -444,9 +442,6 @@ function App() {
       return Promise.reject(e);
     }
   };
-  const handleSetTheme = () => {
-    setThemeColor(!themeColor);
-  };
 
   const [isMenuOpen, setMenuOpen] = React.useState(false);
   const handleDrawerOpen = () => {
@@ -456,15 +451,21 @@ function App() {
   const handleDrawerClose = () => {
     setMenuOpen(false);
   };
+  //  const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
+  //  const handleSetTheme = () => {
+  //    setThemeColor(!themeColor);
+  //  };
 
-  useEffect(() => {
-    const handleSetThemeLocal = () => {
-      setThemeColor(themeColor);
-    };
-    if (localStorage.getItem('theme') === null) {
-      handleSetThemeLocal();
-    }
-  }, [setThemeColor, themeColor]);
+  // useEffect(() => {
+  //   const handleSetThemeLocal = () => {
+  //     setThemeColor(themeColor);
+  //   };
+  //   if (localStorage.getItem('theme') === null) {
+  //     handleSetThemeLocal();
+  //   }
+  // }, [setThemeColor, themeColor]);
+const { themeColor, handleSetTheme} = useThemeColor();
+
   const theme = themeColor ? themeDark : themeLight;
 
   const themeOptions = React.useMemo(

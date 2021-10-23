@@ -151,9 +151,16 @@ export default function Chart({ data, title }: ChartProps) {
               formatter={label}
               wrapperStyle={{ width: 420, backgroundColor: '#FFF', color: 'black' }}
             />
-        
+
             <YAxis allowDecimals={false} stroke={theme.palette.text.primary} yAxisId="left" orientation="left" />
-            <YAxis allowDecimals={false} stroke={theme.palette.text.primary} yAxisId="right" orientation="right" />
+            <YAxis
+              allowDecimals={false}
+              stroke={theme.palette.text.primary}
+              yAxisId="left"
+              orientation="right"
+      
+              className="testTest"
+            />
 
             <Label angle={270} position="left" style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}>
               Пользователи
@@ -173,8 +180,6 @@ export default function Chart({ data, title }: ChartProps) {
               stroke={theme.palette.error.main}
               dot={false}
             />
-
-
 
             <Line
               yAxisId="left"
