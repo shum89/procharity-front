@@ -30,14 +30,30 @@ export interface ResetFormValues extends Options {
   password: string;
   passwordConfirmation?: string;
 }
-interface ResetFormProps {
-  onSubmit: (data: ResetFormValues, params: { id: string }) => Promise<void>;
-}
 
-const ResetForm: React.FC<ResetFormProps> = ({ onSubmit }) => {
+const ResetForm: React.FC = () => {
   const history = useHistory();
   const password = useRef({});
+  const onReset = async (data: ResetFormValues, params: { id: string }) => {
+    try {
+      const response = await ky.post(`${apiUrl}/auth/password_reset_confirm/`, {
+        json: {
+          ...data,
+          token: params.id,
+        },
+        throwHttpErrors: false,
+      });
 
+      if (response.status === 200) {
+        history.push('/');
+        return Promise.resolve();
+      }
+      const error = await response.json();
+      throw new Error(error.message);
+    } catch (e: any) {
+      return Promise.reject(e);
+    }
+  };
   const params = useParams<{ id: string }>();
   const [isInviteValid, setInviteValid] = useState('');
 
@@ -89,7 +105,7 @@ const ResetForm: React.FC<ResetFormProps> = ({ onSubmit }) => {
   const submitResetForm = (data: ResetFormValues) => {
     const newData = data
     delete newData?.passwordConfirmation;
-    run(onSubmit(newData, params));
+    run(onReset(newData, params));
   };
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const handleClickShowPassword = () => {

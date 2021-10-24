@@ -99,7 +99,7 @@ export default function Chart({ data, title }: ChartProps) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       {chartData.length && (
-        <ResponsiveContainer height={400}>
+        <ResponsiveContainer height={430} width='100%'>
           <LineChart
             data={chartData}
             margin={{
@@ -117,6 +117,7 @@ export default function Chart({ data, title }: ChartProps) {
                   const day = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
                   return day;
                 }}
+                height={40}
                 interval={0}
                 angle={30}
                 dataKey="time"
@@ -134,6 +135,7 @@ export default function Chart({ data, title }: ChartProps) {
                   const day = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
                   return day;
                 }}
+                height={40}
                 interval={1}
                 angle={30}
                 dataKey="time"
@@ -158,7 +160,6 @@ export default function Chart({ data, title }: ChartProps) {
               stroke={theme.palette.text.primary}
               yAxisId="left"
               orientation="right"
-      
               className="testTest"
             />
 

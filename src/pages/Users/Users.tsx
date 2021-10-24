@@ -1,5 +1,7 @@
 import { TableContainer, TableHead, Table, TableRow, TableCell, TableBody } from '@mui/material';
-import React from 'react';
+import React, { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import ky from 'ky';
 import clsx from 'clsx';
 import TablePagination from '@mui/material/TablePagination';
 import Typography from '@mui/material/Typography';
@@ -12,10 +14,11 @@ import { useAsync } from '../../hooks/useAsync';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useStyles from './Users.styles';
 import useMainStyles from '../../App.styles';
+import { apiUrl, AuthContext } from '../../App';
+
 
 interface UsersProps {
   isMenuOpen: boolean
-  fetchUserData: (limit: number, page: number) => Promise<UsersTableData>;
 }
 
 export const formatData = (date: string) => {
@@ -26,23 +29,91 @@ export const formatData = (date: string) => {
 };
 const columns = ['ФИО', 'E-mail', 'Рассылка', 'Бот заблокирован', 'Имя пользователя', 'Дата Регистрации'];
 
-const Users: React.FC<UsersProps> = ({ fetchUserData, isMenuOpen }) => {
+const Users: React.FC<UsersProps> = ({isMenuOpen }) => {
+  const history = useHistory();
+  const { userToken,refreshToken,setUserToken, setRefreshToken } = useContext(AuthContext);
+  const getUsersData = async (page: number, limit: number) => {
+    try {
+
+      const response = await ky(`${apiUrl}/users/?page=${page}&limit=${limit}`, {
+        retry: {
+          limit: 2,
+          methods: ['get'],
+          statusCodes: [401, 422],
+        },
+        hooks: {
+          beforeRetry: [
+            // eslint-disable-next-line consistent-return
+            async ({ request, options, error, retryCount }) => {
+              if (retryCount === 1) {
+                setUserToken(false);
+                setRefreshToken(false);
+                history.push('/');
+                return ky.stop;
+              }
+            },
+          ],
+          afterResponse: [
+            // eslint-disable-next-line consistent-return
+            async (request, options, res) => {
+              if (res.status === 401) {
+                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
+                  headers: {
+                    Authorization: `Bearer ${refreshToken}`,
+                  },
+                });
+
+                if (resp.status === 200) {
+                  const token = await resp.json();
+                  request.headers.set('Authorization', `Bearer ${token.access_token}`);
+                  setUserToken(token.access_token as string);
+                  setRefreshToken(token.refresh_token as string);
+                  return ky(request);
+                }
+                if (resp.status === 401 || resp.status === 422) {
+                  setUserToken(false);
+                  setRefreshToken(false);
+                  history.push('/');
+                }
+              }
+            },
+          ],
+        },
+
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      if (response.status === 200) {
+        const userData = (await response.json()) as UsersTableData;
+        return userData;
+      }
+      const error = await response.json();
+
+      throw new Error(error);
+    } catch (e: any) {
+      return Promise.reject(e.message);
+    }
+  };
+
   const classes = useStyles();
     const mainClasses = useMainStyles();
   const { data, error, isLoading, run, isError, reset } = useAsync({ status: 'idle', data: null, error: null });
   const [rowsPerPage, setRowsPerPage] = useLocalStorage<number>('rowsPerPage', 20);
   const [page, setPage] = useLocalStorage<number>('page', 1);
   const handleChangePage = (event: unknown, newPage: number) => {
-    run(fetchUserData(newPage + 1, rowsPerPage));
+    run(getUsersData(newPage + 1, rowsPerPage));
     setPage(newPage + 1);
   };
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
-    run(fetchUserData(1, +event.target.value));
+    run(getUsersData(1, +event.target.value));
     setPage(1);
   };
   React.useEffect(() => {
-    run(fetchUserData(page, rowsPerPage));
+    run(getUsersData(page, rowsPerPage));
   }, []);
 
   return (

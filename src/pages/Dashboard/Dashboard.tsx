@@ -1,7 +1,9 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-console */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import ky from 'ky';
+import { useHistory } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
@@ -11,7 +13,6 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { format, parseISO, max, isValid, isBefore } from 'date-fns';
 import clsx from 'clsx';
-import { ErrorBoundary } from 'react-error-boundary';
 import { Button, TextField, Typography } from '@mui/material';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
@@ -24,6 +25,8 @@ import { useAsync } from '../../hooks/useAsync';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import useStyles from './Dashboard.styles';
 import useMainStyles from '../../App.styles';
+import { apiUrl, AuthContext } from '../../App';
+
 
 const schema = yup.object().shape({
   date: yup.string().min(10, 'Введите дату в формате ДД-ММ-ГГГГ').required('Поле e-mail необходимо к заполнению'),
@@ -41,13 +44,7 @@ function declOfNum(n: number, titles: any) {
   ];
 }
 
-const ErrorFallback = ({ error, resetErrorBoundary }: any) => (
-  <div role="alert">
-    <p>Something went wrong:</p>
-    <pre>{error.message}</pre>
-    <Button onClick={resetErrorBoundary}>Try again</Button>
-  </div>
-);
+
 export interface UserData {
   active_users: number;
   number_users: {
@@ -113,15 +110,87 @@ export interface Result {
 }
 
 interface DashboardProps {
-  fetchUserStats: (userStats: string) => Promise<UserData>;
+
   isMenuOpen: boolean;
 }
 export interface DashboardDateValues {
   date: string;
 }
-const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => {
+
+const Dashboard: React.FC<DashboardProps> = ({  isMenuOpen }) => {
   const mainClasses = useMainStyles();
-  const classes = useStyles();
+  const history = useHistory();
+    const classes = useStyles();
+
+  const {setUserToken, setRefreshToken, refreshToken, userToken}  = useContext(AuthContext)
+    const getUsers = async (usersDate: string) => {
+      try {
+        const dateLimit = usersDate ? `?date_limit=${usersDate}` : '';
+
+        const response = await ky(`${apiUrl}/analytics/${dateLimit}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          throwHttpErrors: false,
+          retry: {
+            limit: 2,
+            methods: ['get'],
+            statusCodes: [401, 422],
+          },
+          hooks: {
+            beforeRetry: [
+              // eslint-disable-next-line consistent-return
+              async ({ request, options, error, retryCount }) => {
+                if (retryCount === 1) {
+                  setUserToken(false);
+                  setRefreshToken(false);
+                  history.push('/');
+                  return ky.stop;
+                }
+              },
+            ],
+            afterResponse: [
+              // eslint-disable-next-line consistent-return
+              async (request, options, res) => {
+                if (res.status === 401 || res.status === 422) {
+                  const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
+                    headers: {
+                      Authorization: `Bearer ${refreshToken}`,
+                    },
+                  });
+
+                  if (resp.status === 200) {
+                    const token = await resp.json();
+                    request.headers.set('Authorization', `Bearer ${token.access_token}`);
+                    setUserToken(token.access_token as string);
+                    setRefreshToken(token.refresh_token as string);
+                    return ky(request);
+                  }
+
+                  if (resp.status === 401 || resp.status === 422) {
+                    setUserToken(false);
+                    setRefreshToken(false);
+                    history.push('/');
+                  }
+                }
+              },
+            ],
+          },
+        });
+
+        if (response.status === 200) {
+          const userData: UserData = (await response.json()) as UserData;
+
+          return userData;
+        }
+        const error = await response.json();
+
+        throw new Error(error.message);
+      } catch (e: any) {
+        return Promise.reject(e.message);
+      }
+    };
   const [errorDate, setErrorDate] = useState(false);
   const { handleSubmit, setValue } = useForm<DashboardDateValues>({ resolver: yupResolver(schema), mode: 'onTouched' });
   const { data, error, run, isError, reset, isLoading } = useAsync({ status: 'idle', data: null, error: null });
@@ -129,11 +198,12 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
   const [value, setDateValue] = React.useState<Date | null>(new Date());
 
   useEffect(() => {
-    run(fetchUserStats(''));
+  
+    run(getUsers(''));
     if (data?.all_users_statistic.added_users)
       setDateValue(max(Object.keys(data?.all_users_statistic.added_users).map((item: string) => parseISO(item))));
     if (value) setValue('date', format(value, 'yyyy-MM-dd'));
-  }, []);
+  }, [run]);
   return (
     <main
       className={clsx(mainClasses.content, {
@@ -142,7 +212,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
       {isLoading ? (
         <Preloader />
       ) : (
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+<>
           <StatusLabel
             isStatusLabelOpen={isError && errorDate}
             statusMessage={error}
@@ -203,7 +273,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                       onSubmit={handleSubmit((dataDate, e) => {
                         setErrorDate(false);
                         if (!isBefore(parseISO(dataDate.date), new Date(2021, 8, 1))) {
-                          run(fetchUserStats(dataDate.date));
+                          run(getUsers(dataDate.date));
                         } else {
                           setErrorDate(true);
                         }
@@ -263,7 +333,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
                       onSubmit={handleSubmit((dataDate, e) => {
                         setErrorDate(false);
                         if (!isBefore(parseISO(dataDate.date), new Date(2021, 8, 1))) {
-                          run(fetchUserStats(dataDate.date));
+                          run(getUsers(dataDate.date));
                         } else {
                           setErrorDate(true);
                         }
@@ -332,7 +402,7 @@ const Dashboard: React.FC<DashboardProps> = ({ fetchUserStats, isMenuOpen }) => 
               </Grid>
             </Grid>
           </Container>
-        </ErrorBoundary>
+   </>
       )}
     </main>
   );

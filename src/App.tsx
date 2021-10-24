@@ -1,4 +1,3 @@
-
 import {
   Container,
   CssBaseline,
@@ -8,22 +7,34 @@ import {
   adaptV4Theme,
 } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import React, {useState } from 'react';
-import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
-import ky from 'ky';
-import AuthForm, { LoginFormValues } from './pages/AuthForm/AuthForm';
+import React, {useState, Context } from 'react';
+import { Redirect, Route, Switch } from 'react-router-dom';
+import AuthForm, {  } from './pages/AuthForm/AuthForm';
 import Header from './components/Header/Header';
 import Dashboard, { UserData, UsersTableData } from './pages/Dashboard/Dashboard';
-import RegisterForm, { RegisterFormValues } from './pages/RegisterForm/RegisterForm';
-import ResetPassword, { ResetPasswordFormValues } from './pages/ResetPassword/ResetPassword';
+import RegisterForm from './pages/RegisterForm/RegisterForm';
+import ResetPassword from './pages/ResetPassword/ResetPassword';
 import { themeLight, themeDark } from './App.theme';
-import useLocalStorage from './hooks/useLocalStorage';
-import RichTextEditor, { RichTextEditorFormValues } from './pages/RichTextEditor/RichTextEditor';
-import Invite, { InviteFormValues } from './pages/Invite/Invite';
+import RichTextEditor from './pages/RichTextEditor/RichTextEditor';
+import Invite from './pages/Invite/Invite';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Users from './pages/Users/Users';
-import ResetForm, { ResetFormValues } from './pages/ResetForm/ResetForm';
+import ResetForm  from './pages/ResetForm/ResetForm';
 import useThemeColor from './hooks/useThemeColor';
+import useLocalStorage from './hooks/useLocalStorage';
+
+
+interface IAuthContext {
+  userToken: string | boolean;
+  refreshToken: string | boolean;
+  setUserToken: (value: string | boolean | ((val: string | boolean) => string | boolean)) => void;
+  setRefreshToken: (value: string | boolean | ((val: string | boolean) => string | boolean)) => void;
+  removeToken: () => void;
+}
+export const AuthContext: Context<IAuthContext> = React.createContext({
+  userToken: false,
+  refreshToken: false,
+} as IAuthContext);
 
 
 declare module '@mui/styles/defaultTheme' {
@@ -56,14 +67,12 @@ const devLocation = process.env.NODE_ENV === 'development' || window.location.or
 export const apiUrl = devLocation ? process.env.REACT_APP_API_DEV_ADDRESS : process.env.REACT_APP_API_ADDRESS;
 
 function App() {
-  const history = useHistory();
- 
-  const [userToken, setUserToken] = useLocalStorage<string | boolean>('user', false);
-  const [refreshToken, setRefreshToken] = useLocalStorage<string | boolean>('refresh_token', false);
-  const removeToken = () => {
-    setUserToken(false);
-    setRefreshToken(false);
-  };
+   const [userToken, setUserToken] = useLocalStorage<string | boolean>('user', false);
+   const [refreshToken, setRefreshToken] = useLocalStorage<string | boolean>('refresh_token', false);
+    const removeToken = () => {
+      setUserToken(false);
+      setRefreshToken(false);
+    };
   const [status, setStatus] = useState<StatusI<UserData | UsersTableData>>({
     status: 'idle',
     statusMessage: null,
@@ -73,376 +82,6 @@ function App() {
 
   const handleCloseError = () => setStatus({ ...status, statusMessage: null, isStatusLabelOpen: false });
 
-  const getUsers = async (usersDate: string) => {
-    try {
-      const dateLimit = usersDate ? `?date_limit=${usersDate}` : ''
-      // eslint-disable-next-line no-console
-      console.log(dateLimit)
-      const response = await ky(`${apiUrl}/analytics/${dateLimit}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        throwHttpErrors: false,
-        retry: {
-          limit: 2,
-          methods: ['get'],
-          statusCodes: [401, 422],
-        },
-        hooks: {
-          beforeRetry: [
-            // eslint-disable-next-line consistent-return
-            async ({ request, options, error, retryCount }) => {
-              if (retryCount === 1) {
-                setUserToken(false);
-                setRefreshToken(false);
-                history.push('/');
-                return ky.stop;
-              }
-            },
-          ],
-          afterResponse: [
-            // eslint-disable-next-line consistent-return
-            async (request, options, res) => {
-              if (res.status === 401 || res.status === 422) {
-                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
-                  headers: {
-                    Authorization: `Bearer ${refreshToken}`,
-                  },
-                });
-
-                if (resp.status === 200) {
-                  const token = await resp.json();
-                  request.headers.set('Authorization', `Bearer ${token.access_token}`);
-                  setUserToken(token.access_token as string);
-                  setRefreshToken(token.refresh_token as string);
-                  return ky(request);
-                }
-    
-                if (resp.status === 401 || resp.status === 422) {
-                  setUserToken(false);
-                  setRefreshToken(false);
-                  history.push('/');
-                }
-              }
-            },
-          ],
-        },
-      });
-
-      if (response.status === 200) {
-        const userData: UserData = (await response.json()) as UserData;
-
-        return userData;
-      }
-      const error = await response.json();
-
-      throw new Error(error.message);
-    } catch (e: any) {
-      return Promise.reject(e.message);
-    }
-  };
-
-  const getHealthCheck = async () => {
-    try {
-      const response = await ky(`${apiUrl}/health_check/`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        throwHttpErrors: false,
-        retry: {
-          limit: 2,
-          methods: ['get'],
-          statusCodes: [401],
-        },
-      });
-
-      if (response.status === 200) {
-        const userData: HealthCheck = (await response.json()) as HealthCheck;
-
-        return userData;
-      }
-      const error = await response.json();
-
-      throw new Error(error.message);
-    } catch (e: any) {
-      return Promise.reject(e.message);
-    }
-  };
-
-  const getUsersData = async (page: number, limit: number) => {
-    try {
-      setStatus({ ...status, status: 'pending' });
-      const response = await ky(`${apiUrl}/users/?page=${page}&limit=${limit}`, {
-        retry: {
-          limit: 2,
-          methods: ['get'],
-          statusCodes: [401, 422],
-        },
-        hooks: {
-          beforeRetry: [
-            // eslint-disable-next-line consistent-return
-            async ({ request, options, error, retryCount }) => {
-              if (retryCount === 1) {
-                setUserToken(false);
-                setRefreshToken(false);
-                history.push('/');
-                return ky.stop;
-              }
-            },
-          ],
-          afterResponse: [
-            // eslint-disable-next-line consistent-return
-            async (request, options, res) => {
-              if (res.status === 401) {
-                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
-                  headers: {
-                    Authorization: `Bearer ${refreshToken}`,
-                  },
-                });
-
-                if (resp.status === 200) {
-                  const token = await resp.json();
-                  request.headers.set('Authorization', `Bearer ${token.access_token}`);
-                  setUserToken(token.access_token as string);
-                  setRefreshToken(token.refresh_token as string);
-                  return ky(request);
-                }
-                if (resp.status === 401 || resp.status === 422) {
-                  setUserToken(false);
-                  setRefreshToken(false);
-                  history.push('/');
-                }
-              }
-            },
-          ],
-        },
-
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem('user') ?? '')}`,
-        },
-      });
-
-      if (response.status === 200) {
-        const userData = (await response.json()) as UsersTableData;
-        return userData;
-      }
-      const error = await response.json();
-
-      throw new Error(error);
-    } catch (e: any) {
-      return Promise.reject(e.message);
-    }
-  };
-
-  const onInvite = async (data: InviteFormValues) => {
-    try {
-      const response = await ky.post(`${apiUrl}/auth/invitation/`, {
-        retry: {
-          limit: 2,
-          methods: ['get'],
-          statusCodes: [401, 422],
-        },
-        hooks: {
-          beforeRetry: [
-            // eslint-disable-next-line consistent-return
-            async ({ request, options, error, retryCount }) => {
-              if (retryCount === 1) {
-                setUserToken(false);
-                setRefreshToken(false);
-                history.push('/');
-                return ky.stop;
-              }
-            },
-          ],
-          afterResponse: [
-            // eslint-disable-next-line consistent-return
-            async (request, options, res) => {
-              if (res.status === 401) {
-                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
-                  headers: {
-                    Authorization: `Bearer ${refreshToken}`,
-                  },
-                });
-
-                if (resp.status === 200) {
-                  const token = await resp.json();
-                  request.headers.set('Authorization', `Bearer ${token.access_token}`);
-                  setUserToken(token.access_token as string);
-                  setRefreshToken(token.refresh_token as string);
-                  return ky(request);
-                }
-                if (resp.status === 401 || resp.status === 422) {
-                  setUserToken(false);
-                  setRefreshToken(false);
-                  history.push('/');
-                }
-              }
-            },
-          ],
-        },
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-        throwHttpErrors: false,
-      });
-
-      if (response.status === 200) {
-        const result = (await response.json()) as { message: string };
-
-        return result;
-      }
-      const error = await response.json();
-      throw new Error(error.message);
-    } catch (e: any) {
-      return Promise.reject(e);
-    }
-  };
-
-  const onLogin = async (data: LoginFormValues) => {
-    try {
-      const response = await ky.post(`${apiUrl}/auth/login/`, {
-        json: {
-          ...data,
-        },
-        throwHttpErrors: false,
-      });
-
-      if (response.status === 200) {
-        const token: { access_token: string; refresh_token: string } = await response.json();
-        setUserToken(token.access_token);
-        setRefreshToken(token.refresh_token);
-        history.push('/dashboard');
-        return Promise.resolve();
-      }
-      const error = await response.json();
-      throw new Error(error.message);
-    } catch (e: any) {
-      return Promise.reject(e);
-    }
-  };
-
-  const onResetPassword = async (data: ResetPasswordFormValues) => {
-    try {
-      const response = await fetch(`${apiUrl}/auth/password_reset/`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-      });
-
-      if (response.status === 200) {
-        const result = await response.json();
-        return result;
-      }
-      const error = await response.json();
-      throw new Error(error.message);
-    } catch (e: any) {
-      return Promise.reject(e);
-    }
-  };
-
-  const onSubmitMessage = async (data: RichTextEditorFormValues) => {
-    const stripTags = data.message.replace(/(<p[^>]+?>|<p>)/gim, '');
-    const replaceEnclosedTag = stripTags.replace(/(<br[^>]+?>|<br>|<\/p>)/gim, '\n');
-    const normalizedData = { message: replaceEnclosedTag };
-    try {
-      const response = await ky.post(`${apiUrl}/send_telegram_notification/`, {
-        json: {
-          has_mailing: data.has_mailing,
-          ...normalizedData,
-        },
-        retry: {
-          limit: 2,
-          methods: ['post'],
-          statusCodes: [401, 422],
-        },
-        throwHttpErrors: false,
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-        hooks: {
-          afterResponse: [
-            // eslint-disable-next-line consistent-return
-            async (request, options, res) => {
-              if (res.status === 401) {
-                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
-                  headers: {
-                    Authorization: `Bearer ${refreshToken}`,
-                  },
-                });
-                const token = await resp.json();
-
-                request.headers.set('Authorization', `Bearer ${token.access_token}`);
-                if (resp.status === 200) {
-                  setUserToken(token.access_token as string);
-                  setRefreshToken(token.refresh_token as string);
-                  return ky(request);
-                }
-                history.push('/');
-              }
-            },
-          ],
-        },
-      });
-      if (response.status === 200) {
-        const result = await response.json();
-        return result;
-      }
-      const error = await response.json();
-      throw new Error(error.message);
-    } catch (e: any) {
-      return Promise.reject(e.message);
-    }
-  };
-
-  const onRegister = async (data: RegisterFormValues, params: { id: string }) => {
-    try {
-      const dataForRegistration = data;
-      delete dataForRegistration?.passwordConfirmation;
-      const response = await ky.post(`${apiUrl}/auth/register/`, {
-        json: {
-          ...data,
-          token: params.id,
-        },
-        throwHttpErrors: false,
-      });
-
-      if (response.status === 200) {
-        history.push('/');
-        return Promise.resolve();
-      }
-      const error = await response.json();
-      throw new Error(error.message);
-    } catch (e: any) {
-      return Promise.reject(e);
-    }
-  };
-  const onReset = async (data: ResetFormValues, params: { id: string }) => {
-    try {
-      const response = await ky.post(`${apiUrl}/auth/password_reset_confirm/`, {
-        json: {
-          ...data,
-          token: params.id,
-        },
-        throwHttpErrors: false,
-      });
-
-      if (response.status === 200) {
-        history.push('/');
-        return Promise.resolve();
-      }
-      const error = await response.json();
-      throw new Error(error.message);
-    } catch (e: any) {
-      return Promise.reject(e);
-    }
-  };
-
   const [isMenuOpen, setMenuOpen] = React.useState(false);
   const handleDrawerOpen = () => {
     setMenuOpen(true);
@@ -451,19 +90,7 @@ function App() {
   const handleDrawerClose = () => {
     setMenuOpen(false);
   };
-  //  const [themeColor, setThemeColor] = useLocalStorage<boolean>('theme', true);
-  //  const handleSetTheme = () => {
-  //    setThemeColor(!themeColor);
-  //  };
 
-  // useEffect(() => {
-  //   const handleSetThemeLocal = () => {
-  //     setThemeColor(themeColor);
-  //   };
-  //   if (localStorage.getItem('theme') === null) {
-  //     handleSetThemeLocal();
-  //   }
-  // }, [setThemeColor, themeColor]);
 const { themeColor, handleSetTheme} = useThemeColor();
 
   const theme = themeColor ? themeDark : themeLight;
@@ -584,70 +211,61 @@ const { themeColor, handleSetTheme} = useThemeColor();
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={themeOptions}>
         <CssBaseline />
+        <AuthContext.Provider value={{
+          userToken,
+          setUserToken,
+          refreshToken,
+          setRefreshToken,
+          removeToken
+        }}>
+          <Container>
+            <Header
+              isMenuOpen={isMenuOpen}
+              isDark={themeColor}
+              handleSetTheme={handleSetTheme}
+              handleDrawerOpen={handleDrawerOpen}
+              handleDrawerClose={handleDrawerClose}
+              handleCloseError={handleCloseError}
+            />
 
-        <Container>
-          <Header
-            isMenuOpen={isMenuOpen}
-            isDark={themeColor}
-            removeToken={removeToken}
-            handleSetTheme={handleSetTheme}
-            handleDrawerOpen={handleDrawerOpen}
-            handleDrawerClose={handleDrawerClose}
-            handleCloseError={handleCloseError}
-            getHealthCheck={getHealthCheck}
-          />
+            <Switch>
+              <Route exact path="/">
+                {!userToken ? <AuthForm  /> : <Redirect exact from="/" to="/dashboard" />}
+              </Route>
 
-          <Switch>
-            <Route exact path="/">
-              {!userToken ? <AuthForm onLogin={onLogin} /> : <Redirect exact from="/" to="/dashboard" />}
-            </Route>
-
-            <ProtectedRoute
-              condition={userToken}
-              component={
-    
-                <Dashboard fetchUserStats={getUsers} isMenuOpen={isMenuOpen} />
-          
-              }
-              path="/dashboard"
-            />
-            <ProtectedRoute
-              condition={userToken}
-              component={
-               
-                <RichTextEditor onSubmit={onSubmitMessage} isMenuOpen={isMenuOpen} />
-    
-              }
-              path="/send"
-            />
-            <ProtectedRoute
-              condition={userToken}
-              component={
-                <Users isMenuOpen={isMenuOpen} fetchUserData={getUsersData} />
-              } 
-              path="/users"
-            />
-            <ProtectedRoute
-              condition={userToken}
-              component={
-               
-                <Invite isMenuOpen={isMenuOpen} onSubmit={onInvite} />
-    
-              }
-              path="/invite"
-            />
-            <Route path="/register/:id">
-              <RegisterForm onSubmit={onRegister} />
-            </Route>
-            <Route path="/password_reset_confirm/:id">
-              <ResetForm onSubmit={onReset} />
-            </Route>
-            <Route path="/reset_password">
-              <ResetPassword onSubmit={onResetPassword} />
-            </Route>
-            <Redirect to="/" />
-          </Switch>
-        </Container>
+              <ProtectedRoute
+                condition={userToken}
+                component={<Dashboard isMenuOpen={isMenuOpen} />}
+                path="/dashboard"
+              />
+              <ProtectedRoute
+                condition={userToken}
+                component={<RichTextEditor isMenuOpen={isMenuOpen} />}
+                path="/send"
+              />
+              <ProtectedRoute
+                condition={userToken}
+                component={<Users isMenuOpen={isMenuOpen} />}
+                path="/users"
+              />
+              <ProtectedRoute
+                condition={userToken}
+                component={<Invite isMenuOpen={isMenuOpen} />}
+                path="/invite"
+              />
+              <Route path="/register/:id">
+                <RegisterForm/>
+              </Route>
+              <Route path="/password_reset_confirm/:id">
+                <ResetForm  />
+              </Route>
+              <Route path="/reset_password">
+                <ResetPassword />
+              </Route>
+              <Redirect to="/" />
+            </Switch>
+          </Container>
+        </AuthContext.Provider>
       </ThemeProvider>
     </StyledEngineProvider>
   );

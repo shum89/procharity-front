@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -12,6 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import clsx from 'clsx';
+import ky from 'ky';
 import { parseISO, isValid, format } from 'date-fns';
 import ru from 'date-fns/locale/ru';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
@@ -23,9 +24,10 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { MainListItems, SecondaryListItems } from '../NavigationItems/NavigationItems';
 import { useAsync } from '../../hooks/useAsync';
-import { HealthCheck } from '../../App';
+import { HealthCheck, AuthContext, apiUrl } from '../../App';
 import BotStatus from '../BotStatus/BotStatus';
 import useStyles from './Header.styles';
+
 
 
 
@@ -33,11 +35,9 @@ interface HeaderProps {
   handleDrawerOpen: () => void;
   handleDrawerClose: () => void;
   handleSetTheme: () => void;
-  removeToken: () => void;
   isDark: boolean;
   isMenuOpen: boolean;
   handleCloseError: () => void;
-  getHealthCheck: () => Promise<HealthCheck>;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -46,13 +46,39 @@ const Header: React.FC<HeaderProps> = ({
   isMenuOpen,
   handleSetTheme,
   isDark,
-  removeToken,
   handleCloseError,
-  getHealthCheck,
 }) => {
+
+  const getHealthCheck = async () => {
+    try {
+      const response = await ky(`${apiUrl}/health_check/`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        throwHttpErrors: false,
+        retry: {
+          limit: 2,
+          methods: ['get'],
+          statusCodes: [401],
+        },
+      });
+
+      if (response.status === 200) {
+        const userData: HealthCheck = (await response.json()) as HealthCheck;
+
+        return userData;
+      }
+      const error = await response.json();
+
+      throw new Error(error.message);
+    } catch (e: any) {
+      return Promise.reject(e.message);
+    }
+  };
+
   const classes = useStyles();
   const history = useHistory();
-
+const context = useContext(AuthContext)
   const matchLogin = useRouteMatch('/')?.isExact ?? false;
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -65,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const handleLogout = () => {
-    removeToken();
+    if(context.removeToken) context.removeToken();
     history.push('/');
   };
 
@@ -92,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({
 
   useEffect(() => {
     run(getHealthCheck());
-  }, []);
+  }, [run]);
   const open = Boolean(anchorEl);
 
   return (
@@ -140,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({
                 }}>
                 <Paper className={classes.paper}>
                   <div className={classes.statusContainer}>
-                    <Typography>Статус бота</Typography>
+                    <Typography>Состояние работы бота</Typography>
                     {data?.bot.status ? (
                       <CheckIcon fontSize="small" className={classes.iconCheckMark} />
                     ) : (
@@ -149,11 +175,7 @@ const Header: React.FC<HeaderProps> = ({
                     {!data?.bot.status && <Typography>{data?.bot.error}</Typography>}
                   </div>
                   <div className={classes.statusContainer}>
-                    <Typography>Метод бота</Typography>
-                    <Typography>{data?.bot.method}</Typography>
-                  </div>
-                  <div className={classes.statusContainer}>
-                    <Typography>Статус сервера</Typography>
+                    <Typography>Состояние работы сервера</Typography>
                     {data?.db.status ? (
                       <CheckIcon fontSize="small" className={classes.iconCheckMark} />
                     ) : (
@@ -162,28 +184,34 @@ const Header: React.FC<HeaderProps> = ({
                     {!data?.db.status && <Typography>{data?.db.error}</Typography>}
                   </div>
                   <div className={classes.statusContainer}>
+                    <Typography>Метод работы бота</Typography>
+                    <Typography>{data?.bot.method}</Typography>
+                  </div>
+                  <Divider />
+                  <div className={classes.statusContainer}>
                     <Typography>Активных задач</Typography>
                     <Typography>{data?.db.active_tasks}</Typography>
                   </div>
                   <div className={classes.statusContainer}>
-                    <Typography>Последнее обновление</Typography>
+                    <Typography>Последнее обновление задач</Typography>
                     <Typography className={classes.date}>{dateLocalized}</Typography>
                   </div>
+                  <Divider />
                   {!isError && (
                     <div className={classes.statusContainer}>
-                      <Typography>Последний коммит</Typography>
+                      <Typography>Коммит релиз</Typography>
                       <Typography>{data?.git.last_commit}</Typography>
                     </div>
                   )}
                   {!isError && (
                     <div className={classes.statusContainer}>
-                      <Typography>Дата последнего коммита</Typography>
+                      <Typography>Дата релиза</Typography>
                       <Typography>{commitDateLocalized}</Typography>
                     </div>
                   )}
                   {!isError && data?.git.tag && (
                     <div className={classes.statusContainer}>
-                      <Typography>Версия</Typography>
+                      <Typography>Версия релиза</Typography>
                       <Typography>{data?.git.tag}</Typography>
                     </div>
                   )}
@@ -271,7 +299,7 @@ const Header: React.FC<HeaderProps> = ({
               }}>
               <Paper className={classes.paper}>
                 <div className={classes.statusContainer}>
-                  <Typography>Статус бота</Typography>
+                  <Typography>Состояние работы бота</Typography>
                   {data?.bot.status ? (
                     <CheckIcon fontSize="small" className={classes.iconCheckMark} />
                   ) : (
@@ -281,12 +309,12 @@ const Header: React.FC<HeaderProps> = ({
                 </div>
                 {!isError && (
                   <div className={classes.statusContainer}>
-                    <Typography>Метод бота</Typography>
+                    <Typography>Метод работы бота</Typography>
                     <Typography>{data?.bot.method}</Typography>
                   </div>
                 )}
                 <div className={classes.statusContainer}>
-                  <Typography>Статус сервера</Typography>
+                  <Typography>Состояние работы сервера</Typography>
                   {data?.db.status ? (
                     <CheckIcon fontSize="small" className={classes.iconCheckMark} />
                   ) : (
@@ -302,19 +330,19 @@ const Header: React.FC<HeaderProps> = ({
                 )}
                 {!isError && (
                   <div className={classes.statusContainer}>
-                    <Typography>Последнее обновление</Typography>
+                    <Typography>Последнее обновление задач</Typography>
                     <Typography>{dateLocalized}</Typography>
                   </div>
                 )}
                 {!isError && (
                   <div className={classes.statusContainer}>
-                    <Typography>Последний коммит</Typography>
+                    <Typography>Коммит релиз</Typography>
                     <Typography>{data?.git.last_commit}</Typography>
                   </div>
                 )}
                 {!isError && (
                   <div className={classes.statusContainer}>
-                    <Typography>Дата последнего коммита</Typography>
+                    <Typography>Дата резлиза</Typography>
                     <Typography>{commitDateLocalized}</Typography>
                   </div>
                 )}

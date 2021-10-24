@@ -2,17 +2,17 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, TextField, Link, CircularProgress } from '@mui/material';
 import * as yup from 'yup';
-import { Options } from 'ky';
+import ky, { Options } from 'ky';
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Link as RouterLink } from 'react-router-dom';
 import useStyles from '../AuthForm/AuthForm.styles';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import { useAsync } from '../../hooks/useAsync';
+import { apiUrl } from '../../App';
 
 interface ResetPasswordProps {
   children?: React.ReactNode;
-  onSubmit: (data: ResetPasswordFormValues) => Promise<void>;
 }
 
 const schema = yup.object().shape({
@@ -22,12 +22,32 @@ const schema = yup.object().shape({
 export interface ResetPasswordFormValues extends Options {
   email: string;
 }
-const ResetPassword: React.FC<ResetPasswordProps> = ({ onSubmit }) => {
+const ResetPassword: React.FC<ResetPasswordProps> = () => {
   const classes = useStyles();
   const { error, run, isError, setError, setData, isLoading, data } = useAsync({
     data: null,
     error: null,
   });
+
+  const onResetPassword = async (dataReset: ResetPasswordFormValues) => {
+    try {
+      const response = await ky.post(`${apiUrl}/auth/password_reset/`, {
+        json: {
+          ...dataReset,
+        },
+        throwHttpErrors: false,
+      });
+
+      if (response.status === 200) {
+        const result = await response.json();
+        return result;
+      }
+      const errorReset = await response.json();
+      throw new Error(errorReset.message);
+    } catch (e: any) {
+      return Promise.reject(e);
+    }
+  };
    const statusMessage = isError ? (error as string) : ((data?.message ?? '') as string);
   const isStatusLabelOpen = Boolean(error) || Boolean(data?.message);
   const handleResetLabel = () => {
@@ -43,7 +63,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onSubmit }) => {
     formState: { errors },
   } = useForm<Pick<ResetPasswordFormValues, 'email'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
   const submitData = async (userData: ResetPasswordFormValues) => {
-    run(onSubmit(userData));
+    run(onResetPassword(userData));
   };
   return (
     <>

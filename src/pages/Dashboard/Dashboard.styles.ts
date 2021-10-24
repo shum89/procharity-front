@@ -70,8 +70,10 @@ const useStyles = makeStyles((theme) => ({
           transform: 'translate(CALC(100% - 100PX), 0px) ',
           '& .recharts-layer.recharts-cartesian-axis-tick': {
      
-              transform: 'translate(23PX, 0px) ',
-
+              transform: 'translate(24PX, 0px) ',
+              '& line': {
+                    transform: 'translate(-18px, 0)'
+              }
           },
         },
       },

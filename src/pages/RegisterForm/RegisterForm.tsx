@@ -36,13 +36,33 @@ export interface RegisterFormValues extends Options {
   password: string;
   passwordConfirmation?: string;
 }
-interface RegisterFormProps {
-  onSubmit: (data: RegisterFormValues, params: { id: string }) => Promise<void>;
-}
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
+const RegisterForm: React.FC = () => {
   const history = useHistory();
   const password = useRef({});
+
+  const onRegister = async (data: RegisterFormValues, params: { id: string }) => {
+    try {
+      const dataForRegistration = data;
+      delete dataForRegistration?.passwordConfirmation;
+      const response = await ky.post(`${apiUrl}/auth/register/`, {
+        json: {
+          ...data,
+          token: params.id,
+        },
+        throwHttpErrors: false,
+      });
+
+      if (response.status === 200) {
+        history.push('/');
+        return Promise.resolve();
+      }
+      const error = await response.json();
+      throw new Error(error.message);
+    } catch (e: any) {
+      return Promise.reject(e);
+    }
+  };
 
   const params = useParams<{ id: string }>();
   const [isInviteValid, setInviteValid] = useState('');
@@ -93,7 +113,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
     setData(null);
   };
   const submitRegisterForm = (data: RegisterFormValues) => {
-    run(onSubmit(data, params));
+    run(onRegister(data, params));
   };
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const handleClickShowPassword = () => {

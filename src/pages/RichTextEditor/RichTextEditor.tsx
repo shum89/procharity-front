@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import ky from 'ky';
+import { useHistory } from 'react-router-dom';
 import { Button, CircularProgress, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import clsx from 'clsx';
@@ -8,6 +10,9 @@ import useMainStyles from '../../App.styles'
 import useStyles from './RichTextEditor.style';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import { useAsync } from '../../hooks/useAsync';
+import { apiUrl, AuthContext } from '../../App';
+
+
 
 export interface RichTextEditorFormValues {
   message: string;
@@ -22,14 +27,68 @@ const modules = {
 };
 
 interface RichTextEditorInterface {
-  onSubmit: (data: RichTextEditorFormValues) => Promise<void>;
+
   isMenuOpen: boolean
 }
 
-const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit,isMenuOpen }) => {
+const RichTextEditor: React.FC<RichTextEditorInterface> = ({ isMenuOpen }) => {
   const classes = useStyles();
   const mainClasses = useMainStyles();
+    const history = useHistory();
+  const {userToken, refreshToken, setUserToken, setRefreshToken} = useContext(AuthContext)
+ const onSubmitMessage = async (data: RichTextEditorFormValues) => {
+   const stripTags = data.message.replace(/(<p[^>]+?>|<p>)/gim, '');
+   const replaceEnclosedTag = stripTags.replace(/(<br[^>]+?>|<br>|<\/p>)/gim, '\n');
+   const normalizedData = { message: replaceEnclosedTag };
+   try {
+     const response = await ky.post(`${apiUrl}/send_telegram_notification/`, {
+       json: {
+         has_mailing: data.has_mailing,
+         ...normalizedData,
+       },
+       retry: {
+         limit: 2,
+         methods: ['post'],
+         statusCodes: [401, 422],
+       },
+       throwHttpErrors: false,
+       headers: {
+         Authorization: `Bearer ${userToken}`,
+       },
+       hooks: {
+         afterResponse: [
+           // eslint-disable-next-line consistent-return
+           async (request, options, res) => {
+             if (res.status === 401) {
+               const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
+                 headers: {
+                   Authorization: `Bearer ${refreshToken}`,
+                 },
+               });
+               const token = await resp.json();
 
+               request.headers.set('Authorization', `Bearer ${token.access_token}`);
+               if (resp.status === 200) {
+                 setUserToken(token.access_token as string);
+                 setRefreshToken(token.refresh_token as string);
+                 return ky(request);
+               }
+               history.push('/');
+             }
+           },
+         ],
+       },
+     });
+     if (response.status === 200) {
+       const result = await response.json();
+       return result;
+     }
+     const error = await response.json();
+     throw new Error(error.message);
+   } catch (e: any) {
+     return Promise.reject(e.message);
+   }
+ };
   const { handleSubmit, control, reset } = useForm<RichTextEditorFormValues>();
   const { data, error, run, isError, setError, setData, isLoading } = useAsync({
     data: null,
@@ -54,7 +113,7 @@ const RichTextEditor: React.FC<RichTextEditorInterface> = ({ onSubmit,isMenuOpen
     <form
       className={classes.form}
       onSubmit={handleSubmit((dataS, e) => {
-        run(onSubmit(dataS));
+        run(onSubmitMessage(dataS));
         reset({ message: '' });
       })}>
       <Typography variant="h5">Отправить сообщение пользователям</Typography>

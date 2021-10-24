@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import * as yup from 'yup';
+import ky from 'ky';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
 import { TextField, Button, Link, IconButton, InputAdornment, CircularProgress } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import useStyles from './AuthForm.styles';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import { useAsync } from '../../hooks/useAsync';
+import { apiUrl, AuthContext } from '../../App';
 
 const schema = yup.object().shape({
   email: yup.string().email('Такой e-mail не подойдет').required('Поле e-mail необходимо к заполнению'),
@@ -19,16 +21,40 @@ export interface LoginFormValues {
   email: string;
   password: string;
 }
-interface AuthFormI {
-  onLogin: (data: LoginFormValues) => Promise<void>;
-}
+// interface AuthFormI {
+//   onLogin: (data: LoginFormValues) => Promise<void>;
+// }
 
-const AuthForm: React.FC<AuthFormI> = ({ onLogin }) => {
+const AuthForm: React.FC = () => {
+const history = useHistory()
+  const {setUserToken, setRefreshToken, } = useContext(AuthContext)
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = useForm<Pick<LoginFormValues, 'email' | 'password'>>({ resolver: yupResolver(schema), mode: 'onTouched' });
+  const onLogin = async (data: LoginFormValues) => {
+    try {
+      const response = await ky.post(`${apiUrl}/auth/login/`, {
+        json: {
+          ...data,
+        },
+        throwHttpErrors: false,
+      });
+
+      if (response.status === 200) {
+        const token: { access_token: string; refresh_token: string } = await response.json();
+        setUserToken(token.access_token);
+        setRefreshToken(token.refresh_token);
+        history.push('/dashboard');
+        return Promise.resolve();
+      }
+      const error = await response.json();
+      throw new Error(error.message);
+    } catch (e: any) {
+      return Promise.reject(e);
+    }
+  };
 
   const classes = useStyles();
   const { error, run, isError, setError, setData, isLoading } = useAsync({

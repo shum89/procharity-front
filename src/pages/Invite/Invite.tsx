@@ -1,19 +1,22 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-console */
 import { yupResolver } from '@hookform/resolvers/yup';
 import clsx from 'clsx';
+import { useHistory } from 'react-router-dom';
 import { Button, TextField, CircularProgress, Typography } from '@mui/material';
 import * as yup from 'yup';
-import { Options } from 'ky';
-import React from 'react';
+import ky, { Options } from 'ky';
+import React, {useContext} from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import useStyles from '../AuthForm/AuthForm.styles';
 import StatusLabel from '../../components/StatusLabel/StatusLabel';
 import { useAsync } from '../../hooks/useAsync';
 import useMainStyles from '../../App.styles';
+import { apiUrl, AuthContext } from '../../App';
+
 
 interface InviteProps {
   children?: React.ReactNode;
-  onSubmit: (data: InviteFormValues) => Promise<any>;
   isMenuOpen: boolean
 }
 
@@ -25,7 +28,7 @@ export interface InviteFormValues extends Options {
   email: string;
 }
 
-const Invite: React.FC<InviteProps> = ({ onSubmit, isMenuOpen }) => {
+const Invite: React.FC<InviteProps> = ({  isMenuOpen }) => {
   const classes = useStyles();
     const mainClasses = useMainStyles();
   const { data, error, run, isError, setData, isLoading, setError } = useAsync({
@@ -33,8 +36,76 @@ const Invite: React.FC<InviteProps> = ({ onSubmit, isMenuOpen }) => {
     error: null,
     status: 'idle',
   });
-
+const history = useHistory();
   const statusMessage = isError ? (error as string) : ((data?.message ?? '') as string);
+const { setRefreshToken, setUserToken, refreshToken, userToken } = useContext(AuthContext);
+  const onInvite = async (dataInvite: InviteFormValues) => {
+    try {
+      const response = await ky.post(`${apiUrl}/auth/invitation/`, {
+        retry: {
+          limit: 2,
+          methods: ['get'],
+          statusCodes: [401, 422],
+        },
+        hooks: {
+          beforeRetry: [
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            async ({ request, options, error, retryCount }) => {
+              if (retryCount === 1) {
+                setUserToken(false);
+                setRefreshToken(false);
+                history.push('/');
+                return ky.stop;
+              }
+            },
+          ],
+          afterResponse: [
+            // eslint-disable-next-line consistent-return
+            async (request, options, res) => {
+              if (res.status === 401) {
+                const resp = await ky.post(`${apiUrl}/auth/token_refresh/`, {
+                  headers: {
+                    Authorization: `Bearer ${refreshToken}`,
+                  },
+                });
+
+                if (resp.status === 200) {
+                  const token = await resp.json();
+                  request.headers.set('Authorization', `Bearer ${token.access_token}`);
+                  setUserToken(token.access_token as string);
+                  setRefreshToken(token.refresh_token as string);
+                  return ky(request);
+                }
+                if (resp.status === 401 || resp.status === 422) {
+                  setUserToken(false);
+                  setRefreshToken(false);
+                  history.push('/');
+                }
+              }
+            },
+          ],
+        },
+        method: 'POST',
+        body: JSON.stringify(dataInvite),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        throwHttpErrors: false,
+      });
+
+      if (response.status === 200) {
+        const result = (await response.json()) as { message: string };
+
+        return result;
+      }
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.message);
+    } catch (e: any) {
+      return Promise.reject(e);
+    }
+  };
 
   const isStatusLabelOpen = Boolean(error) || Boolean(data?.message);
   const handleResetLabel = () => {
@@ -68,7 +139,7 @@ const Invite: React.FC<InviteProps> = ({ onSubmit, isMenuOpen }) => {
         <form
           className={classes.authForm}
           onSubmit={handleSubmit((dataS, e) => {
-            run(onSubmit(dataS));
+            run(onInvite(dataS));
             console.log(e?.target.reset());
             reset({ email: '' });
             e?.target.reset();
