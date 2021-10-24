@@ -99,14 +99,14 @@ export default function Chart({ data, title }: ChartProps) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       {chartData.length && (
-        <ResponsiveContainer height={430} width='100%'>
+        <ResponsiveContainer height={430} width="100%">
           <LineChart
             data={chartData}
             margin={{
               top: 16,
-              right: 16,
+
               bottom: 0,
-              left: 24,
+              right: 40,
             }}>
             <CartesianGrid strokeDasharray="3 3" />
 
@@ -154,8 +154,18 @@ export default function Chart({ data, title }: ChartProps) {
               wrapperStyle={{ width: 420, backgroundColor: '#FFF', color: 'black' }}
             />
 
-            <YAxis allowDecimals={false} stroke={theme.palette.text.primary} yAxisId="left" orientation="left" />
             <YAxis
+              tickLine={false}
+              allowDecimals={false}
+              stroke={theme.palette.text.primary}
+              yAxisId="left"
+              orientation="left"
+           
+            />
+            <YAxis
+              mirror
+              width={40}
+              tickLine={false}
               allowDecimals={false}
               stroke={theme.palette.text.primary}
               yAxisId="left"

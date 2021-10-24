@@ -21,9 +21,6 @@ export interface LoginFormValues {
   email: string;
   password: string;
 }
-// interface AuthFormI {
-//   onLogin: (data: LoginFormValues) => Promise<void>;
-// }
 
 const AuthForm: React.FC = () => {
 const history = useHistory()

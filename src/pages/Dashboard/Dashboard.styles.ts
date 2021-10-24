@@ -69,10 +69,14 @@ const useStyles = makeStyles((theme) => ({
         '& g.yAxis:nth-of-type(3)': {
           transform: 'translate(CALC(100% - 100PX), 0px) ',
           '& .recharts-layer.recharts-cartesian-axis-tick': {
-     
-              transform: 'translate(24PX, 0px) ',
+            
+              transform: 'translate(15PX, 0px) ',
               '& line': {
                     transform: 'translate(-18px, 0)'
+              },
+
+              '& text': {
+                textAnchor: 'start'
               }
           },
         },
