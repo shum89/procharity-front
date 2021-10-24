@@ -260,7 +260,7 @@ const context = useContext(AuthContext)
               }}
               className={classes.drawerPaperMobile}
               ModalProps={{
-                keepMounted: true, // Better open performance on mobile.
+                keepMounted: true,
               }}>
               <List>
                 <MainListItems handleCloseError={handleCloseError} />
@@ -342,7 +342,7 @@ const context = useContext(AuthContext)
                 )}
                 {!isError && (
                   <div className={classes.statusContainer}>
-                    <Typography>Дата резлиза</Typography>
+                    <Typography>Дата релиза</Typography>
                     <Typography>{commitDateLocalized}</Typography>
                   </div>
                 )}
